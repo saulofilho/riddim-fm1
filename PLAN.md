@@ -172,6 +172,27 @@ para trocar).
   um restore de backup escreveria ajustes e slots. Antes da 1.0: o INFO dizer o nome, e o editor conferir.
 - O visual do editor e do emulador ainda é o do GR!MM (cores, a gota): o redesenho é da Fase 7.
 
+**2026-11-25: Fase 1 fechada no papel, e o site.** (Falta o teste no FM-1 de tudo isso.)
+
+- **Regra: nada de GR!MM na vitrine.** README, site, páginas web e `fmhub.json` não falam do GR!MM; o crédito fica
+  onde a GPL pede: `LICENSING.md` e os cabeçalhos de copyright no código (inclusive os comentários das páginas).
+  Igual ao BAILE com a KAWA.
+- `LICENSING.md`: a camada "RIDDIM's changes" por cima do licenciamento do GR!MM, que fica inteiro (nomes de arquivo
+  atualizados), como no COQUÍ.
+- `README.md` (inglês) e `README.pt.md`: o que a 0.1 tem, o plano, como compilar e testar, por que ainda não instalar.
+- `fmhub.json`: descrição honesta da 0.1 ("a band you play, not a bank of riddims"), emulador e editor do site.
+  `image` aponta para `docs/screens/riddim-home.png` até haver um card.
+- **Site (GitHub Pages):** `site/index.html` (capa no estilo do mood board, EN e PT com botão), `tools/build_site.sh`
+  (junta `site/`, o emulador e o editor em `emu/`, o mood board em `moodboard/`), `.github/workflows/pages.yml`
+  (compila o emulador no contêiner do Emscripten e publica; nada compilado no git). Endereço:
+  <https://saulofilho.github.io/riddim-fm1/>. **Do autor:** Settings › Pages › Source: GitHub Actions, uma vez; depois
+  cada push no `main` que mexe em `site/`, `web/`, `firmware/` ou no mood board publica. Visto localmente
+  (`riddim-site`, porta 8822): sem rolagem lateral no celular nem no computador, todos os links respondem.
+- `web/test_web.mjs`: 100 checagens passam (a etiqueta do editor agora leva ao site, `../`).
+- Ainda com GR!MM por dentro (não é vitrine, fica para depois): `MANUAL.md` (o manual do GR!MM, sem link nos
+  READMEs), `docs/` (BUILDING, API, RULES, EDITOR_PROTOCOL, ui-concept, as telas antigas e `docs/card.png`), os sons e
+  samples de fábrica.
+
 Orçamento da base, igual ao medido no COQUÍ em 2026-11-05:
 
 | Recurso | Usado | Limite | Livre |

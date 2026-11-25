@@ -1,0 +1,49 @@
+# RIDDIM's site on GitHub Pages: https://saulofilho.github.io/riddim-fm1/
+# Turn it on once: the repository's Settings > Pages > Source: GitHub Actions.
+# It builds the web emulator (web/build_web.sh, in Emscripten's container) and puts the site together
+# (tools/build_site.sh: site/, the emulator and editor in emu/, the mood board in moodboard/); nothing built is committed.
+name: pages
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", "web/**", "firmware/**", "docs/moodboard/**", "tools/build_site.sh", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Build the web emulator
+        run: docker run --rm -v "$PWD":/work -w /work emscripten/emsdk:3.1.74 sh web/build_web.sh
+      - name: Put the site together
+        run: sh tools/build_site.sh _site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      # (as BAILE's: deploy-pages may not list the artifact just uploaded yet; wait, then one retry)
+      - name: Let the artifact reach the list
+        run: sleep 10
+      - name: Deploy
+        id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - name: Wait before the retry
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 30
+      - name: Deploy (retry)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4

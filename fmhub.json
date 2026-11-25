@@ -1,9 +1,10 @@
 {
-  "what": "Dark ambient, dungeon synth and deathdream firmware: 4 tracks, 7 sound sources, real recorded choirs, tracks that play by themselves, and long tape, granular and reverb effects.",
-  "author": "GR!MM",
+  "what": "A roots reggae groovebox, in development: a band you play, not a bank of riddims. Version 0.1 brings its own identity, saves and screens (a dub plate boot, a sound system HOME); the synthesized roots band, the drum styles and the dub desk (spring, tape echo, throws, VERSION) are coming.",
+  "author": "saulofilho",
   "kinds": ["groove"],
-  "play": "https://grimmbient.github.io/grimm/",
-  "editor": "https://grimmbient.github.io/grimm/editor.html",
-  "cheat": "https://grimmbient.github.io/grimm/GRIMM-V2.0-manual.pdf",
-  "image": "docs/card.png"
+  "play": "https://saulofilho.github.io/riddim-fm1/emu/",
+  "editor": "https://saulofilho.github.io/riddim-fm1/emu/editor.html",
+  "image": "docs/screens/riddim-home.png",
+  "color": "#E8A825",
+  "sounds": "CC0: the four factory samples (assets/samples) are CC0 1.0, their provenance in LICENSING.md; nothing is sampled from records"
 }

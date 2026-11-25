@@ -1,0 +1,183 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-only
+     Copyright (C) 2026 RIDDIM
+     RIDDIM's site (GitHub Pages): tools/build_site.sh puts it together with the web emulator (emu/) and the mood board. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIDDIM</title>
+<meta name="description" content="RIDDIM, a roots reggae firmware for the M-VAVE FM-1, in development: try it in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230b0907'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23E8A825' stroke='%23C7382B' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230b0907'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Alfa+Slab+One&family=Archivo:wght@500;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#17130E; --tinta2:#221C15; --tinta3:#2E261C; --papel:#EFE4CB; --texto:#d9cdb2; --cinza:#A39882;
+  --vermelho:#C7382B; --ouro:#E8A825; --verde:#2E7A47; --eco:#3E6E9E;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--tinta);color:var(--papel);font:16px/1.6 Archivo,system-ui,sans-serif}
+a{color:var(--ouro)}
+main{max-width:1000px;margin:0 auto;padding:0 16px 96px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--cinza);font-size:12px}
+nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+nav .lang{display:flex;gap:6px}
+nav button{background:none;border:2px solid var(--tinta3);color:var(--cinza);font:500 12px "IBM Plex Mono";letter-spacing:.1em;padding:6px 10px;cursor:pointer}
+nav button[aria-pressed="true"]{border-color:var(--ouro);color:var(--ouro)}
+header{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding-top:20px;overflow:hidden}   /* (the record turning: its square's corners) */
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:clamp(80px,16vw,176px);line-height:.86;margin:0;letter-spacing:.01em;
+  text-shadow:0 .08em 0 rgba(62,110,158,.6),0 .16em 0 rgba(62,110,158,.32),0 .24em 0 rgba(62,110,158,.15)}
+.sub{font-size:19px;max-width:620px;margin:34px 0 0;color:var(--texto)}
+.sub b{color:var(--papel)}
+#plate{width:min(260px,62vw);height:auto;animation:spin 7.5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#plate{animation:none}}
+@media (max-width:720px){header{grid-template-columns:1fr} #plate{justify-self:center;width:200px;order:-1}}
+.status{margin-top:28px;border-left:6px solid var(--ouro);background:var(--tinta2);padding:14px 18px;max-width:720px;color:var(--texto)}
+.status b{color:var(--papel)}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:999px;border:4px solid var(--papel);
+  color:var(--papel);text-decoration:none;font:400 16px "Alfa Slab One";text-transform:uppercase;letter-spacing:.02em}
+.pill.go{background:var(--ouro);border-color:var(--ouro);color:var(--tinta)}
+.pill:focus-visible{outline:3px solid var(--eco);outline-offset:3px}
+h2{font-family:"Alfa Slab One",serif;font-weight:400;font-size:28px;margin:76px 0 4px}
+h2 + .mono{margin:0 0 22px}
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.screens figure{margin:0;background:var(--tinta2);padding:12px}
+.screens img{display:block;width:100%;height:auto;image-rendering:pixelated;border:6px solid #050403;border-radius:6px}
+.screens figcaption{margin-top:10px;font-size:14px;color:var(--cinza)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:var(--tinta2);padding:18px 20px;border-top:6px solid var(--c)}
+.card h3{margin:0 0 8px;font:400 18px "Alfa Slab One";text-transform:uppercase}
+.card p{margin:0;font-size:15px;color:var(--texto)}
+ul.list{margin:0;padding-left:20px;color:var(--texto);max-width:760px}
+ul.list li{margin:6px 0}
+ul.list b{color:var(--papel)}
+.mood{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sw{width:44px;height:44px}
+footer{margin-top:80px;padding-top:18px;border-top:4px solid var(--tinta3);color:var(--cinza);font-size:14px}
+[data-l]{display:none}
+html[lang="en"] [data-l="en"],html[lang="pt-BR"] [data-l="pt"]{display:revert}
+</style>
+</head>
+<body>
+<main>
+<nav>
+  <span class="mono">FM-1 · roots · dub</span>
+  <span class="lang" role="group" aria-label="Language">
+    <button type="button" data-set="en" aria-pressed="true">EN</button>
+    <button type="button" data-set="pt-BR" aria-pressed="false">PT</button>
+  </span>
+</nav>
+
+<header>
+  <div>
+    <h1>RIDDIM</h1>
+    <p class="sub" data-l="en">A <b>roots reggae firmware</b> for the M-VAVE FM-1. Rocksteady, one drop, rockers, steppers, and
+      <b>dub played live</b>: a whole band synthesized on the FM-1 and a dub desk to version the tune while it plays.</p>
+    <p class="sub" data-l="pt">Um <b>firmware de reggae roots</b> para o M-VAVE FM-1. Rocksteady, one drop, rockers, steppers e
+      <b>dub tocado ao vivo</b>: a banda inteira sintetizada no FM-1 e uma mesa de dub para versionar a música enquanto ela toca.</p>
+  </div>
+  <svg id="plate" viewBox="0 0 300 300" role="img" aria-label="A dub plate turning">
+    <defs><path id="arc" d="M150,150 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>
+    <circle cx="150" cy="150" r="148" fill="#0b0907"/>
+    <g fill="none" stroke="#1f1913" stroke-width="1.2"><circle cx="150" cy="150" r="140"/><circle cx="150" cy="150" r="130"/>
+      <circle cx="150" cy="150" r="120"/><circle cx="150" cy="150" r="110"/><circle cx="150" cy="150" r="100"/></g>
+    <path d="M150 12 a138 138 0 0 1 60 14" fill="none" stroke="#746858" stroke-width="3"/>
+    <circle cx="150" cy="150" r="88" fill="#E8A825"/>
+    <circle cx="150" cy="150" r="88" fill="none" stroke="#C7382B" stroke-width="6"/>
+    <text font-family="Alfa Slab One" font-size="13" fill="#17130E" letter-spacing="3"><textPath href="#arc">PRE-RELEASE · SOUND SYSTEM SPECIAL · 0.1 ·</textPath></text>
+    <text x="150" y="146" text-anchor="middle" font-family="Anton" font-size="34" fill="#17130E">RIDDIM</text>
+    <text x="150" y="170" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#17130E" letter-spacing="2">VERSION · SIDE B</text>
+    <circle cx="150" cy="150" r="5" fill="#0b0907"/>
+  </svg>
+</header>
+
+<div class="status">
+  <p data-l="en" style="margin:0"><b>Version 0.1, in development.</b> Not released, not on the FM-1 Firmware Hub, and not tested
+    on an FM-1 yet. Today RIDDIM is a four-track groovebox with its own name, saves and screens; the reggae band and the
+    dub desk are on the way.</p>
+  <p data-l="pt" style="margin:0"><b>Versão 0.1, em desenvolvimento.</b> Sem release, fora do FM-1 Firmware Hub e ainda não testada
+    num FM-1. Hoje o RIDDIM é uma groovebox de quatro trilhas com nome, saves e telas próprios; a banda de reggae e a mesa
+    de dub estão a caminho.</p>
+</div>
+
+<div class="cta">
+  <a class="pill go" href="emu/"><span data-l="en">Play it in your browser</span><span data-l="pt">Toque no navegador</span></a>
+  <a class="pill" href="emu/editor.html"><span data-l="en">The editor</span><span data-l="pt">O editor</span></a>
+  <a class="pill" href="https://github.com/saulofilho/riddim-fm1"><span data-l="en">Source</span><span data-l="pt">Código</span></a>
+</div>
+
+<h2 data-l="en">On the screen</h2><h2 data-l="pt">Na tela</h2>
+<div class="mono" data-l="en">rendered from the firmware itself, 240 × 240</div>
+<div class="mono" data-l="pt">desenhado pelo próprio firmware, 240 × 240</div>
+<div class="screens">
+  <figure><img src="img/riddim-boot.png" width="480" height="480" alt="RIDDIM's boot screen: a record turns, the tonearm sets down, the name and its echoes in blue">
+    <figcaption data-l="en">The boot: a dub plate turns, the tonearm sets down, the name echoes.</figcaption>
+    <figcaption data-l="pt">O boot: o dub plate gira, o braço desce, o nome ecoa.</figcaption></figure>
+  <figure><img src="img/riddim-home.png" width="480" height="480" alt="RIDDIM's HOME: four speaker boxes, one a track; T3 muted wears a DROP tape">
+    <figcaption data-l="en">HOME: the sound system, a box a track. The cones push with the sound; a muted track wears DROP.</figcaption>
+    <figcaption data-l="pt">HOME: o sound system, uma caixa por trilha. Os cones empurram com o som; trilha muda leva DROP.</figcaption></figure>
+</div>
+
+<h2 data-l="en">Coming</h2><h2 data-l="pt">Vem aí</h2>
+<div class="mono" data-l="en">the plan, in short</div><div class="mono" data-l="pt">o plano, em resumo</div>
+<div class="cards">
+  <div class="card" style="--c:var(--vermelho)"><h3 data-l="en">Drums</h3><h3 data-l="pt">Bateria</h3>
+    <p data-l="en">A synthesized roots kit, the cross-stick at its heart, and styles that play by themselves: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB.</p>
+    <p data-l="pt">Um kit roots sintetizado, com o cross-stick no centro, e estilos que tocam sozinhos: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB.</p></div>
+  <div class="card" style="--c:var(--verde)"><h3 data-l="en">The band</h3><h3 data-l="pt">A banda</h3>
+    <p data-l="en">Lines over the chord you hold: SKANK on 2 and 4, the organ's BUBBLE, a BASS that leaves room, HORNS at the end of the phrase.</p>
+    <p data-l="pt">Linhas sobre o acorde que você segura: SKANK no 2 e no 4, o BUBBLE do órgão, um BASS que deixa espaço, HORNS no fim da frase.</p></div>
+  <div class="card" style="--c:var(--eco)"><h3>Dub</h3>
+    <p data-l="en">A spring reverb, a tape echo that runs away, THROW, mutes that land on the bar, and VERSION, which mixes the dub by itself.</p>
+    <p data-l="pt">Reverb de mola, eco de fita que dispara, THROW, mutes que entram no compasso e VERSION, que mixa o dub sozinho.</p></div>
+  <div class="card" style="--c:var(--ouro)"><h3 data-l="en">Nothing copied</h3><h3 data-l="pt">Nada copiado</h3>
+    <p data-l="en">Every sound synthesized. No record samples, no famous riddim transcribed: the styles are written in the style.</p>
+    <p data-l="pt">Todo som sintetizado. Nenhum sample de disco, nenhum riddim famoso transcrito: os estilos são escritos no estilo.</p></div>
+</div>
+
+<h2 data-l="en">The look</h2><h2 data-l="pt">O visual</h2>
+<div class="mono" data-l="en">dance poster, dub plate, speaker box</div><div class="mono" data-l="pt">cartaz de dance, dub plate, caixa de som</div>
+<div class="mood">
+  <i class="sw" style="background:#17130E;outline:1px solid #3a3024"></i><i class="sw" style="background:#EFE4CB"></i>
+  <i class="sw" style="background:#C7382B"></i><i class="sw" style="background:#2E7A47"></i>
+  <i class="sw" style="background:#E8A825"></i><i class="sw" style="background:#3E6E9E"></i>
+  <a class="pill" href="moodboard/"><span data-l="en">The mood board</span><span data-l="pt">O mood board</span></a>
+</div>
+
+<h2 data-l="en">Install</h2><h2 data-l="pt">Instalar</h2>
+<ul class="list" data-l="en">
+  <li><b>Not yet.</b> The first release comes with the results of a test on a real FM-1, then the FM-1 Firmware Hub.</li>
+  <li>Until then, <a href="emu/">the emulator</a> runs the same firmware in your browser.</li>
+</ul>
+<ul class="list" data-l="pt">
+  <li><b>Ainda não.</b> A primeira release vem com os resultados de um teste num FM-1 de verdade, e depois o FM-1 Firmware Hub.</li>
+  <li>Até lá, <a href="emu/">o emulador</a> roda o mesmo firmware no seu navegador.</li>
+</ul>
+
+<footer>
+  <p data-l="en">RIDDIM · free software, <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSE">GPL-3.0-only</a> ·
+    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSING.md">credits and licences</a> ·
+    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/README.md">README</a></p>
+  <p data-l="pt">RIDDIM · software livre, <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSE">GPL-3.0-only</a> ·
+    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSING.md">créditos e licenças</a> ·
+    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/README.pt.md">README</a></p>
+  <p data-l="en">Unofficial firmware. M-VAVE and FM-1 are trademarks of their owners; RIDDIM is not made or endorsed by them.</p>
+  <p data-l="pt">Firmware não oficial. M-VAVE e FM-1 são marcas dos seus donos; o RIDDIM não é feito nem endossado por eles.</p>
+</footer>
+</main>
+<script>
+(() => {
+  const root = document.documentElement, btns = [...document.querySelectorAll("[data-set]")];
+  const set = (l) => { root.lang = l; btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.set === l))); };
+  let saved = null;
+  try { saved = localStorage.getItem("riddim-lang"); } catch (e) {}
+  set(saved === "pt-BR" || saved === "en" ? saved : (navigator.language || "").toLowerCase().startsWith("pt") ? "pt-BR" : "en");
+  btns.forEach((b) => b.addEventListener("click", () => { set(b.dataset.set); try { localStorage.setItem("riddim-lang", b.dataset.set); } catch (e) {} }));
+})();
+</script>
+</body>
+</html>

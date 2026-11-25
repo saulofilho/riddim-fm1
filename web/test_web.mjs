@@ -613,10 +613,10 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
   check(/id="smp-norm" checked> NORMALISE/.test(html) && /\$\("smp-norm"\)\.checked/.test(js) && /the encoder doesn't click on bright samples/.test(html),
         "editor page: SAMPLES has the NORMALISE switch (on by default), its help text");
   check(/p\.note, footer\.note \{ color: var\(--n\)/.test(html) && /--n: #8f887b/.test(html) && /--m: #5e5b54/.test(html) &&
-        /class="tag px" href="hub\.html"/.test(html) && /<div class="drip" role="presentation">/.test(html) &&
+        /class="tag px" href="\.\.\/"/.test(html) && /<div class="drip" role="presentation">/.test(html) &&
         /outline: 3px solid var\(--f\)/.test(html) && /--f: #ff6a3d/.test(html) && /<a href="#editor" data-s="editor">/.test(html) &&
         /@media \(max-width: 599px\)[^]*nav \{[^}]*flex-direction: row; overflow-x: auto/.test(html),
-        "editor page: help text #8f887b, the GR!MM tag to hub.html, the drip, 3px #ff6a3d focus, the menu one scrolling row under 600 px");
+        "editor page: help text #8f887b, the RIDDIM tag to the site, the drip, 3px #ff6a3d focus, the menu one scrolling row under 600 px");
   check(/<a href="#sequencer" data-s="sequencer">SEQUENCER<\/a>/.test(html) && ["sq-slot", "sq-import", "sq-now", "sq-send", "sq-preview", "sq-stop", "sq-save", "sq-load", "sq-clear", "sq-grid", "sq-step", "sq-trk"].every((i) => html.includes(`id="${i}"`)) &&
         /repeat\(8, minmax\(0, 1fr\)\)/.test(html) && /@media \(min-width: 900px\) \{ \.sqgrid/.test(html) && /canWrite\(OBJ\.SLOT \+ k, next/.test(js) &&
         /riddim-slot-\$\{L\}-backup/.test(js) && /slotWithPatterns\(cur, sq\.pats\)/.test(js) && /type: "reply"/.test(readFileSync("web/worklet.js", "utf8")),
