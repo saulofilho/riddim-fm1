@@ -5,8 +5,8 @@ whole band synthesized on the FM-1 (drums, sub bass, skank, organ bubble, melodi
 the tune while it plays.
 
 > **Version 0.1, in development.** Not released, not on the FM-1 Firmware Hub, and **not tested on an FM-1 yet**.
-> Today RIDDIM is a four-track groovebox with its own name, saves and screens: the reggae band and the dub desk are
-> planned, not built (see [The plan](#the-plan)). Unofficial firmware, not made or endorsed by M-VAVE.
+> Today RIDDIM has its drums (the DRUM kit and GROOVE, a drummer that plays roots styles by itself); the band's lines
+> and the dub desk are planned, not built (see [The plan](#the-plan)). Unofficial firmware, not made or endorsed by M-VAVE.
 
 **[The RIDDIM site](https://saulofilho.github.io/riddim-fm1/)** · **[Listen to the kits](https://saulofilho.github.io/riddim-fm1/#listen)** · **[Try it in your browser](https://saulofilho.github.io/riddim-fm1/emu/)** (the real
 firmware, no FM-1 needed) · **[The editor](https://saulofilho.github.io/riddim-fm1/emu/editor.html)** · **[The live view](https://saulofilho.github.io/riddim-fm1/emu/live.html)** (your FM-1
@@ -33,7 +33,13 @@ drawn as it plays) · **[First steps guide (PDF)](docs/riddim-first-guide.pdf)**
   (STUDIO, YARD, DUB, STEPPERS), TUNE, DECAY, HUMAN (behind the beat). A hit cuts the same drum sounding (the hats
   cut each other); the kit has its own ten hits, never the six voices the other tracks share. The DRUM page draws
   the kit and lights the piece you hit. Nine factory kits in the DRUMS category: ONE DROP, ROCKERS, STEPPERS, DUB,
-  RUB-A-DUB, ROCKSTEADY, DEEP ROOTS, TIGHT, BOOMY.
+  RUB-A-DUB, ROCKSTEADY, DEEP ROOTS, TIGHT, BOOMY. **Natural, not a machine:** no two hits alike (each a little off in
+  pitch, level and length), and the force is in the sound (a soft hit darker and shorter).
+- **GROOVE, the drummer** (EDIT › GROOVE on a DRUM track): eight roots styles the track plays by itself while the
+  sequencer runs: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, EARLY, RUB-A-DUB, DUB, two bars each with two fills.
+  PARTS splits a style over tracks (DRUMS, HATS, EXTRAS), FILL every 2, 4 or 8 bars, FEEL the swing. It plays like a
+  drummer: the cross-stick laid back, ghost notes that come and go, every stroke's force a little different. Each
+  factory kit brings its style: load it, press PLAY. Saved with the sound and the project.
 - **The web emulator, the editor and the live view** (`web/`): the same firmware compiled to WebAssembly; the live view
   draws an FM-1 as it plays over USB (its notes, clock, sound and knobs), with a DEMO that needs no FM-1.
 - **The site** (`site/`, GitHub Pages): the nine kits recorded from the firmware with their beats drawn, the 27 keys to
@@ -48,8 +54,7 @@ drawn as it plays) · **[First steps guide (PDF)](docs/riddim-first-guide.pdf)**
 [PLAN.md](PLAN.md) (in Portuguese) has the whole roadmap and its log; the mood board is in
 [docs/moodboard/](docs/moodboard/index.html). In short:
 
-- **Drum styles** (the kit is in 0.1): styles that play by themselves on a DRUM track: ONE DROP, ROCKERS, STEPPERS,
-  FLYERS, ROCKSTEADY, EARLY, RUB-A-DUB, with fills and the laid-back HUMAN feel.
+- **Real sounds** (the drums are there in 0.1): the band's sounds as natural as the drums, never two notes alike.
 - **The band:** lines over the chord you hold: SKANK (the chop on 2 and 4), BUBBLE (the organ), BASS (root, fifth,
   octave and passing notes, with room to breathe), HORNS.
 - **Dub:** a spring reverb, a tape echo that runs into self-oscillation, filter sweeps, THROW (a track into the echo

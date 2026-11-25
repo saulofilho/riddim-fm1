@@ -352,6 +352,12 @@ static void ui_slab_make(uint32_t k, slab_t *S)
         else if (k == 1u) { if (v) put_s(put_u(S->val, ((uint32_t)clamp(v, 0, 127) * 100u + 63u) / 127u), "%"); else put_s(S->val, "SAME"); }
         else put_s(S->val, v ? "ON" : "OFF");
         return;
+    case PG_GROOVE:                             /* (RIDDIM: STYLE, PARTS, FILL, FEEL: groove.c's words; FEEL's bar from its
+                                                 * middle) */
+        if (k == 3u) S->fill = (uint8_t)((clamp(v, -64, 63) + 64) * 8 / 127);
+        if (k == 0u && v > 0) { put_s(S->val, GR_SHORT[clamp(v, 1, (int32_t)NSTYLE) - 1]); return; }
+        { char t[16]; groove_text(k, v, t); ui_squeeze(S->val, t); }
+        return;
     case PG_PDENV:                              /* (V2: PHASE ENV: DCW ENV, its DECAY, PITCH ENV, its DECAY) */
         if (k == 0u) { if (v) put_s(put_u(S->val, ((uint32_t)clamp(v, 0, 127) * 100u + 63u) / 127u), "%"); else put_s(S->val, "OFF"); }
         else if (k == 2u) {                     /* (the bar from its middle: 4 at OFF) */
@@ -847,6 +853,39 @@ static void dk_box(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t head
     for (x = x0; x <= x1; x++) ui_cell(x, y0, head);
     for (y = y0 + 1; y <= y1; y++)
         for (x = x0; x <= x1; x++) ui_cell(x, y, (x - x0) % 3 == 2 ? UI_D : body);
+}
+/* (RIDDIM) GROOVE: the style's lanes, a row a drum (its name, then its 32 steps: the accent X in the accent, x light,
+ * o mid, g dark), the step playing marked; the parts PARTS leaves out dimmed */
+static void pic_groove(void)
+{
+    uint32_t st = (uint32_t)clamp(trk[sel].grv_style, 0, (int32_t)NSTYLE), i, j, lit = seq_on ? grv_lit[sel] : 0u;
+    const gr_style_t *G;
+    char l[24], r[16];
+    if (!st) {
+        ui_caption("GROOVE OFF", 0);
+        ui_text(120 - 4 * 24, 92, "TURN STYLE TO PLAY ALONG", 1, UI_M);
+        return;
+    }
+    G = &GR_STYLE[st - 1u];
+    put_s(put_s(l, "STYLE "), G->name);
+    groove_text(1, trk[sel].grv_parts, r);
+    ui_caption(l, r);
+    for (i = 0; i < GR_LANES && G->l[i].s; i++) {
+        int32_t y = 44 + (int32_t)i * 14, on = (gr_sect(G->l[i].k) & GP_MASK[clamp(trk[sel].grv_parts, 0, GP_N - 1)]) != 0;
+        char nm[10];
+        for (j = 0; j < 9u && DKEY_NAME[G->l[i].k][j]; j++) nm[j] = DKEY_NAME[G->l[i].k][j];
+        nm[j] = 0;
+        ui_text(PX0, y + 1, nm, 1, on ? UI_L : UI_D);
+        for (j = 0; j < GR_STEPS; j++) {
+            int32_t x = 92 + (int32_t)j * 4 + (int32_t)(j / 16u) * 4;
+            char c = G->l[i].s[j];
+            uint16_t col = c == 'X' ? ui_acc : c == 'x' ? UI_L : c == 'o' ? UI_M : c == 'g' ? UI_D : 0;
+            if (lit == j + 1u) ui_rect(x, y - 1, 3, 11, UI_W);
+            if (col && on) ui_rect(x, y + 1, 3, 7, col);
+            else if (col) ui_rect(x, y + 3, 3, 3, UI_D);
+            else if (!(j & 3u)) ui_rect(x + 1, y + 4, 1, 1, UI_D);
+        }
+    }
 }
 static void pic_drumkit(void)
 {
@@ -1713,6 +1752,7 @@ static void ui_pic_draw(void)
     case PG_FMOP: pic_fmop(); return;
     case PG_PDLINE: pic_pdline(); return;
     case PG_PDENV: pic_pdenv(); return;
+    case PG_GROOVE: pic_groove(); return;   /* (RIDDIM) */
     case PG_SOUND:
         switch (sel_eng()) {
         case ENG_VA: pic_va(); return;
@@ -1765,6 +1805,8 @@ static uint32_t ui_pic_key(void)
                                                  * MIXER 1's FX0) */
             UI_H(trk[t].ftype), UI_H(trk[t].fpos);
     UI_H(trk[sel].fm_alg), UI_H(trk[sel].fm_fb), UI_H(fm_op), UI_H(trk[sel].p[ENG_FM][0]), UI_H(drum_lit[sel]);   /* (RIDDIM: DRUM's last hit) */
+    if (page == PG_GROOVE) UI_H(seq_on ? grv_lit[sel] : 0u), UI_H(trk[sel].grv_style), UI_H(trk[sel].grv_parts);   /* (RIDDIM:
+                                                 * the step playing) */
     UI_H(trk[sel].latch), UI_H(trk[sel].chord), UI_H(trk[sel].ch_type), UI_H(trk[sel].ch_voice), UI_H(sc_root), UI_H(sc_scale);
     if (PAGES[page].btn == BTN_SEL) UI_H(ch_last), UI_H(ui_oct);
     UI_H(trk_quiet);

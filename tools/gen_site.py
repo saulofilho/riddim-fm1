@@ -3,12 +3,11 @@
 # Copyright (C) 2026 RIDDIM (after COQUÍ's tools/gen_hub.py, the same author)
 """RIDDIM's site (site/): its sounds and data, made from the firmware itself, in host mode.
 
-  site/audio/kit-NN.mp3   each factory DRUM kit (PRESETS 31 .. 39) playing a beat in its style, four bars, at its tempo:
-                          the beat played on the keys (MIDI notes), as a drummer would; the styles that play by
-                          themselves are the next step (PLAN.md, Fase 3)
+  site/audio/kit-NN.mp3   each factory DRUM kit (PRESETS 31 .. 39) playing its own GROOVE style by itself (PLAY), four
+                          bars at its tempo, the fourth with the fill: the firmware's drummer, nothing scripted
   site/audio/keys.mp3     the 27 keys of the ONE DROP KIT one after another (site/riddim-data.js: where each starts)
-  site/audio/demo.mp3     a longer one-drop take (the live view's DEMO, the front page's first sound)
-  site/riddim-data.js     the kits, their beats as grids, the keys' names, the version
+  site/audio/demo.mp3     eight bars of the ONE DROP KIT's GROOVE (the live view's DEMO)
+  site/riddim-data.js     the kits, their styles' lanes (groove.c) as grids, the keys' names, the version
 
 Needs a host build (build/host/riddim: tests/run_host.sh makes it) and ffmpeg (FFMPEG, or imageio-ffmpeg). The host
 build is Linux: on a Mac, in a container:
@@ -34,43 +33,49 @@ FS = 44100
 BOOT_MS = 6000                                  # (the boot screen: inputs after it)
 LO = 53                                         # (F3: the kit's first key)
 
-# the keys (drum.c's DKEY order), by name
-K = {n: i for i, n in enumerate(["KICK", "HAT", "CROSS", "PEDAL", "SNARE", "OHAT", "RIM", "TOML", "SHAKE", "TOMM", "COWB",
-                                 "TOMH", "SKICK", "WOOD", "SYN", "SYNHI", "SYNLO", "STICKS", "SPRING", "FLOOR",
-                                 "CROSSHI", "TIMB", "RIDE", "CRASH", "DKICK", "SNAREHI", "SPRINGHI"])}
+# the kits (PRESETS 31 .. 39) as they come: each plays its own GROOVE style (store.c) when PLAY is pressed; the tempo
+# each is recorded at
+KITS = [("ONE DROP KIT", 76), ("ROCKERS KIT", 80), ("STEPPERS KIT", 76), ("DUB KIT", 70), ("RUB-A-DUB KIT", 88),
+        ("ROCKSTEADY KIT", 96), ("DEEP ROOTS KIT", 72), ("TIGHT KIT", 82), ("BOOMY KIT", 74)]
 
-# the beats: a bar of 16 steps a lane ('X' accented, 'x' played, 'o' soft, '.' none); the fourth bar's fill replaces
-# the lanes it names; tempo (BPM) and shuffle (the off 16ths late, % of a step)
-KITS = [
-    ("ONE DROP KIT", "ONE DROP", 76, 18, {
-        "HAT": "x.o.x.o.x.o.x.o.", "KICK": "........X.......", "CROSS": "........X......."},
-     {"TOMH": "............x...", "TOMM": ".............x..", "TOML": "..............xx", "CROSS": "........X......."}),
-    ("ROCKERS KIT", "ROCKERS", 80, 12, {
-        "HAT": "xoxoxoxoxoxoxoxo", "KICK": "X.......X.......", "RIM": "........X.......", "OHAT": "..............x."},
-     {"SNARE": "........x.x.xxxx", "HAT": "xoxoxoxo........"}),
-    ("STEPPERS KIT", "STEPPERS", 76, 10, {
-        "SKICK": "X...X...X...X...", "HAT": "..x...x...x...x.", "RIM": "........X.......", "PEDAL": "x...x...x...x..."},
-     {"TOMH": "........x.x.....", "TOMM": "............x.x.", "SKICK": "X...X...X...X..."}),
-    ("DUB KIT", "DUB", 72, 18, {
-        "HAT": "x...o...x...o...", "KICK": "........X.......", "CROSS": "........X.......", "SHAKE": "..o...o...o...o."},
-     {"SPRING": "........X.......", "SYNLO": "..............x."}),
-    ("RUB-A-DUB KIT", "RUB-A-DUB", 88, 8, {
-        "KICK": "X.......X.......", "SNAREHI": "....X.......X...", "HAT": "x.x.x.x.x.x.x.x.", "SYN": "..............x."},
-     {"SYNHI": "........x.x.....", "SYN": "............x.x.", "SYNLO": "..............x."}),
-    ("ROCKSTEADY KIT", "ROCKSTEADY", 96, 30, {
-        "KICK": "X.......X.......", "CROSS": "....X.......X...", "HAT": "x.ox.ox.x.ox.ox.", "RIDE": "x...x...x...x..."},
-     {"SNARE": "............xxxx"}),
-    ("DEEP ROOTS KIT", "ONE DROP, LOW", 70, 20, {
-        "HAT": "x.o.x.o.x.o.x.o.", "KICK": "........X.......", "CROSS": "........X.......", "FLOOR": "..............o."},
-     {"FLOOR": "........X...x.x.", "TOML": "............x..."}),
-    ("TIGHT KIT", "ROCKERS, TIGHT", 84, 6, {
-        "HAT": "xxxxxxxxxxxxxxxx", "KICK": "X.......X.......", "SNARE": "........X.......", "WOOD": "......x.......x."},
-     {"SNARE": "........x.xxxxxx"}),
-    ("BOOMY KIT", "STEPPERS, BOOM", 74, 14, {
-        "DKICK": "X...X...X...X...", "HAT": "..x...x...x...x.", "RIM": "........X.......", "CRASH": "X..............."},
-     {"TOML": "........x.x.x.x.", "CRASH": "X..............."}),
-]
-VEL = {"X": 127, "x": 104, "o": 66}
+
+def styles():
+    """GROOVE's styles as firmware/src/groove.c has them: name, feel, lanes, fills (keys by DK_ name); its braces counted"""
+    g = (ROOT / "firmware" / "src" / "groove.c").read_text()
+    body = g[g.index("static const gr_style_t GR_STYLE[] = {"):g.index("#define NSTYLE")]
+    body = body[body.index("{", body.index("=")) + 1:]
+    groups, depth, start = [], 0, 0
+    for i, c in enumerate(body):                # (each style: a top-level brace group)
+        if c == "{":
+            if depth == 0: start = i
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0: groups.append(body[start + 1:i])
+            if depth < 0: break
+    out = []
+    lane = lambda t: re.findall(r'\{DK_(\w+), "([.goxX]+)"\}', t)
+    for st in groups:
+        m = re.match(r'\s*"([^"]+)", (\d+),', st)
+        parts, d, s0 = [], 0, 0
+        for i, c in enumerate(st):              # (its three groups: the lanes, fill A, fill B)
+            if c == "{":
+                if d == 0: s0 = i
+                d += 1
+            elif c == "}":
+                d -= 1
+                if d == 0: parts.append(st[s0 + 1:i])
+        out.append({"name": m.group(1), "feel": int(m.group(2)), "lanes": lane(parts[0]), "fa": lane(parts[1]),
+                    "fb": lane(parts[2]) if len(parts) > 2 else []})
+    return out
+
+
+def kit_styles():
+    """each factory kit's GROOVE style number (store.c: FSNDD(n, kit, tu, de, hu, style, fill))"""
+    st = (ROOT / "firmware" / "src" / "store.c").read_text()
+    return [int(m.group(1)) for m in re.finditer(r"FSNDD\(\d, \d, \d+, \d+, \d+, (\d+), \d\)", st)]
+
+
 
 
 def ffmpeg():
@@ -128,51 +133,42 @@ def mp3(ff, raw, ch, dst, fade_ms=600):
     os.unlink(t.name)
 
 
-def beat_events(lanes, fill, bpm, shuffle, bars, t0):
-    """the beat's MIDI notes (T1, channel 1): bars of 16 steps, the last of every four with its fill"""
-    step = 60000 / bpm / 4
-    ev = []
-    for b in range(bars):
-        bar = dict(lanes)
-        if b % 4 == 3:
-            bar.update(fill)
-        for name, row in bar.items():
-            n = LO + K[name]
-            for s, c in enumerate(row):
-                if c in VEL:
-                    t = int(t0 + (b * 16 + s) * step + (step * shuffle / 100 if s % 2 else 0))
-                    ev += [(t, f"midi 0x90 {n} {VEL[c]}"), (t + 30, f"midi 0x80 {n} 0")]
-    return ev
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--version", default="0.1")
     ap.add_argument("--no-audio", action="store_true", help="the data only")
     a = ap.parse_args()
     names = key_names()
-    assert len(names) == 27 and len(K) == 27, (len(names), len(K))
+    assert len(names) == 27, len(names)
     out = ROOT / "build" / "site-audio"
     out.mkdir(parents=True, exist_ok=True)
     (SITE / "audio").mkdir(parents=True, exist_ok=True)
-    data = {"version": a.version, "keys": names, "kits": [], "keyStarts": []}
+    data = {"version": a.version, "keys": names, "kits": [], "keyStarts": [], "steps": 32}
     if not a.no_audio and not BIN.exists():
         sys.exit("gen_site: no build/host/riddim (run tests/run_host.sh first)")
     ff = None if a.no_audio else ffmpeg()
-    for i, (name, style, bpm, shuf, lanes, fill) in enumerate(KITS):
-        assert all(len(r) == 16 and set(r) <= set(".oxX") for r in list(lanes.values()) + list(fill.values())), name
+    sty, ks = styles(), kit_styles()
+    assert len(sty) == 8 and len(ks) == 9, (len(sty), len(ks))
+    dk = {n.replace(" ", ""): i for i, n in enumerate(names)}   # (groove.c's DK_ names: drum.c's names, no spaces)
+    alias = {"PEDAL": "PEDALHAT", "OHAT": "OPENHAT", "RIM": "RIMSHOT", "TOML": "TOMLO", "SHAKE": "SHAKER", "TOMM": "TOMMID",
+             "COWB": "COWBELL", "TOMH": "TOMHI", "SKICK": "STEPKICK", "SYN": "SYNDRUM", "SYNHI": "SYNHI", "SYNLO": "SYNLO",
+             "FLOOR": "FLOORTOM", "CROSSHI": "CROSSHI", "TIMB": "TIMBALE", "DKICK": "DUBKICK", "SNAREHI": "SNAREHI",
+             "SPRINGHI": "SPRINGHI"}
+    keyname = lambda k: names[dk[alias.get(k, k)]]
+    for i, (name, bpm) in enumerate(KITS):
+        S = sty[ks[i] - 1]
         bar_ms = 4 * 60000 / bpm
-        data["kits"].append({"name": name, "style": style, "bpm": bpm, "shuffle": shuf, "preset": 31 + i,
-                             "lanes": [{"key": names[K[k]], "steps": r} for k, r in lanes.items()],
-                             "fill": [{"key": names[K[k]], "steps": r} for k, r in fill.items()]})
+        data["kits"].append({"name": name, "style": S["name"], "bpm": bpm, "feel": S["feel"], "preset": 31 + i,
+                             "lanes": [{"key": keyname(k), "steps": v} for k, v in S["lanes"]],
+                             "fill": [{"key": keyname(k), "steps": v} for k, v in S["fa"]]})
         if a.no_audio:
             continue
-        t0 = BOOT_MS + 1000
-        ev = [(BOOT_MS, f"enc 6 {31 + i}")] + beat_events(lanes, fill, bpm, shuf, 4, t0)
+        t0 = BOOT_MS + 1000                     # (the kit loaded, its tempo set, then PLAY: its GROOVE plays by itself)
+        ev = [(BOOT_MS, f"enc 6 {31 + i}"), (BOOT_MS + 200, f"enc 0 {bpm - 120}"), (t0, "btn 12")]
         end = int(t0 + 4 * bar_ms + 1500)
         ch, raw = host(f"kit{i + 1:02d}", ev, end, out)
         mp3(ff, cut(raw, ch, t0, int(t0 + 4 * bar_ms + 1200)), ch, SITE / "audio" / f"kit-{i + 1:02d}.mp3")
-        print(f"kit {i + 1} {name:<15} {style:<15} {bpm} BPM -> site/audio/kit-{i + 1:02d}.mp3")
+        print(f"kit {i + 1} {name:<15} {S['name']:<11} {bpm} BPM -> site/audio/kit-{i + 1:02d}.mp3")
     gap = 800                                   # (a key every 0.8 s: its tail; the spring's longer, cut by the next)
     t0 = BOOT_MS + 400
     data["keyStarts"] = [k * gap for k in range(27)]
@@ -184,10 +180,10 @@ def main():
         ch, raw = host("keys", ev, t0 + 27 * gap + 500, out)
         mp3(ff, cut(raw, ch, t0, t0 + 27 * gap), ch, SITE / "audio" / "keys.mp3", fade_ms=0)
         print("keys -> site/audio/keys.mp3")
-        name, style, bpm, shuf, lanes, fill = KITS[0]
-        t0 = BOOT_MS + 1000
-        ev = [(BOOT_MS, "enc 6 31")] + beat_events(lanes, fill, bpm, shuf, 8, t0)
+        bpm = KITS[0][1]
         bar_ms = 4 * 60000 / bpm
+        t0 = BOOT_MS + 1000
+        ev = [(BOOT_MS, "enc 6 31"), (BOOT_MS + 200, f"enc 0 {bpm - 120}"), (t0, "btn 12")]
         ch, raw = host("demo", ev, int(t0 + 8 * bar_ms + 2000), out)
         mp3(ff, cut(raw, ch, t0, int(t0 + 8 * bar_ms + 1500)), ch, SITE / "audio" / "demo.mp3", fade_ms=1200)
         print("demo -> site/audio/demo.mp3")

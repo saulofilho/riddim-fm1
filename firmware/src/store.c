@@ -41,7 +41,8 @@
 #define PK_ENG 7u                               /* a track's sources kept (NENG); bytes 29..31 (an eighth source's
                                                  * room till step 23): TRACK's filter and FX, 0 their defaults; 32
                                                  * (V2): the filter's TYPE | POS << 2, 0 (as saved before) LP PRE */
-#define TRK_PK 52u                              /* a track, packed (OBJ_VERS: older versions' were shorter) */
+#define TRK_PK 56u                              /* a track, packed (OBJ_VERS: older versions' were shorter; RIDDIM: 52 + its
+                                                 * GROOVE) */
 #define SEQ_PK 260u                             /* a sequence, packed: 4 + 64 steps x 4 B (the 4th: its chord) */
 #define SEQ_PK5 196u                            /* (version 5 and before: 3 B a step) */
 #define LOCK_PK 288u                            /* a track's step locks: 64 x the four values, 64 x 4 bits which */
@@ -58,10 +59,10 @@
 #define WORK_PK WORK_LEN(TRK_PK, SONG_PK, SEQ_PK, LOCK_PK, FM_ALL, FX2_PK)
 #define OBJ_HDR 12u                             /* magic, the save count, type, version, length */
 #define OBJ_MAGIC 0x424F4452u                   /* "RDOB" (RIDDIM; GR!MM: "GRMK") */
-#define OBJ_VER 8u
-#define SLS_VER 6u                              /* the slots' stream (its layout as version 6's) */
-#define NOBJV 7u
-static const uint16_t OBJ_VERS[NOBJV][7] = {{8, 52, 20, 260, 288, FM_ALL, FX2_PK}, {7, 52, 20, 260, 288, FM_ALL, 0},
+#define OBJ_VER 9u                              /* (RIDDIM: 9, a track's GROOVE) */
+#define SLS_VER 7u                              /* the slots' stream (its layout as version 9's; RIDDIM: 7) */
+#define NOBJV 8u
+static const uint16_t OBJ_VERS[NOBJV][7] = {{9, 56, 20, 260, 288, FM_ALL, FX2_PK}, {8, 52, 20, 260, 288, FM_ALL, FX2_PK}, {7, 52, 20, 260, 288, FM_ALL, 0},
                                             {6, 52, 20, 260, 288, 0, 0}, {5, 52, 20, 196, 0, 0, 0},
                                             {4, 52, 0, 196, 0, 0, 0}, {3, 48, 0, 196, 0, 0, 0},
                                             {2, 44, 0, 196, 0, 0, 0}};   /* the versions loaded, newest first: a
@@ -89,6 +90,8 @@ _Static_assert(SND_N * SND_SIZE <= 4096u && OBJ_HDR + WORK_PK + 4u <= 4096u && 4
  * SHAPE 0 SINE, 1 TRIANGLE, 5 RANDOM, 6 DRIFT */
 #define FSND(c, n, e, k0, k1, k2, k3, a, d, s, r, la, ch, lr, ld, lt, ls)                                              \
     {SND_MAGIC1, c, n, e, k0, k1, k2, k3, a, d, s, r, la, ch, lr, ld, lt, ls}
+#define FSNDD(n, kit, tu, de, hu, sty, fill)     /* (RIDDIM) a DRUM kit: KIT, TUNE, DECAY, HUMAN; its GROOVE (ALL, FEEL 0) */ \
+    {SND_MAGIC1, CAT_DRUMS, n, ENG_DRUM, kit, tu, de, hu, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0, sty, 0, fill, 64}
 static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     /* PADS */
     FSND(CAT_PAD, 1, ENG_VA, 2, 70, 62, 20, 105, 100, 110, 100, 1, 0x11, 30, 15, 5, 0),     /* CRYPT PAD */
@@ -114,11 +117,11 @@ static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     FSND(CAT_BELL, 6, ENG_FM, 0, 110, 20, 30, 0, 70, 0, 70, 0, 0x00, 40, 0, 0, 0),          /* SHRINE */
     /* (RIDDIM) DRUM KITS: DRUM, a roots kit on the keys; KIT, TUNE (64: as built), DECAY (64: x 1), HUMAN (behind the
      * beat); ENV, LATCH, CHORD and LFO are a voice's: not used */
-    FSND(CAT_DRUMS, 1, ENG_DRUM, 0, 64, 64, 30, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* ONE DROP KIT */
-    FSND(CAT_DRUMS, 2, ENG_DRUM, 1, 64, 64, 25, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* ROCKERS KIT */
-    FSND(CAT_DRUMS, 3, ENG_DRUM, 3, 64, 70, 20, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* STEPPERS KIT */
-    FSND(CAT_DRUMS, 4, ENG_DRUM, 2, 64, 72, 35, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* DUB KIT */
-    FSND(CAT_DRUMS, 5, ENG_DRUM, 0, 70, 56, 20, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* RUB-A-DUB KIT */
+    FSNDD(1, 0, 64, 64, 30, 1, 2),         /* ONE DROP KIT (GROOVE: 1, FILL /4) */
+    FSNDD(2, 1, 64, 64, 25, 2, 2),         /* ROCKERS KIT (GROOVE: 2, FILL /4) */
+    FSNDD(3, 3, 64, 70, 20, 3, 2),         /* STEPPERS KIT (GROOVE: 3, FILL /4) */
+    FSNDD(4, 2, 64, 72, 35, 8, 2),         /* DUB KIT (GROOVE: 8, FILL /4) */
+    FSNDD(5, 0, 70, 56, 20, 7, 2),         /* RUB-A-DUB KIT (GROOVE: 7, FILL /4) */
     /* ORGANS & KEYS */
     FSND(CAT_ORGAN, 1, ENG_WHEEL, 15, 0, 20, 10, 10, 20, 75, 60, 0, 0x00, 40, 0, 0, 0),     /* FUNERAL ORGAN */
     FSND(CAT_ORGAN, 2, ENG_WHEEL, 12, 0, 10, 0, 10, 90, 127, 55, 0, 0x00, 40, 0, 0, 0),     /* CHAPEL */
@@ -142,10 +145,10 @@ static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     /* TEXTURES */
     FSND(CAT_TEXTURE, 1, ENG_VA, 2, 30, 40, 40, 100, 90, 120, 105, 1, 0x00, 30, 90, 4, 0),  /* SEA BREEZE (RIDDIM: VA, where
                                                                                              * VOICE's WIND THRU STONE was) */
-    FSND(CAT_DRUMS, 6, ENG_DRUM, 1, 72, 52, 45, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* ROCKSTEADY KIT */
-    FSND(CAT_DRUMS, 7, ENG_DRUM, 1, 56, 80, 40, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* DEEP ROOTS KIT */
-    FSND(CAT_DRUMS, 8, ENG_DRUM, 2, 76, 44, 15, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* TIGHT KIT */
-    FSND(CAT_DRUMS, 9, ENG_DRUM, 3, 52, 90, 30, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* BOOMY KIT */
+    FSNDD(6, 1, 72, 52, 45, 5, 2),         /* ROCKSTEADY KIT (GROOVE: 5, FILL /4) */
+    FSNDD(7, 1, 56, 80, 40, 1, 2),         /* DEEP ROOTS KIT (GROOVE: 1, FILL /4) */
+    FSNDD(8, 2, 76, 44, 15, 4, 2),         /* TIGHT KIT (GROOVE: 4, FILL /4) */
+    FSNDD(9, 3, 52, 90, 30, 3, 2),         /* BOOMY KIT (GROOVE: 3, FILL /4) */
 };
 static const char *const SND_FNAME[] = {
     "CRYPT PAD", "ASH VEIL", "FROZEN HALL", "LAST LIGHT", "MOSS", "BLACK VELVET",
@@ -316,6 +319,9 @@ static void snd_pack(uint8_t *r, uint32_t t, uint32_t cat, uint32_t num)   /* tr
     r[0] = SND_MAGIC, r[1] = (uint8_t)cat, r[2] = (uint8_t)num, r[3] = (uint8_t)e;
     if (e == ENG_FM) pk_fm(r + 18, t);          /* (FM: its own patch) */
     if (e == ENG_PHASE) pd_pk(r + 18, t);       /* (V2: PHASE: its LINE 2 and envelopes there) */
+    if (e == ENG_DRUM) r[18] = (uint8_t)clamp(trk[t].grv_style, 0, (int32_t)NSTYLE), r[19] = (uint8_t)clamp(trk[t].grv_parts, 0, GP_N - 1),
+        r[20] = (uint8_t)clamp(trk[t].grv_fill, 0, 3), r[21] = (uint8_t)(clamp(trk[t].grv_feel, -64, 63) + 64);   /* (RIDDIM:
+                                                 * DRUM: its GROOVE in the patch's room) */
     for (k = 0; k < 4u; k++) {
         r[4 + k] = (uint8_t)clamp(trk[t].p[e][k], 0, 255);
         r[8 + k] = (uint8_t)clamp(trk[t].env[k], 0, 127);
@@ -361,6 +367,10 @@ static void snd_apply(const uint8_t *r, uint32_t t)   /* a sound record into tra
     lfo_uk(r + 14, t);                          /* (saved before the LFO: zeros, DEPTH 0) */
     if (e == ENG_FM) uk_fm(snd_fname(r) ? 0 : r + 18, t);   /* (FM: its patch; a factory sound's: the PATCH as built) */
     if (e == ENG_PHASE) pd_uk(r + 18, t);       /* (V2: saved before: zeros, all as before) */
+    if (e == ENG_DRUM) {                        /* (RIDDIM: its GROOVE; FEEL stored + 64: every DRUM record has it) */
+        trk[t].grv_style = clamp(r[18], 0, (int32_t)NSTYLE), trk[t].grv_parts = clamp(r[19], 0, GP_N - 1);
+        trk[t].grv_fill = clamp(r[20], 0, 3), trk[t].grv_feel = r[21] ? clamp((int32_t)r[21] - 64, -64, 63) : 0;
+    }
     if ((uint32_t)trk[t].eng != e) {
         trk[t].eng = (int32_t)e;
         nq_put(NQ_RESTART, t, 0);
@@ -458,6 +468,9 @@ static uint8_t *pk_track(uint8_t *q, uint32_t t)
         xb_put(q, &at, (uint32_t)clamp(trk[t].pd_pe, -64, 63) & 127u, 7);   /* (two's complement, 7 bits) */
         xb_put(q, &at, (uint32_t)clamp(trk[t].pd_pd, 0, 127), 7);
     }
+    q[52] = (uint8_t)clamp(trk[t].grv_style, 0, (int32_t)NSTYLE), q[53] = (uint8_t)clamp(trk[t].grv_parts, 0, GP_N - 1);   /*
+                                                 * (RIDDIM: GROOVE) */
+    q[54] = (uint8_t)clamp(trk[t].grv_fill, 0, 3), q[55] = (uint8_t)(clamp(trk[t].grv_feel, -64, 63) + 64);
     return q + TRK_PK;
 }
 static void trk_def(uint8_t *q, uint32_t n)     /* a track's bytes from n on (a save before ARP, before the LFO) as at
@@ -519,6 +532,11 @@ static const uint8_t *uk_track(const uint8_t *q0, uint32_t t, int isr, uint32_t 
     trk[t].arp_oct = clamp(q[46] & 7u, 1, 4), trk[t].arp_gate = clamp(q[47], 10, 100);
     trk[t].arp = (int32_t)(q[44] >> 7 & 1u);    /* (on or off: arp.c's arp_watch starts it empty) */
     lfo_uk(q + 48, t);
+    if (n >= 56u) {                             /* (RIDDIM: GROOVE; an older track: none, FEEL 0) */
+        trk[t].grv_style = clamp(q[52], 0, (int32_t)NSTYLE), trk[t].grv_parts = clamp(q[53], 0, GP_N - 1);
+        trk[t].grv_fill = clamp(q[54], 0, 3), trk[t].grv_feel = q[55] ? clamp((int32_t)q[55] - 64, -64, 63) : 0;
+    } else
+        trk[t].grv_style = trk[t].grv_parts = trk[t].grv_feel = 0, trk[t].grv_fill = 2;
     if (trk[t].eng != (int32_t)q[0] && q[0] < NENG) {
         trk[t].eng = q[0];
         if (isr) restart_track(t);

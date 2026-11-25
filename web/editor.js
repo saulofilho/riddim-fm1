@@ -10,7 +10,7 @@
 import { Client, MidiTransport, VirtualFM1, LiveSender, findFM1, HEAD, CMD, OBJ, PROTOS, EditorError, emptyRecord, isEmpty,
          recordOk, parseSound, buildRecord, soundTitle, makeBackup, checkBackup, restoreBackup, makeSlot, noteFromName,
          sampleName, noteName, pack7, hex, SET_V1, SET_V2, MCH_NAMES, CLOCK_NAMES, settingsOf, withSettings,
-         sameSettings, FX_PAGES, FT_NAMES, checkSamples, restoreSamples, LINE2_WAVES, V2_SOUND_CONTROLS, PHASE_PD0,
+         sameSettings, FX_PAGES, FT_NAMES, checkSamples, restoreSamples, GROOVE_STYLES, GROOVE_PARTS, GROOVE_FILLS, LINE2_WAVES, V2_SOUND_CONTROLS, PHASE_PD0,
          glideText, decayText, pctText, PITCH_TEXT, SEQ, DIV_NAMES, MODE_NAMES, emptyPattern, emptyStep, patternsFromSlot,
          patternsFromWork, slotWithPatterns, slotFromWork, slotTrack, patternFile, parsePatternFile, recallScript, stopScript,
          BTN_PLAY, b64, recWrite, recRest, recTie, makeGrouper, pcKeyNote } from "./editor_core.js";
@@ -479,6 +479,15 @@ function drawEditor() {
   toggle(g, ["LATCH OFF", "LATCH ON"], () => s.latch, (v) => { s.latch = v; });
   const V2 = V2_SOUND_CONTROLS;                               // (GR!MM 2.0's settings: names, ranges as on the FM-1)
   control(g, V2.glide[0], V2.glide[1], V2.glide[2], () => s.glide || 0, (v) => { s.glide = v; }, glideText);   // (SOURCE's KNOB 4: every source)
+  if (s.eng === 3) {                                         // (RIDDIM: DRUM's GROOVE, as its page on the FM-1)
+    s.grv = s.grv || { style: 0, parts: 0, fill: 2, feel: 0 };
+    const gg = el("div", { cls: "grp" }, ed), [gs, gp, gf, ge] = V2.grv;
+    el("h3", {}, gg, "GROOVE");
+    choice(gg, gs[0], GROOVE_STYLES, () => s.grv.style, (v) => { s.grv.style = v; });
+    choice(gg, gp[0], GROOVE_PARTS, () => s.grv.parts, (v) => { s.grv.parts = v; });
+    choice(gg, gf[0], GROOVE_FILLS, () => s.grv.fill, (v) => { s.grv.fill = v; });
+    control(gg, ge[0], ge[1], ge[2], () => s.grv.feel, (v) => { s.grv.feel = v; }, (v) => (v > 0 ? "+" : "") + v);
+  }
   if (s.eng === 6) {                                         // (PHASE's LINE 2 page, then PHASE ENV)
     s.pd = s.pd || { ...PHASE_PD0 };
     const p2 = el("div", { cls: "grp" }, ed), [lw, ld, lr, ln] = V2.line2;

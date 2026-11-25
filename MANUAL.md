@@ -4,8 +4,8 @@ Version 0.1 · for the M-VAVE FM-1 · [First steps (PDF)](docs/riddim-first-guid
 
 ![RIDDIM's HOME: the sound system, a box a track](docs/screens/home.png)
 
-RIDDIM 0.1 is in development: the drums are here (the DRUM source and nine kits); the drum styles that play by
-themselves, the band's lines (skank, bubble, bass) and the dub desk are the next versions ([PLAN.md](PLAN.md)). This
+RIDDIM 0.1 is in development: the drums are here (the DRUM source, nine kits, and GROOVE, the styles they play by
+themselves); the band's lines (skank, bubble, bass) and the dub desk are the next versions ([PLAN.md](PLAN.md)). This
 manual covers what 0.1 does, and grows with it.
 
 ---
@@ -166,11 +166,49 @@ piece you just hit; its caption shows the KIT and the drum's name.
   as on a real kit.
 - **Its own hits:** a DRUM track plays from its own ten hits, never the six voices the other tracks share, so drums
   never steal notes from the bass or the keys. Chords, the scale and the octave don't apply: a key is a drum.
+- **GROOVE** (the next page) plays a whole style by itself: see [below](#groove-the-drummer-drum-tracks-only).
+- **Natural, not a machine:** no two hits are alike (each a little off in pitch, level and length, as a real drum),
+  and the force is in the sound: a soft hit is darker and shorter, a hard one brighter, with more of the drum's bend.
 - **The sequencer** writes a drum by its key (its note number), **GENERATE** plays random drums, the **arpeggiator**
   rolls them; **VELOCITY** (SYSTEM 3) makes MIDI notes play soft or hard (ghost notes, accents).
 - **The one drop:** CROSS and KICK together on beat 3 (the ninth sixteenth), HAT on the eighths, nothing on beat 1.
   **Rockers:** KICK on 1 and 3. **Steppers:** STEP KICK on every beat. Send the CROSS's track to DELAY for the dub
   echo.
+
+### GROOVE: the drummer (DRUM tracks only)
+
+![The GROOVE page: the style's lanes, the step playing lit](docs/screens/groove.png)
+
+On a DRUM track, EDIT steps **SOUND → GROOVE → SOURCE**. GROOVE is a drummer who plays a roots style on the track by
+itself while the sequencer plays (PLAY), beside the track's own steps. Every DRUM kit brings its style: load the ONE
+DROP KIT, press PLAY, and the one drop plays.
+
+| KNOB 1 | KNOB 2 | KNOB 3 | KNOB 4 |
+|---|---|---|---|
+| STYLE: OFF, ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, EARLY, RUB-A-DUB, DUB | PARTS | FILL: OFF, /2, /4, /8 | FEEL: −64 … +63 |
+
+| STYLE | What it plays |
+|---|---|
+| ONE DROP | Kick and cross-stick together on 3, nothing on 1; hats on the eighths, a soft shaker |
+| ROCKERS | Kick on 1 and 3, the rim on 3, busy sixteenth hats, an open hat at the end of the bar |
+| STEPPERS | The step kick on every beat, the rim on 3, hats on the offbeats, the pedal hat |
+| FLYERS | The one drop with the "flying cymbal": an open hat on every offbeat |
+| ROCKSTEADY | Kick on 1 and 3, cross-stick on 2 and 4, shuffled hats and a ride, swung |
+| EARLY | Early reggae: kick on 1 and 3, the snare on 2 and 4, eighth hats, a shaker |
+| RUB-A-DUB | Kick on 1 and 3, a high snare on 2 and 4, the syndrum answering |
+| DUB | The one drop stripped down: sparse hats, the spring and the low syndrum in the fills |
+
+- **PARTS:** which of the drums play: ALL, DRUMS (kicks, snares, cross-stick, rim, toms), HATS (hats, shaker, ride),
+  EXTRAS (syndrum, spring, wood, cowbell, sticks, timbale, crash), or two of them. Split a style over two DRUM tracks
+  (DRUMS on one, HATS on another) to give each its own level, pan and sends: the hats to the echo, the kick dry.
+- **FILL:** the last bar of every 2, 4 or 8 bars plays a fill; each style has two, played one phrase each.
+- **FEEL:** the swing of the off sixteenths: 0 the style's own, less straighter, more looser.
+- **A drummer, not a machine:** the cross-stick and the snare sit a few milliseconds behind the beat, the kick on it,
+  the hats loosest; every stroke's force varies a little; ghost notes come and go (seven times in ten), and now and
+  then a ghost slips in between the hats. With DRUM's HUMAN on top, the kit's own variation (no two hits alike, the
+  force in the tone), it never plays a bar twice the same.
+- GROOVE is saved with the sound and with the project. The track's own pattern plays too: add a step of your own
+  (a syndrum, a spring) over the style.
 
 ### FM editor (FM tracks only)
 

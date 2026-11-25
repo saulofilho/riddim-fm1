@@ -71,3 +71,5 @@ python3 tests/samplefix_test.py build/host/riddim
 # group; its cost. build/host/drum_keys.wav: every key one after another (KIT STUDIO), to listen
 cc -O2 -Wall -Wno-unused-function -Ifirmware/src -Ifirmware/gen -o build/host/drum_test tests/drum_test.c -lm
 build/host/drum_test build/host/drum_keys.wav | tail -2
+# RIDDIM: a DRUM track's GROOVE saved with the project and loaded again (tests/groove_save_test.py)
+python3 tests/groove_save_test.py build/host/riddim

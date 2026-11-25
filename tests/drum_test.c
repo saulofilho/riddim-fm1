@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include "dsp.c"
 
 #define CTL 32
@@ -26,8 +27,12 @@ typedef struct {
     void (*text)(const volatile int32_t *p, uint32_t k, char *s);
 } engine_t;
 static struct {
-    volatile int32_t p[NENG][NPARAM], eng;
+    volatile int32_t p[NENG][NPARAM], eng, grv_style, grv_parts, grv_fill, grv_feel;
 } trk[NT];
+static volatile uint32_t trk_quiet, mo_seq;     /* (groove.c's: riddim.c's) */
+#define EC_SEQ 0x80u
+#define SEQ_BAR 384u
+static void ec_put(uint32_t st, uint32_t t, uint32_t note) { (void)st, (void)t, (void)note; }
 static char *put_u(char *s, uint32_t v) { return s + sprintf(s, "%u", v); }
 static char *put_s(char *s, const char *a) { while (*a) *s++ = *a++; *s = 0; return s; }
 static uint32_t env_k(uint32_t t_ms_q16)        /* as voices.c */
@@ -42,6 +47,7 @@ static uint32_t pow2_q16(int32_t d16)           /* as samples.c */
     return oct >= 16u ? r << (oct - 16u) : r >> (16u - oct);
 }
 #include "drum.c"
+#include "groove.c"
 
 static int32_t tb[NT][VB];
 static int16_t wav[44100 * 60];
@@ -114,6 +120,98 @@ int main(int argc, char **argv)
         render(&used);
         for (b = 0; b < NDH; b++) on += dh_[b].on && dh_[b].inst == DI_HATO;
         check(on == 0u, "the closed hat cuts the open one (one group)");
+        memset(dh_, 0, sizeof dh_);
+    }
+    {   /* never a machine: the same drum struck twice at the same force is not the same twice; a soft hit is darker
+         * (less of its energy in the highs), not only quieter */
+        static int32_t a[2][4410];
+        uint32_t n, b, i, used;
+        double diff = 0, en = 0, hi[2] = {0, 0}, lo[2] = {0, 0};
+        trk[0].p[ENG_DRUM][0] = 0, trk[0].p[ENG_DRUM][2] = 64, trk[0].p[ENG_DRUM][3] = 0;
+        for (n = 0; n < 2u; n++) {
+            memset(dh_, 0, sizeof dh_);
+            drum_hit(0, DK_LO + 2u, 200u);      /* CROSS, twice, the same force */
+            for (b = 0, i = 0; b < 4410u / VB + 1u; b++) { render(&used); for (uint32_t j = 0; j < VB && i < 4410u; j++, i++) a[n][i] = tb[0][j] >> PB; }
+        }
+        for (i = 0; i < 4410u; i++) diff += fabs((double)a[0][i] - a[1][i]), en += fabs((double)a[0][i]);
+        printf("natural: CROSS twice, apart by %.0f %% of its level\n", 100 * diff / en);
+        check(diff > 0.05 * en, "never a machine: the same drum twice at the same force, not the same twice (> 5 % apart)");
+        for (n = 0; n < 2u; n++) {              /* SNARE hard (256) and soft (64): the highs' share of its energy */
+            memset(dh_, 0, sizeof dh_);
+            drum_hit(0, DK_LO + 4u, n ? 64u : 256u);
+            for (b = 0, i = 0; b < 4410u / VB + 1u; b++) { render(&used); for (uint32_t j = 0; j < VB && i < 4410u; j++, i++) a[n][i] = tb[0][j] >> PB; }
+            for (i = 1; i < 4410u; i++) hi[n] += (double)(a[n][i] - a[n][i - 1]) * (a[n][i] - a[n][i - 1]), lo[n] += (double)a[n][i] * a[n][i];
+        }
+        printf("natural: SNARE's highs, hard %.3f, soft %.3f\n", hi[0] / lo[0], hi[1] / lo[1]);
+        check(hi[1] / lo[1] < 0.9 * hi[0] / lo[0], "a soft SNARE darker than a hard one (its highs' share 10 % lower and more)");
+        memset(dh_, 0, sizeof dh_);
+    }
+    {   /* GROOVE: every style's lanes 32 steps, its fills 16, only the strokes' letters, its drums keys; eight bars of it at
+         * 76 BPM (ALL, FILL every 4) through DRUM: hits, the fills heard, the mix under full scale, and a drummer's hands:
+         * the hits not all on the grid, their force not all the same */
+        uint32_t st, i, j, b, c, used;
+        trk[0].p[ENG_DRUM][0] = 0, trk[0].p[ENG_DRUM][1] = 64, trk[0].p[ENG_DRUM][2] = 64, trk[0].p[ENG_DRUM][3] = 0;
+        trk[0].eng = ENG_DRUM;
+        for (st = 0; st < NSTYLE; st++) {
+            const gr_style_t *G = &GR_STYLE[st];
+            char w[112];
+            int ok = 1;
+            uint32_t hits = 0, fillh = 0, waits[64], nw = 0, vels[64], nv = 0, lane_inst = 0;
+            int32_t pk = 0;
+            for (i = 0; i < GR_LANES && G->l[i].s; i++) {
+                ok &= strlen(G->l[i].s) == GR_STEPS && strspn(G->l[i].s, ".goxX") == GR_STEPS && G->l[i].k < DK_N;
+                lane_inst |= 1u << DKEY[G->l[i].k].g;   /* (by its choke group: SYN HI is SYN's drum, its own key) */
+            }
+            for (i = 0; i < GR_FLANES; i++) {
+                if (G->fa[i].s) ok &= strlen(G->fa[i].s) == 16u && strspn(G->fa[i].s, ".goxX") == 16u && G->fa[i].k < DK_N;
+                if (G->fb[i].s) ok &= strlen(G->fb[i].s) == 16u && strspn(G->fb[i].s, ".goxX") == 16u && G->fb[i].k < DK_N;
+            }
+            snprintf(w, sizeof w, "GROOVE %s: lanes of 32 steps, fills of 16, strokes .goxX, drums on the keys", G->name);
+            check(ok, w);
+            trk[0].grv_style = (int32_t)st + 1, trk[0].grv_parts = 0, trk[0].grv_fill = 2, trk[0].grv_feel = 0;
+            memset(dh_, 0, sizeof dh_);
+            {   /* a tick every 44100 x 60 / 76 / 96 = 362.66 frames (Q8: 92841); a control step 32 */
+                uint32_t acc = 0, tick_q8 = 92841u, tk = 0;
+                for (b = 0; b < 8u * 384u * 363u / VB; b++) {
+                    for (used = 0, c = 0; c < VB; c += CTL) {
+                        acc += CTL * 256u;
+                        while (acc >= tick_q8) {
+                            uint8_t was[NDH];
+                            for (j = 0; j < NDH; j++) was[j] = dh_[j].on && !dh_[j].kill && dh_[j].cnt == 0u;
+                            acc -= tick_q8;
+                            groove_tick(0, tk);
+                            for (j = 0; j < NDH; j++)
+                                if (dh_[j].on && dh_[j].cnt == 0u && !was[j]) {   /* (a new hit) */
+                                    hits++;
+                                    if ((tk / SEQ_BAR) % 4u == 3u && !(lane_inst >> dh_[j].grp & 1u)) fillh++;
+                                    if (nw < 64u) waits[nw++] = dh_[j].wait;
+                                    if (nv < 64u && dh_[j].inst == DI_HATC) vels[nv++] = (uint32_t)dh_[j].vel;
+                                }
+                            tk++;
+                        }
+                        drum_block(tb, c, VB, &used);
+                    }
+                    for (i = 0; i < VB; i++) {
+                        int32_t sv = used & 1u ? tb[0][i] >> PB : 0;
+                        if (sv > pk) pk = sv;
+                        if (-sv > pk) pk = -sv;
+                    }
+                }
+            }
+            {
+                uint32_t dw = 0, dv = 0, x, y;
+                for (x = 0; x < nw; x++) { for (y = 0; y < x && waits[y] != waits[x]; y++) ; dw += y == x; }
+                for (x = 0; x < nv; x++) { for (y = 0; y < x && vels[y] != vels[x]; y++) ; dv += y == x; }
+                printf("  %-11s %4u hits in 8 bars  fill hits %3u  timings %2u  hat forces %2u  mix peak %6.1f dB\n", G->name, hits,
+                       fillh, dw, dv, db(pk));
+                snprintf(w, sizeof w, "GROOVE %s: plays, its fills heard", G->name); check(hits > 40u && fillh > 0u, w);
+                snprintf(w, sizeof w, "GROOVE %s: the mix under full scale", G->name); check(pk < 32767, w);
+                snprintf(w, sizeof w, "GROOVE %s: a drummer's hands (hits off the grid, 8 timings and more)", G->name); check(dw >= 8u, w);
+                snprintf(w, sizeof w, "GROOVE %s: the hats' force never the same twice in a row (6 and more)", G->name);
+                check(nv == 0u || dv >= 6u, w);
+            }
+        }
+        trk[0].grv_style = 0;
         memset(dh_, 0, sizeof dh_);
     }
     {   /* the cost: the pool full (NDH hits, all long ones), 2000 blocks */

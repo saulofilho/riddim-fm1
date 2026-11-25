@@ -110,6 +110,7 @@ static const struct { int16_t kp, sp, tp; uint16_t kd, sd, td; } DKIT[NKIT] = {
 #define NDH 10u                                 /* hits sounding at once (all DRUM tracks together) */
 typedef struct {
     uint8_t on, inst, grp, trk, kill, sp;       /* sounding; the drum, its group, its track; out this step; its trick */
+    uint16_t nf;                                /* its noise filter (DINST's, darker when struck softly) */
     uint16_t wait;                              /* frames still to wait (HUMAN) */
     uint16_t cnt;                               /* control steps since it began (the shaker) */
     uint32_t ph1, ph2, inc1;                    /* the tone's phases; its pitch's increment */
@@ -145,8 +146,11 @@ static int32_t dh_dec(int32_t a, uint32_t k)    /* a decay's step: at least 1 wh
     return d ? d : a > 0;
 }
 
-/* audio: track t's note struck, at vel (Q8, 0: full) */
-static void drum_hit(uint32_t t, uint32_t note, uint32_t vel)
+/* audio: track t's note struck, at vel (Q8, 0: full), late frames after the control step (GROOVE's drummer: the
+ * cross-stick laid back). Never two hits alike, as a real drum: each a little off in pitch (+-6 cents), level (~+-0.8
+ * dB) and length (+-6 %), at any HUMAN; and the force is in the sound, not only its level: a soft hit is darker (its
+ * noise's filter lower), bends less (the tone's pitch drop) and is shorter */
+static void drum_hit_at(uint32_t t, uint32_t note, uint32_t vel, uint32_t late)
 {
     const volatile int32_t *p = trk[t].p[ENG_DRUM];
     uint32_t k = drum_key(note), i, best = 0, kit = (uint32_t)clamp(p[0], 0, NKIT - 1);
@@ -163,23 +167,29 @@ static void drum_hit(uint32_t t, uint32_t note, uint32_t vel)
             if (dh_[i].ta + dh_[i].na < lv) lv = dh_[i].ta + dh_[i].na, best = i;
     h = &dh_[i < NDH ? i : best];
     h->inst = DKEY[k].i, h->grp = DKEY[k].g, h->trk = (uint8_t)t, h->kill = 0, h->sp = I->sp, h->cnt = 0;
-    h->vel = (int32_t)(((vel ? vel * 64u : 16384u) * I->gain) >> 8);   /* (Q14) */
-    h->wait = 0;
-    p16 = I->p16 + DKEY[k].st * 16 + (clamp(p[1], 0, 127) - 64) * 3;
+    uint32_t f = vel ? (vel > 256u ? 256u : vel) : 256u, rr = drum_rnd();   /* (the force, Q8; the round's dice) */
+    h->vel = (int32_t)(((f * 64u) * I->gain) >> 8);   /* (Q14) */
+    h->vel = h->vel * (int32_t)(232u + (rr >> 8) % 48u) / 256;   /* (the level, a little off) */
+    h->wait = (uint16_t)(late > 1000u ? 1000u : late);
+    p16 = I->p16 + DKEY[k].st * 16 + (clamp(p[1], 0, 127) - 64) * 3 + (int32_t)(rr % 3u) - 1;   /* (a little off) */
     if (I->cls == DC_KICK) p16 += DKIT[kit].kp;
     if (I->cls == DC_SNARE) p16 += DKIT[kit].sp;
     if (I->cls == DC_TOM) p16 += DKIT[kit].tp;
     if (human) {                                /* HUMAN: later (up to ~8.6 ms), softer (up to -35 %), off-pitch (+-0.4) */
         uint32_t r = drum_rnd();
-        h->wait = (uint16_t)((r & 0xFFFFu) % (human * 3u + 1u));
+        h->wait = (uint16_t)(h->wait + (r & 0xFFFFu) % (human * 3u + 1u));
         h->vel -= (int32_t)(((uint32_t)h->vel * human * ((r >> 16) & 255u)) >> 16) * 45 / 64;
         p16 += (int32_t)(((r >> 24) & 15u) - 7u) * (int32_t)human / 127;
     }
     h->inc1 = I->p16 ? pitch_inc((uint32_t)clamp(p16, 0, 2047)) : 0u;
-    h->r2 = I->r2, h->l2 = I->l2, h->pdep = I->pdep;
+    h->r2 = I->r2, h->l2 = I->l2, h->pdep = I->pdep * (128u + f / 2u) / 256u;   /* (soft: half the bend) */
+    h->nf = (uint16_t)((uint32_t)I->nf * (176u + f * 80u / 256u) / 256u);   /* (soft: darker, ~70 %) */
     h->ph1 = h->ph2 = 0;
     {
-        uint32_t tm = dmul, nm = dmul;
+        uint32_t lm = (208u + f * 48u / 256u) * (240u + (rr >> 16) % 32u) / 256u, tm, nm;   /* (soft: shorter; a little
+                                                 * off), Q8 */
+        dmul = (dmul >> 8) * lm;
+        tm = dmul, nm = dmul;
         if (I->cls == DC_KICK) tm = (tm >> 8) * DKIT[kit].kd;
         if (I->cls == DC_SNARE) tm = (tm >> 8) * DKIT[kit].sd, nm = (nm >> 8) * DKIT[kit].sd;
         if (I->cls == DC_TOM) tm = (tm >> 8) * DKIT[kit].td;
@@ -197,6 +207,7 @@ static void drum_hit(uint32_t t, uint32_t note, uint32_t vel)
     h->on = 1;
     drum_lit[t] = (uint8_t)(k + 1u);
 }
+static void drum_hit(uint32_t t, uint32_t note, uint32_t vel) { drum_hit_at(t, note, vel, 0u); }
 
 /* audio: every hit's next control step (CTL frames from b) into tb[its track]; used: the tracks heard (their buffers
  * zeroed at their first sound, as voices_render does) */
@@ -248,9 +259,9 @@ static void drum_block(int32_t (*tb)[VB], uint32_t b, uint32_t n, uint32_t *used
             }
             if (na0 > 0) {                      /* the noise, filtered */
                 int32_t w = (int32_t)noise32(&h->rs) >> 17, hp;
-                h->lp += (I->nf * h->bp) >> 15;
+                h->lp += (h->nf * h->bp) >> 15;
                 hp = w - h->lp - h->bp;
-                h->bp += (I->nf * hp) >> 15;
+                h->bp += (h->nf * hp) >> 15;
                 x = I->nt ? h->bp : hp;
                 if (h->sp == DS_SPRING) {       /* the rattle: a knock 20 times a second, each ringing ~6 ms */
                     uint32_t r = h->rph;

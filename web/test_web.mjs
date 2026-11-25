@@ -152,7 +152,7 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
   const vf = await VirtualFM1.create(readFileSync("web/dist/riddim.wasm"));
   vf.warmUp();
   const cl = new Client(vf), info = await cl.info(), meta = vf.meta();
-  check(info.proto === 2 && info.sounds === 64 && info.slotSize === 2532 && info.setSize === 170 && info.factory === 44,
+  check(info.proto === 2 && info.sounds === 64 && info.slotSize === 2548 && info.setSize === 170 && info.factory === 44,
         `editor: INFO (GR!MM ${info.firmware}, protocol ${info.proto}, ${info.sounds} sounds, slots ${info.slotSize} B)`);
   check(meta.factory.length === 44 && meta.engines.length === 7 && meta.fmAlg.length === 32, "editor: the page's names and tables from the firmware");
   const f2 = await cl.get(OBJ.FACT + 2, 64);
@@ -183,12 +183,15 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
   check(eq([...back], [...rec]) && JSON.stringify(parseSound(back, meta)) === JSON.stringify(s), "editor: a sound edited, sent, read back as edited");
   {                                                          // (RIDDIM: a DRUM kit, where GR!MM's choirs were: its KIT, TUNE, DECAY, HUMAN)
     const v = parseSound(Uint8Array.from(meta.factory[40].rec), meta);
-    v.k = [2, 120, 30, 90], v.name = "KIT TEST";
+    const g0 = JSON.stringify(v.grv);
+    v.k = [2, 120, 30, 90], v.name = "KIT TEST", v.grv = { style: 8, parts: 2, fill: 3, feel: -10 };
     const vr = buildRecord(v);
     await cl.put(OBJ.SND + 6, vr, info.fmt);
     const vb = parseSound(await cl.get(OBJ.SND + 6, 64), meta);
     check(meta.engines[3].name === "DRUM" && v.eng === 3 && vb.k.join() === "2,120,30,90" && eq([...await cl.get(OBJ.SND + 6, 64)], [...vr]),
           `editor: a DRUM kit (${meta.factory[40].name}) edited (KIT, TUNE, DECAY, HUMAN), sent, read back (${vb.k.join()})`);
+    check(g0 === JSON.stringify({ style: 5, parts: 0, fill: 2, feel: 0 }) && JSON.stringify(vb.grv) === JSON.stringify(v.grv),
+          `editor: a DRUM kit's GROOVE read (${g0}: ROCKSTEADY, ALL, /4), set (DUB, HATS, /8, -10), sent, read back (${JSON.stringify(vb.grv)})`);
   }
   const b1 = await makeBackup(cl, info);
   await cl.put(OBJ.SND + 9, rec, info.fmt);
@@ -238,17 +241,17 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
     check(f2[31] === 70 && f2[36] === 33 && f2[45] === 50 && f0[31] === 0 && f0[45] === 0,
           `editor: FX: the tracks' sends read and set (T1 DRIVE ${f2[31]}, T3 DLY ${f2[36]}, T2 TAPE ${f2[45]})`);
     await cl.fxSet(31, 0), await cl.fxSet(36, f0[36]), await cl.fxSet(45, 0);
-    // (rc9) GET only: 9, the working project as it is now (2576 B, as the autosave packs it); 10, the mix's change log
+    // (rc9) GET only: 9, the working project as it is now (2592 B, as the autosave packs it); 10, the mix's change log
     // (entries made, u32; then 64 of 12 B: ms u32, source (2: the editor), page, field (7: TAPE), track, from, to i16)
-    const wk = await cl.get(9, 2576), lg = await cl.get(10, 4 + 64 * 12), lv = new DataView(lg.buffer, lg.byteOffset);
+    const wk = await cl.get(9, 2592), lg = await cl.get(10, 4 + 64 * 12), lv = new DataView(lg.buffer, lg.byteOffset);
     const n = lv.getUint32(0, true), ents = [];
     for (let i = 0; i < Math.min(n, 64); i++) {
       const o = 4 + 12 * i;
       ents.push([lg[o + 4], lg[o + 6], lg[o + 7], lv.getInt16(o + 8, true), lv.getInt16(o + 10, true)]);
     }
     const tp = ents.filter(e => e[0] === 2 && e[1] === 7 && e[2] === 1).map(e => `${e[3]}>${e[4]}`).join(" ");
-    check(wk.length === 2576 && wk[38] === 100 && (wk[52 + 32] >> 3) === 0 && tp === "0>50 50>0",
-          `editor: the working project read (2576 B; T1 LEVEL ${wk[38]}), the change log (T2's TAPE by the editor: ${tp})`);
+    check(wk.length === 2592 && wk[38] === 100 && (wk[56 + 32] >> 3) === 0 && tp === "0>50 50>0",
+          `editor: the working project read (2592 B; T1 LEVEL ${wk[38]}), the change log (T2's TAPE by the editor: ${tp})`);
   }
   const fr = 48000, n = 38400, wav = new Uint8Array(44 + n * 4), dv = new DataView(wav.buffer);   // 0.8 s, 16 bit stereo
   [..."RIFF"].forEach((c, i) => { wav[i] = c.charCodeAt(0); }), dv.setUint32(4, 36 + n * 4, true);
@@ -426,25 +429,25 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
     const pats = [mk(16, 4, 0, 0, 40), mk(8, 2, 30, 2, 60), mk(64, 6, 127, 3, 30), mk(1, 0, 0, 1, 100)];
     const work0 = await cl.get(9, SEQ.WORK_LEN);
     const slot0 = slotFromWork(work0, pats);                 // (an empty slot B: made of the working project's tracks)
-    check(slot0.length === 2532 && slot0[0] === 1 && eq([...slot0.subarray(4, 212)], [...work0.subarray(0, 208)]) &&
-          eq([...slot0.subarray(2404)], [...work0.subarray(2440, 2568)]), "sequencer: an empty slot made of the working project's tracks and FM patches");
+    check(slot0.length === 2548 && slot0[0] === 1 && eq([...slot0.subarray(4, 228)], [...work0.subarray(0, 224)]) &&
+          eq([...slot0.subarray(2420)], [...work0.subarray(2456, 2584)]), "sequencer: an empty slot made of the working project's tracks and FM patches");
     await cl.canWrite(OBJ.SLOT + 1, slot0, info.fmt);
     await cl.put(OBJ.SLOT + 1, slot0, info.fmt);
-    const back0 = await cl.get(OBJ.SLOT + 1, 2532);
+    const back0 = await cl.get(OBJ.SLOT + 1, 2548);
     check(eq([...back0], [...slot0]) && JSON.stringify(patternsFromSlot(back0)) === JSON.stringify(pats),
           "sequencer: four patterns (all 64 steps: note, chance, ratchet, length, chord steps, locks; steps, division, swing, play mode) written into slot B, read back, parsed the same");
     const pats2 = [mk(32, 3, 10, 1, 50), mk(4, 5, 0, 0, 90), mk(16, 7, 64, 2, 20), mk(12, 1, 5, 3, 70)];
     const slot1 = slotWithPatterns(back0, pats2);
     await cl.put(OBJ.SLOT + 1, slot1, info.fmt);
-    const back1 = await cl.get(OBJ.SLOT + 1, 2532);
-    const outside = (a, b) => eq([...a.subarray(0, 212)], [...b.subarray(0, 212)]) && eq([...a.subarray(2404)], [...b.subarray(2404)]);
-    check(eq([...back1], [...slot1]) && outside(back1, back0) && !eq([...back1.subarray(212, 2404)], [...back0.subarray(212, 2404)]) &&
+    const back1 = await cl.get(OBJ.SLOT + 1, 2548);
+    const outside = (a, b) => eq([...a.subarray(0, 228)], [...b.subarray(0, 228)]) && eq([...a.subarray(2420)], [...b.subarray(2420)]);
+    check(eq([...back1], [...slot1]) && outside(back1, back0) && !eq([...back1.subarray(228, 2420)], [...back0.subarray(228, 2420)]) &&
           JSON.stringify(patternsFromSlot(back1)) === JSON.stringify(pats2),
-          "sequencer: new patterns over them: only bytes 212-2403 change, the tracks' sounds and mix (4-211) and the FM patches (2404-) stay as they were");
-    check(eq([...(await cl.get(OBJ.SLOT, 2532)).subarray(0, 1)], [0]) && eq([...(await cl.get(OBJ.SLOT + 2, 2532)).subarray(0, 1)], [0]),
+          "sequencer: new patterns over them: only bytes 228-2419 change, the tracks' sounds and mix (4-227) and the FM patches (2420-) stay as they were");
+    check(eq([...(await cl.get(OBJ.SLOT, 2548)).subarray(0, 1)], [0]) && eq([...(await cl.get(OBJ.SLOT + 2, 2548)).subarray(0, 1)], [0]),
           "sequencer: the other slots (A, C) untouched");
     const sound0 = [0, 1, 2, 3].map((t) => slotTrack(back1, t));
-    check(sound0.every((x, t) => x.eng === work0[t * 52] && x.k.length === 4), "sequencer: a slot's tracks' sources and knobs read for the step locks' names");
+    check(sound0.every((x, t) => x.eng === work0[t * 56] && x.k.length === 4), "sequencer: a slot's tracks' sources and knobs read for the step locks' names");
     const f = JSON.parse(JSON.stringify(patternFile(pats2, { slot: "B" })));
     let bad = "";
     try { parsePatternFile({ ...f, tracks: f.tracks.slice(0, 3) }); } catch (e) { bad = e.message; }
@@ -453,9 +456,9 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
           "sequencer: a pattern file saved and loaded gives the same patterns; a damaged one is refused");
     run(recallScript(1, false));                             // recall slot B (SAVE + G3), not playing yet
     const work1 = await cl.get(9, SEQ.WORK_LEN), got = patternsFromWork(work1);
-    check(JSON.stringify(got) === JSON.stringify(pats2) && eq([...work1.subarray(0, 208)].slice(0, 29), [...back1.subarray(4, 212)].slice(0, 29)),
+    check(JSON.stringify(got) === JSON.stringify(pats2) && eq([...work1.subarray(0, 224)].slice(0, 29), [...back1.subarray(4, 228)].slice(0, 29)),
           "sequencer: slot B recalled on the virtual FM-1, the working project (object 9) holds the patterns as written; the first track's sound as in the slot");
-    const slotTracks = back1.subarray(4, 212), workTracks = work1.subarray(0, 208);
+    const slotTracks = back1.subarray(4, 228), workTracks = work1.subarray(0, 224);
     let diff = 0;
     for (let k = 0; k < 208; k++) if (slotTracks[k] !== workTracks[k]) diff++;
     check(diff === 0, `sequencer: the recalled tracks (sound and mix bytes) equal the slot's (${diff} bytes differ)`);
@@ -473,7 +476,7 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
     let ok = false;
     try { await cl.canWrite(OBJ.SLOT + 1, slot1, info.fmt); ok = true; } catch (e) { /* still sounding */ }
     check(!(vf.ex.web_lit_buttons() >>> BTN_PLAY & 1) && ok, "sequencer: stopped: PLAY dark, silent, a write is taken again");
-    await cl.put(OBJ.SLOT + 1, new Uint8Array(2532), info.fmt);   // (slot B empty again, as at power-on)
+    await cl.put(OBJ.SLOT + 1, new Uint8Array(2548), info.fmt);   // (slot B empty again, as at power-on)
   }
 
 // STEP RECORD (the SEQUENCER's REC): the record logic of editor_core.js

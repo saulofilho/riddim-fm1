@@ -76,6 +76,8 @@ typedef struct {
     volatile int32_t tap;                       /* (V2) MIXER 1: TAPE, how far the track goes through it, 0..127
                                                  * (tapefx.c tape_trk) */
     volatile int32_t vty;                       /* (GR!MM's VOICE TYPE; RIDDIM: unused, kept 0 for the save layout) */
+    volatile int32_t grv_style, grv_parts, grv_fill, grv_feel;   /* (RIDDIM) a DRUM track's GROOVE: STYLE (0 OFF), PARTS,
+                                                 * FILL (OFF, 2, 4, 8 bars), FEEL (-64 .. 63; groove.c) */
     volatile int32_t pd_ring, pd_noise;         /* (V2) PHASE's LINE 2: RING (line 1 x line 2), NOISE (phase.c) */
     volatile int32_t pd_wav, pd_dcw;            /* (V2) LINE 2's WAVE (0 SAME: line 1's, 1 .. 8), DCW (0 SAME, 1 .. 127) */
     volatile int32_t pd_de, pd_dd, pd_pe, pd_pd;   /* (V2) PHASE ENV: DCW ENV (0 .. 127), its DECAY, PITCH ENV (-64 .. 63

@@ -248,6 +248,34 @@ para trocar).
 - Falta: o mood board v2 na linguagem nova (ou tirá-lo do site); um card próprio para o Hub (`docs/card.png`, hoje o
   do GR!MM); refazer os sons do site quando os estilos (Fase 3) existirem.
 
+**2026-11-25: Fase 3, o GROOVE, e sons naturais.** (Pedido do autor: "os sons têm que ficar bem reais, naturais; não
+podem ser robóticos". Nada testado no FM-1.)
+
+- **Naturalidade no golpe** (`drum.c`, `drum_hit_at`): nenhum golpe igual ao outro, mesmo com HUMAN 0 (afinação ±6
+  cents, volume ~±0,8 dB, duração ±6 %), e a força muda o som, não só o volume: golpe fraco com o ruído mais escuro
+  (~70 % do filtro), metade do "boing" do tom e mais curto. Medido em `tests/drum_test.c`: o mesmo cross-stick duas
+  vezes fica 19 % diferente; a caixa fraca tem metade dos agudos da forte.
+- **GROOVE** (`firmware/src/groove.c`, do motor do COQUÍ): 8 estilos de 2 compassos com duas viradas cada (A e B, uma
+  frase cada): ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, EARLY, RUB-A-DUB, DUB. Página EDIT › GROOVE numa
+  trilha DRUM (SOUND → GROOVE → SOURCE): STYLE, PARTS (ALL, DRUMS, HATS, EXTRAS e pares), FILL (/2, /4, /8), FEEL
+  (swing). **O baterista:** cada peça no seu lugar atrás do tempo (cross-stick e caixa ~5 ms, bumbo em cima, chimbal
+  mais solto, com variação), força ±12 % por golpe, ghost 7 em 10, toque fraco 9 em 10, de vez em quando um ghost entre
+  os chimbais. Medido: 46–56 tempos diferentes em 8 compassos por estilo, a força do chimbal variando.
+- Cada kit de fábrica traz o seu estilo (ONE DROP, ROCKERS, STEPPERS, DUB, RUB-A-DUB, ROCKSTEADY, ONE DROP, FLYERS,
+  STEPPERS), FILL /4: carregar e apertar PLAY.
+- Saves: trilha de 56 bytes, projeto versão 9, slots versão 7 (como o COQUÍ); uma trilha mais antiga carrega sem
+  estilo e com FEEL 0 (no COQUÍ ela voltava com FEEL −64). O som DRUM guarda o GROOVE nos bytes 18–21; o editor web
+  lê, mostra e grava (GROOVE no SOUND EDITOR) e conhece o slot novo (2548 B).
+- Testes: `drum_test.c` (naturalidade, estilos, 8 compassos de cada um: viradas, mistura abaixo do fundo de escala,
+  tempo e força humanos), `tests/groove_save_test.py`, `presets_test.py` e `web/test_web.mjs` no tamanho novo, o
+  stress (`stress_check.c` como o do COQUÍ) com as sementes 1 e 7, nomes do aparelho ok. **A referência do tapeoff foi
+  refeita de propósito** (o som da bateria mudou): dizer no commit.
+- Build: 478552 B (eram 473404), RAM 86152 B.
+- Site: os 9 kits agora são gravados **tocando o próprio GROOVE** (só PLAY, nada roteirizado), a grade mostra os 32
+  passos do estilo; a tela GROOVE no site, no manual e no guia.
+- Falta na Fase 3: ouvir no FM-1 e ajustar de ouvido (o atraso de cada peça, as chances de ghost); a CPU com GROOVE em
+  quatro trilhas.
+
 Orçamento da base, igual ao medido no COQUÍ em 2026-11-05:
 
 | Recurso | Usado | Limite | Livre |

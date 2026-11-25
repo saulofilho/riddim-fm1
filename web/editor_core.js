@@ -370,6 +370,8 @@ export function parseSound(r, meta) {                        // a record -> a so
   return { cat: r[1], num: r[2], eng: r[3], k: [...r.slice(4, 8)], env: [...r.slice(8, 12)], latch: r[12] & 1, glide: r[12] >> 1,
            chordOn: r[13] >> 7, voicing: (r[13] >> 4) & 7, chord: r[13] & 15, lfo: [...r.slice(14, 18)],
            fm: { alg: fm[0] & 31, fb: fm[1] & 7, ops: [0, 1, 2, 3, 4, 5].map((i) => [...fm.slice(2 + i * 5, 7 + i * 5)]) }, name,
+           grv: r[3] === 3 ? { style: r[18], parts: r[19], fill: r[20], feel: r[21] ? r[21] - 64 : 0 } : null,   // (RIDDIM:
+                                                             // a DRUM sound's GROOVE; FEEL stored + 64)
            pd: pdOf(r[3] === 6 ? r : null) };                 // (GR!MM 2.0: PHASE's LINE 2 and envelopes, bytes 18 ..)
 }
 function pdOf(r) {                                          // a PHASE sound's LINE 2 (bytes 18 ..: 18 bit 0 RING, bit 1
@@ -390,9 +392,14 @@ export const decayText = (v) => timeText(10 * Math.pow(2, v * 15 / 192));       
 export const pctText = (v, off) => (v ? `${Math.round((v * 100 + 63) / 127)}%` : off);     // DCW: 1 .. 127 = 1 .. 100 %
 export const PITCH_TEXT = (v) => (v ? `${v > 0 ? "+" : ""}${v} ST` : "OFF");
 export const PHASE_PD0 = { ring: 0, noise: 0, wave: 0, dcw: 0, denv: 0, ddec: 0, penv: 0, pdec: 0 };   // (all off)
+// (RIDDIM) a DRUM sound's GROOVE, as firmware/src/groove.c names it (STYLE: OFF, then its styles; PARTS; FILL)
+export const GROOVE_STYLES = ["OFF", "ONE DROP", "ROCKERS", "STEPPERS", "FLYERS", "ROCKSTEADY", "EARLY", "RUB-A-DUB", "DUB"];
+export const GROOVE_PARTS = ["ALL", "DRUMS", "HATS", "EXTRAS", "DRM+HAT", "HAT+EXT", "DRM+EXT"];
+export const GROOVE_FILLS = ["OFF", "/2", "/4", "/8"];
 // the controls (label, min, max, default), in the SOUND EDITOR's order
 export const V2_SOUND_CONTROLS = {
   glide: ["GLIDE", 0, 127, 0],                               // every source
+  grv: [["STYLE", 0, 8, 0], ["PARTS", 0, 6, 0], ["FILL", 0, 3, 0], ["FEEL", -64, 63, 0]],   // (RIDDIM) DRUM, under "GROOVE"
   line2: [["WAVE", 0, 8, 0], ["DCW", 0, 127, 0], ["RING", 0, 1, 0], ["NOISE", 0, 1, 0]],   // PHASE, under "PHASE LINE 2"
   env: [["DCW", 0, 127, 0], ["D DEC", 0, 127, 0], ["PITCH", -64, 63, 0], ["P DEC", 0, 127, 0]],   // PHASE, under "PHASE ENV"
 };
@@ -406,6 +413,8 @@ export function buildRecord(s) {
     r[18] = 0x80 | (s.fm.alg & 31), r[19] = s.fm.fb & 7;
     s.fm.ops.forEach((o, i) => r.set(o, 20 + i * 5));
   }
+  if (s.eng === 3 && s.grv)                                  // (RIDDIM: DRUM's GROOVE; FEEL + 64)
+    r[18] = s.grv.style & 15, r[19] = s.grv.parts & 7, r[20] = s.grv.fill & 3, r[21] = (Math.max(-64, Math.min(63, s.grv.feel | 0)) + 64) & 127;
   if (s.eng === 6 && s.pd) {                                 // (GR!MM 2.0: PHASE: LINE 2's RING, NOISE, WAVE, DCW)
     r[18] = (s.pd.ring ? 1 : 0) | (s.pd.noise ? 2 : 0);
     r[19] = Math.min(s.pd.wave || 0, 8), r[20] = (s.pd.dcw || 0) & 127;
@@ -707,11 +716,11 @@ export function makeSlot(buf, name, root, norm = true) {      // -> {hdr (480 B)
 }
 
 // ------------------------------------------------------------------ the SEQUENCER (patterns: docs/EDITOR_PROTOCOL.md, "A slot" and
-// "A sequence"; GR!MM 2.0, no firmware change): a slot holds the four tracks' sounds and mix (bytes 4-211), their sequences
-// (212-1251: 4 x 260), their step locks (1252-2403: 4 x 288) and their FM patches (2404-2531); the working project
-// (object 9, read only) holds the same sequences and locks at 228 and 1268. Only the sequences and locks are ever changed.
-export const SEQ = { N: 64, LEN: 260, LOCK: 288, SLOT_LEN: 2532, WORK_LEN: 2576, SLOT_SEQ: 212, SLOT_LOCK: 1252, SLOT_END: 2404,
-                     WORK_SEQ: 228, WORK_LOCK: 1268, WORK_TRACKS: 208, WORK_FM: 2440, SLOT_FM: 2404, FM_LEN: 128 };
+// "A sequence"; RIDDIM: a track 56 bytes, its GROOVE): a slot holds the four tracks' sounds and mix (bytes 4-227), their
+// sequences (228-1267: 4 x 260), their step locks (1268-2419: 4 x 288) and their FM patches (2420-2547); the working project
+// (object 9, read only) holds the same sequences and locks at 244 and 1284. Only the sequences and locks are ever changed.
+export const SEQ = { N: 64, LEN: 260, LOCK: 288, SLOT_LEN: 2548, WORK_LEN: 2592, SLOT_SEQ: 228, SLOT_LOCK: 1268, SLOT_END: 2420,
+                     WORK_SEQ: 244, WORK_LOCK: 1284, WORK_TRACKS: 224, WORK_FM: 2456, SLOT_FM: 2420, FM_LEN: 128, TRK: 56 };
 export const DIV_NAMES = ["1/4", "1/4T", "1/8", "1/8T", "1/16", "1/16T", "1/32", "1/32T"];
 export const MODE_NAMES = ["FORWARD", "BACKWARD", "PINGPONG", "RANDOM"];
 export const emptyStep = () => ({ note: 0, chance: 100, ratchet: 1, len: 1, chord: 0, lmask: 0, lv: [0, 0, 0, 0] });
@@ -747,7 +756,7 @@ export function patternsFromWork(b) {                        // the working proj
   return [0, 1, 2, 3].map((t) => parsePattern(b.subarray(SEQ.WORK_SEQ + t * SEQ.LEN, SEQ.WORK_SEQ + (t + 1) * SEQ.LEN),
                                               b.subarray(SEQ.WORK_LOCK + t * SEQ.LOCK, SEQ.WORK_LOCK + (t + 1) * SEQ.LOCK)));
 }
-export function slotWithPatterns(slot, pats) {               // a copy of a slot with the four patterns: ONLY bytes 212-2403 differ
+export function slotWithPatterns(slot, pats) {               // a copy of a slot with the four patterns: ONLY bytes 228-2419 differ
   const o = Uint8Array.from(slot);
   pats.forEach((p, t) => {
     const { seq, lock } = packPattern(p);
@@ -761,7 +770,7 @@ export function slotFromWork(work, pats) {                   // a used slot made
   return slotWithPatterns(o, pats);
 }
 export function slotTrack(slot, t, off = 4) {                // a slot's (off 4) or the working project's (off 0) track t: its source
-  const b = off + t * 52, eng = Math.min(slot[b], 6);
+  const b = off + t * SEQ.TRK, eng = Math.min(slot[b], 6);
   return { eng, k: [0, 1, 2, 3].map((j) => slot[b + 1 + eng * 4 + j]) };
 }
 export function patternFile(pats, extra = {}) {              // the file: a step is [note, chance, ratchet, length, chord byte, lock mask, 4 lock values]

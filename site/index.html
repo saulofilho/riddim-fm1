@@ -95,12 +95,14 @@ section{padding:56px 0 64px}
 .kit.on .big .play::after{left:32%;top:30%;width:.08em;height:.2em;border:0;background:var(--cream);box-shadow:.11em 0 0 var(--cream)}
 .kit.on .big .nm{color:var(--red)}
 .lanes{display:grid;grid-template-columns:minmax(70px,120px) 1fr;gap:3px 10px;align-items:center}
-.lanes .st{display:grid;grid-template-columns:repeat(16,1fr);gap:3px}
-.lanes .st i{height:18px;background:#E2D3A8}
+.lanes .st{display:grid;grid-template-columns:repeat(32,1fr);gap:2px}
+.lanes .st i:nth-child(17){margin-left:4px}
+.lanes .st i{height:16px;background:#E2D3A8}
 .lanes .st i:nth-child(4n+1){background:#D8C691}
 .lanes .st i.x{background:var(--ink)}
 .lanes .st i.X{background:var(--red)}
 .lanes .st i.o{background:var(--mute)}
+.lanes .st i.g{background:#B9A77E}
 .lanes .st i.now{outline:3px solid var(--green);outline-offset:-3px}
 .lanes .lab{color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lanes .fillrow{color:var(--red)}
@@ -188,16 +190,16 @@ html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]
 <section class="status">
   <div class="wrap">
     <div class="sh mono"><h2>Version 0.1</h2><span data-l="en">in development</span><span data-l="pt">em desenvolvimento</span></div>
-    <p class="lede" data-l="en"><b>The drums are here:</b> DRUM, a roots kit of 20 synthesized drums on the 27 keys, and nine factory kits. Next: drum styles that play by themselves, the band's lines (skank, bubble, bass) and the dub desk (spring, tape echo, VERSION). <b>Not tested on an FM-1 yet</b>, and not on the Firmware Hub: play it in the emulator meanwhile.</p>
-    <p class="lede" data-l="pt"><b>A bateria chegou:</b> DRUM, um kit roots de 20 tambores sintetizados nas 27 teclas, e nove kits de fábrica. Depois: estilos de bateria que tocam sozinhos, as linhas da banda (skank, bubble, baixo) e a mesa de dub (mola, eco de fita, VERSION). <b>Ainda não testado num FM-1</b>, e fora do Firmware Hub: enquanto isso, toque no emulador.</p>
+    <p class="lede" data-l="en"><b>The drummer is here:</b> DRUM, a roots kit of 20 synthesized drums, and GROOVE, eight styles it plays by itself with a drummer's feel (one drop, rockers, steppers, flyers, rocksteady, early, rub-a-dub, dub). Next: the band's lines (skank, bubble, bass) and the dub desk (spring, tape echo, VERSION). <b>Not tested on an FM-1 yet</b>, and not on the Firmware Hub: play it in the emulator meanwhile.</p>
+    <p class="lede" data-l="pt"><b>O baterista chegou:</b> DRUM, um kit roots de 20 tambores sintetizados, e GROOVE, oito estilos que ele toca sozinho, com mão de baterista (one drop, rockers, steppers, flyers, rocksteady, early, rub-a-dub, dub). Depois: as linhas da banda (skank, bubble, baixo) e a mesa de dub (mola, eco de fita, VERSION). <b>Ainda não testado num FM-1</b>, e fora do Firmware Hub: enquanto isso, toque no emulador.</p>
   </div>
 </section>
 
 <section id="listen">
   <div class="wrap">
-    <div class="sh mono"><h2 data-l="en">Listen</h2><h2 data-l="pt">Ouça</h2><span data-l="en">nine kits · recorded from the firmware itself</span><span data-l="pt">nove kits · gravados do próprio firmware</span></div>
-    <p class="lede" data-l="en">Each kit playing a beat in its style, four bars, the fourth with its fill. The beats are played on the keys, the way you would: the styles that play themselves come next.</p>
-    <p class="lede" data-l="pt">Cada kit tocando uma batida no seu estilo, quatro compassos, o quarto com a virada. As batidas são tocadas nas teclas, como você faria: os estilos que tocam sozinhos vêm depois.</p>
+    <div class="sh mono"><h2 data-l="en">Listen</h2><h2 data-l="pt">Ouça</h2><span data-l="en">nine kits · GROOVE · recorded from the firmware itself</span><span data-l="pt">nove kits · GROOVE · gravados do próprio firmware</span></div>
+    <p class="lede" data-l="en">Each kit playing its own style <b>by itself</b>: load it, press PLAY, and RIDDIM's drummer plays, four bars, the fourth with a fill. Never twice the same: the cross-stick laid back, ghost notes that come and go, every hit a little different.</p>
+    <p class="lede" data-l="pt">Cada kit tocando o seu estilo <b>sozinho</b>: carregue, aperte PLAY, e o baterista do RIDDIM toca, quatro compassos, o quarto com a virada. Nunca duas vezes igual: o cross-stick atrás do tempo, ghost notes que vêm e vão, cada golpe um pouco diferente.</p>
     <div id="kits"></div>
   </div>
 </section>
@@ -216,8 +218,8 @@ html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]
       <figure><img src="img/boot.png" width="480" height="480" alt="RIDDIM's boot screen: a record turns, the tonearm sets down, the name echoes"><figcaption class="mono">Boot</figcaption></figure>
       <figure><img src="img/home.png" width="480" height="480" alt="HOME: the sound system, a box a track; the muted track wears DROP"><figcaption class="mono">Home</figcaption></figure>
       <figure><img src="img/drum.png" width="480" height="480" alt="The DRUM page: the kit as it stands, the piece just hit lit"><figcaption class="mono">Edit › Drum</figcaption></figure>
+      <figure><img src="img/groove.png" width="480" height="480" alt="The GROOVE page: the style's lanes, the step playing lit"><figcaption class="mono">Edit › Groove</figcaption></figure>
       <figure><img src="img/seq.png" width="480" height="480" alt="The sequencer's grid"><figcaption class="mono">Seq › Grid</figcaption></figure>
-      <figure><img src="img/mixer1.png" width="480" height="480" alt="MIXER 1's six tiles"><figcaption class="mono">Home › Mixer 1</figcaption></figure>
       <figure><img src="img/perform.png" width="480" height="480" alt="The PERFORM page: throws, stutter, filter, GENERATE"><figcaption class="mono">FX (hold) › Perform</figcaption></figure>
     </div>
   </div>
@@ -277,9 +279,9 @@ html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]
   <div class="wrap">
     <div class="sh mono"><h2 data-l="en">Coming</h2><h2 data-l="pt">Vem aí</h2><span>PLAN.md</span></div>
     <div class="cards">
-      <div class="card" style="background:var(--red)"><h3 data-l="en">Styles</h3><h3 data-l="pt">Estilos</h3>
-        <p data-l="en">Drum styles that play by themselves: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB, with fills.</p>
-        <p data-l="pt">Estilos de bateria que tocam sozinhos: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB, com viradas.</p></div>
+      <div class="card" style="background:var(--red)"><h3 data-l="en">Real sounds</h3><h3 data-l="pt">Sons reais</h3>
+        <p data-l="en">The band's sounds made natural, as the drums now are: never two notes alike, the force in the tone.</p>
+        <p data-l="pt">Os sons da banda naturais, como a bateria já é: nunca duas notas iguais, a força no timbre.</p></div>
       <div class="card" style="background:var(--green)"><h3 data-l="en">The band</h3><h3 data-l="pt">A banda</h3>
         <p data-l="en">Lines over the chord you hold: SKANK on 2 and 4, the organ's BUBBLE, a BASS that leaves room, HORNS.</p>
         <p data-l="pt">Linhas sobre o acorde que você segura: SKANK no 2 e no 4, o BUBBLE do órgão, um BASS que deixa espaço, HORNS.</p></div>
@@ -424,9 +426,9 @@ D.kits.forEach((k, i) => {
   const lane = (l, cls) => `<span class="lab mono ${cls || ""}">${l.key}</span><span class="st">${[...l.steps].map((c) => `<i class="${c === "." ? "" : c}"></i>`).join("")}</span>`;
   row.innerHTML = `<div class="ctl mono"><span><span class="dot"></span>KIT <b>${n}</b> / ${String(D.kits.length).padStart(2, "0")}</span>
     <span><span class="dot"></span><b>${k.style}</b></span><span><span class="dot"></span><b>${k.bpm}</b> BPM</span>
-    <span><span class="dot o"></span>SHUFFLE <b>${k.shuffle}%</b></span><span><span class="dot o"></span>PRESETS <b>${k.preset}</b></span></div>
+    <span><span class="dot o"></span>FEEL <b>${k.feel}</b></span><span><span class="dot o"></span>PRESETS <b>${k.preset}</b></span></div>
     <button class="big letters" type="button" aria-label="Play ${k.name}"><span class="play" aria-hidden="true"></span><span class="nm">${k.name}</span></button>
-    <div class="lanes">${k.lanes.map((l) => lane(l)).join("")}${k.fill.length ? `<span class="lab mono fillrow">FILL ↓</span><span></span>` + k.fill.map((l) => lane(l, "fillrow")).join("") : ""}</div>`;
+    <div class="lanes">${k.lanes.map((l) => lane(l)).join("")}${k.fill.length ? `<span class="lab mono fillrow">FILL ↓</span><span></span>` + k.fill.map((l) => lane({ key: l.key, steps: ".".repeat(16) + l.steps }, "fillrow")).join("") : ""}</div>`;
   const audio = new Audio(`audio/kit-${n}.mp3`);
   audio.preload = "none";
   const btn = row.querySelector(".big"), cols = [...row.querySelectorAll(".st")].map((s) => [...s.children]);
@@ -444,10 +446,10 @@ D.kits.forEach((k, i) => {
   rows.push({ audio, cols, k });
   kitsEl.appendChild(row);
 });
-(function steps() {                                         // the step playing, lit (four bars; the shuffle left out)
+(function steps() {                                         // the step playing, lit (two bars a loop; the swing left out)
   rows.forEach(({ audio, cols, k }) => {
     if (audio.paused) return;
-    const s = Math.floor(audio.currentTime / (60 / k.bpm / 4)) % 16;
+    const s = Math.floor(audio.currentTime / (60 / k.bpm / 4)) % 32;
     cols.forEach((c) => c.forEach((i, j) => i.classList.toggle("now", j === s)));
   });
   requestAnimationFrame(steps);

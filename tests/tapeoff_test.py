@@ -3,7 +3,8 @@
 tests/data/tapeoff.sha256), for a set that sounds most of it:
   T1 MONK DRONE (a pad, chords), T2 ROCKSTEADY KIT (DRUM), T3 a SAMPLE track (slot 1, chords and single keys, the DLY,
   REV and GRAIN sends up: DELAY, SPACE, GRAIN on), T4 ONE DROP KIT (DRUM) with GENERATE on (STORM), MASTER at 1022.
-(RIDDIM: the reference made again for DRUM, where GR!MM's choirs were.)
+(RIDDIM: the reference made again for DRUM, where GR!MM's choirs were; and again when DRUM's hits became natural:
+each a little different, the force in the sound.)
 And (V2: TAPE a track's own) the same with TAPE's four knobs all up, every tile still 0.
 A change meant to change this sound must make a new reference on purpose (--make), saying so in its commit.
   python3 tests/tapeoff_test.py BIN                 the check against the reference
