@@ -211,86 +211,35 @@ st[6] = 4
 (OUT / "links2.bin").write_bytes(bytes(st))
 _, pl, _ = run("links2", [(1200, "midi 0xB0 23 127")], 1500, dict(os.environ, GRIMM_SETTINGS_IN=str(OUT / "links2.bin")))
 check("MIDI LEARN: a link to the TAPE send (x 5)", " tp 127,0,0,0" in pl, pl.split(" tp ")[1][:16])
-# (V2) VOICE's TYPE (SOURCE, KNOB 3): the four choirs load theirs; a choir another sound than SOLO, in range; saved
-# beside SHIFT (one byte), loaded; a GR!MM 1.0 project: SOLO
-want = {36: "GREGORIAN 1", 37: "PLAINCHANT 1", 38: "CATHEDRAL_CHOIR 3", 39: "NUNS 2"}
-got = {k: run(f"vt{k}", [(300, f"enc 6 {k}"), (500, "probe")], 600)[1].split(" sname ")[1].split(" vsh ")[0].replace(" vty", "")
-       for k in want}
-check("the four choir sounds load their TYPEs (GREGORIAN, GREGORIAN, CATHEDRAL, NUNS)", got == want, got)
-SRC = [(300, "enc 6 31"), (400, "btn 6"), (450, "btn 6")]   # (CHOIR OF GHOSTS: VOICE, SOLO; EDIT: SOURCE)
-_, ps, solo_b = run("vt_solo", SRC + [(600, "probe")])
-for ty, name in ((1, "GREGORIAN"), (2, "NUNS"), (3, "CATHEDRAL")):
-    w, pv, ch_b = run(f"vt_{ty}", SRC + [(500, f"enc 4 {ty}"), (600, "probe")])
-    r, h, lo_, pk = measure(w)
-    check(f"TYPE {name}: a choir, another sound than SOLO's, in range", f" vty {ty} " in pv and ch_b != solo_b and
-          pk <= 32767 and r > 100, f"{pv.split(' vty ')[1][:12]} rms {r:.0f} peak {pk}")
-SVV = SRC + [(500, "enc 4 3"), (550, "btn 6"), (600, "enc 3 5"), (1700, "keys 0")]   # (CATHEDRAL; SOUND: SHIFT +5)
-_, p1, _ = run("vt_save", SVV, 9000, dict(os.environ, GRIMM_SAVE_OUT=str(OUT / "vsaves.bin")))
-_, p2, _ = run("vt_load", [(1050, "keys 0"), (1100, "probe")], 1500, dict(os.environ, GRIMM_SAVE_IN=str(OUT / "vsaves.bin")))
-_, p3, _ = run("vt_v10", [(1050, "keys 0"), (1100, "probe")], 1500, dict(os.environ, GRIMM_SAVE_IN="tests/data/v1.0-saves.bin"))
-check("VOICE's TYPE saved beside its SHIFT and loaded (CATHEDRAL, SHIFT as set); a GR!MM 1.0 project: SOLO",
-      p1.split(" vty ")[1].startswith("3 vsh 19") and p2.split(" vty ")[1].startswith("3 vsh 19") and
-      p3.split(" vty ")[1].startswith("0 "), f"{p1.split(' vty ')[1][:10]} | {p2.split(' vty ')[1][:10]} | {p3.split(' vty ')[1][:10]}")
-# (V2) the choirs clean through their range: NUNS's and CATHEDRAL CHOIR's chords (the women's cycles, the hottest),
-# A3 .. G5 (keys, then OCT+): no sample at full scale, no sudden jump (a sample's second difference past 40 x its
-# neighbourhood's, 46 ms around it: a click, a pop; before the fix NUNS had dozens here: its sums wrapped in 32 bits)
-KEYS = [4, 8, 12, 16, 20, 24]                   # (A3, C#4, F4, A4, C#5, F5; then an octave up)
+# (RIDDIM) DRUM, where GR!MM's VOICE was: the nine kits (PRESETS 31 .. 39) load, each its TUNE; DRUM's TUNE saved and
+# loaded over its whole range (GR!MM packed VOICE's TYPE into that byte: 0 .. 24 only); a kit heard, in range; all 27
+# keys struck fast on the heaviest kit: nothing at full scale
+KITS = {31: ("ONE_DROP_KIT", 64), 32: ("ROCKERS_KIT", 64), 33: ("STEPPERS_KIT", 64), 34: ("DUB_KIT", 64),
+        35: ("RUB-A-DUB_KIT", 70), 36: ("ROCKSTEADY_KIT", 72), 37: ("DEEP_ROOTS_KIT", 56), 38: ("TIGHT_KIT", 76),
+        39: ("BOOMY_KIT", 52)}
 
 
-def clean(name, preset):
-    ev, t = [(300, f"enc 6 {preset}")], 1000
-    for o in range(2):
-        if o:
-            ev.append((t, "btn 1"))
-            t += 200
-        for k in KEYS:
-            ev += [(t, f"keys {1 << k:#x}"), (t + 900, "keys 0")]
-            t += 1000
-    _, _, raw = run(name, ev, t + 1500)
-    a = array.array("h", raw[44:])
-    m = [(a[2 * i] + a[2 * i + 1]) // 2 for i in range(len(a) // 2)]
-    d = [abs(m[i + 2] - 2 * m[i + 1] + m[i]) for i in range(len(m) - 2)]
-    blk = [sum(d[j:j + 2048]) / 2048 for j in range(0, len(d), 2048)]
-    jumps = sum(1 for i, x in enumerate(d) if x > 40 * blk[i // 2048] + 600)
-    return jumps, max(abs(x) for x in a)
+def name_tune(pr):                              # a probe's sound name and DRUM's TUNE (its "vsh")
+    return pr.split(" sname ")[1].split()[0], int(pr.split(" vsh ")[1].split()[0])
 
 
-for nm, pr in (("NUNS", 39), ("CATHEDRAL CHOIR", 38)):
-    j, pk = clean(f"clean{pr}", pr)
-    check(f"{nm}: chords A3 .. G5 clean (no sudden jumps, nothing at full scale)", j == 0 and pk < 32000,
-          f"jumps {j}, peak {pk}")
-# (V2) the choirs' VOWEL: NUNS, LATCH, A4 held, VOWEL turned A .. U a step every 94 ms: no jump while it turns; the
-# vowels' harmonics apart (A open, E bright: its second resonance, harmonics 3 .. 6): E from A by 8 dB and more (before
-# E, I, U were made clearer: 5.8)
-
-
-def harmonics_db(m, t, f0, n=8):                # harmonics 1 .. n at t s (8192 samples, Hann), dB under the loudest
-    import math
-    a0 = int(t * 44100)
-    seg = [m[a0 + i] * (0.5 - 0.5 * math.cos(2 * math.pi * i / 8191)) for i in range(8192)]
-    out = []
-    for k in range(1, n + 1):                   # (Goertzel)
-        w = 2 * math.pi * k * f0 / 44100
-        c, s1, s2 = 2 * math.cos(w), 0.0, 0.0
-        for x in seg:
-            s1, s2 = x + c * s1 - s2, s1
-        out.append(math.sqrt(max(s1 * s1 + s2 * s2 - c * s1 * s2, 1e-9)))
-    top = max(out)
-    return [max(20 * math.log10(v / top), -40) for v in out]
-
-
-ev = [(300, "enc 6 39"), (350, "down 3"), (360, "btn 1"), (370, "up 3"), (600, f"keys {1 << 16:#x}"), (700, "keys 0"),
-      (800, "btn 6"), (900, "enc 2 -127")] + [(3000 + 94 * i, "enc 2 1") for i in range(127)]
-_, _, raw = run("vowels", ev, 3000 + 94 * 127 + 2500)
+got = {k: name_tune(run(f"kit{k}", [(300, f"enc 6 {k}"), (500, "probe")], 600)[1]) for k in KITS}
+check("the nine DRUM kits load, each its TUNE", got == KITS, got)
+SVD = [(300, "enc 6 31"), (400, "btn 6"), (600, "enc 3 50"), (1700, "keys 0")]   # (ONE DROP KIT; SOUND: TUNE +50)
+_, p1, _ = run("dt_save", SVD + [(1800, "probe")], 9000, dict(os.environ, GRIMM_SAVE_OUT=str(OUT / "dsaves.bin")))
+_, p2, _ = run("dt_load", [(1050, "keys 0"), (1100, "probe")], 1500, dict(os.environ, GRIMM_SAVE_IN=str(OUT / "dsaves.bin")))
+check("DRUM's TUNE saved and loaded past GR!MM's 0 .. 24 (114)", name_tune(p1)[1] == 114 and name_tune(p2)[1] == 114,
+      f"{name_tune(p1)} | {name_tune(p2)}")
+w, _, _ = run("dk_play", [(300, "enc 6 31"), (600, "keys 0x1"), (650, "keys 0"), (1100, "keys 0x10"), (1150, "keys 0"),
+                          (1600, "keys 0x4"), (1650, "keys 0")], 2500)
+r, h, lo_, pk = measure(w, 500, 2300)
+check("ONE DROP KIT: the kick, the snare, the cross-stick heard, in range", r > 100 and pk <= 32767, f"rms {r:.0f} peak {pk}")
+ev, t = [(300, "enc 6 39")], 600
+for k in range(27):
+    ev += [(t, f"keys {1 << k:#x}"), (t + 20, "keys 0")]
+    t += 60
+_, _, raw = run("dk_all", ev, t + 2500)
 a = array.array("h", raw[44:])
-m = [(a[2 * i] + a[2 * i + 1]) / 2 for i in range(len(a) // 2)]
-w = m[int(2.5 * 44100):int(15.5 * 44100)]
-d = [abs(w[i + 2] - 2 * w[i + 1] + w[i]) for i in range(len(w) - 2)]
-blk = [sum(d[j:j + 2048]) / 2048 for j in range(0, len(d), 2048)]
-jumps = sum(1 for i, x in enumerate(d) if x > 40 * blk[i // 2048] + 600)
-hA, hE = harmonics_db(m, 3.35, 440.0), harmonics_db(m, 3.0 + 32 * 0.094 + 0.35, 440.0)
-apart = sum(abs(x - y) for x, y in zip(hA, hE)) / len(hA)
-check("the choirs' VOWEL: turned A .. U without a jump; E from A by 8 dB and more", jumps == 0 and apart >= 8.0,
-      f"jumps {jumps}, E from A {apart:.1f} dB")
+check("BOOMY KIT: all 27 keys struck fast, nothing at full scale", max(abs(x) for x in a) < 32000, max(abs(x) for x in a))
 print("fx test: passed" if not bad else "fx test: FAILED")
 sys.exit(1 if bad else 0)

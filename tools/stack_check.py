@@ -60,9 +60,9 @@ for f, ins in funcs.items():
             ic += 1
     frame[f], calls[f], ind[f] = deep, cs, ic
 
-ENG = [f for f in funcs if re.fullmatch(r"(va|fm|sampler|formant|choir|wheel|phys|phase|pd)_block", f)]
+ENG = [f for f in funcs if re.fullmatch(r"(va|fm|sampler|drum_v|wheel|phys|phase|pd)_block", f)]
 BEG = [f for f in funcs if re.fullmatch(r"\w+_begin", f) and f != "voice_begin"]
-TXT = [f for f in funcs if re.fullmatch(r"(va|fm|sampler|formant|wheel|phys|phase)_text", f)]
+TXT = [f for f in funcs if re.fullmatch(r"(va|fm|sampler|drum|wheel|phys|phase)_text", f)]
 DRAW = [f for f in funcs if re.search(r"draw|^pic_", f)]
 RAMT = [f for f in funcs if f.startswith(("rt_flash", "fl_", "spi_", "flash_")) and not calls[f]]
 TARGETS = {"app_audio": ENG, "voice_begin": BEG, "app_main": TXT, "ui_region": DRAW,

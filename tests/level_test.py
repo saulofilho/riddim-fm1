@@ -77,7 +77,7 @@ for m in MASTERS:
               not knee, f"{knee[:4]}")
 
 # four tracks together, LEVEL 100 and DLY sends up, a key each (chord mode off, then on)
-MIXES = {"loudest": (39, 41, 13, 40), "typical": (7, 1, 13, 31), "choirs and cello": (36, 39, 38, 43), "default VA": (0, 0, 0, 0)}
+MIXES = {"loudest": (39, 41, 13, 40), "typical": (7, 1, 13, 31), "drum kits and cello": (36, 39, 38, 43), "default VA": (0, 0, 0, 0)}
 for m in MASTERS:
     for nm, idx in MIXES.items():
         for ch in (0, 1):

@@ -8,7 +8,7 @@
   - a track's key switches it when let go, and not when another key came meanwhile; its key held + D#4: its MODE
     alone, D#4 alone: all four; F#4 G#4 its OCTAVE, A#4 its RANGE: no note outside the range (chords folded in)
   - the tempo: faster, its notes come faster, at once (stopped and playing; INT and INT+OUT)
-  - four tracks generating STORM (PHYS, two choirs, PHASE), chord mode off and on: each its share of the six voices, no
+  - four tracks generating STORM (PHYS, FM, PHASE, VA), chord mode off and on: each its share of the six voices, no
     generated note takes another track's voice, no chord note within its share left out, every track heard; one
     track generating: to the byte as before (against the build given as the second argument, if one)
   - a SAMPLE track's notes: up to the whole loop (its LENGTH), past the MODE's lengths; another source: the MODE's
@@ -172,11 +172,12 @@ for clock, play in ((0, 0), (0, 1), (1, 0), (1, 1)):
           f"its notes {a:.1f} -> {b:.1f} a second", pr[4000]["own"] == 60 and pr[15000]["own"] == 180 and b > 2.2 * a,
           f"tempo {pr[4000]['own']} -> {pr[15000]['own']}")
 
-# four tracks generating STORM: T1 BOWED BELL (PHYS), T2 GREGORIAN (choir), T3 WRAITH (PHASE), T4 CATHEDRAL CHOIR (choir);
+# four tracks generating STORM: T1 BOWED BELL (PHYS), T2 WAR HORN (FM: FIFTH OPEN, as GREGORIAN), T3 WRAITH (PHASE), T4 SORROW STRINGS (VA)
+# (RIDDIM: where GR!MM's two choirs were; LATCH off, as theirs);
 # chord mode all off (as loaded), or all on (SEL held, let go, on each track)
 OLD = sys.argv[2] if len(sys.argv) > 2 else None
-LOAD = [(300, "enc 6 17"), (400, "enc 1 1"), (500, "enc 6 36"), (600, "enc 1 1"), (700, "enc 6 25"), (800, "enc 1 1"),
-        (900, "enc 6 38"), (1000, "enc 1 -3")]
+LOAD = [(300, "enc 6 17"), (400, "enc 1 1"), (500, "enc 6 42"), (600, "enc 1 1"), (700, "enc 6 25"), (800, "enc 1 1"),
+        (900, "enc 6 44"), (1000, "enc 1 -3")]
 
 
 def chords(on):                                 # (all four off as loaded (rc12: no factory sound sets it): on: SEL held, let go, on each)

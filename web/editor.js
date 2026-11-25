@@ -10,7 +10,7 @@
 import { Client, MidiTransport, VirtualFM1, LiveSender, findFM1, HEAD, CMD, OBJ, PROTOS, EditorError, emptyRecord, isEmpty,
          recordOk, parseSound, buildRecord, soundTitle, makeBackup, checkBackup, restoreBackup, makeSlot, noteFromName,
          sampleName, noteName, pack7, hex, SET_V1, SET_V2, MCH_NAMES, CLOCK_NAMES, settingsOf, withSettings,
-         sameSettings, FX_PAGES, FT_NAMES, checkSamples, restoreSamples, VOICE_TYPES, LINE2_WAVES, V2_SOUND_CONTROLS, PHASE_PD0,
+         sameSettings, FX_PAGES, FT_NAMES, checkSamples, restoreSamples, LINE2_WAVES, V2_SOUND_CONTROLS, PHASE_PD0,
          glideText, decayText, pctText, PITCH_TEXT, SEQ, DIV_NAMES, MODE_NAMES, emptyPattern, emptyStep, patternsFromSlot,
          patternsFromWork, slotWithPatterns, slotFromWork, slotTrack, patternFile, parsePatternFile, recallScript, stopScript,
          BTN_PLAY, b64, recWrite, recRest, recTie, makeGrouper, pcKeyNote } from "./editor_core.js";
@@ -479,8 +479,6 @@ function drawEditor() {
   toggle(g, ["LATCH OFF", "LATCH ON"], () => s.latch, (v) => { s.latch = v; });
   const V2 = V2_SOUND_CONTROLS;                               // (GR!MM 2.0's settings: names, ranges as on the FM-1)
   control(g, V2.glide[0], V2.glide[1], V2.glide[2], () => s.glide || 0, (v) => { s.glide = v; }, glideText);   // (SOURCE's KNOB 4: every source)
-  if (s.eng === 3)                                           // (VOICE's TYPE, as SOURCE's KNOB 3)
-    choice(g, V2.vtype[0], VOICE_TYPES, () => s.vtype || 0, (v) => { s.vtype = v; });
   if (s.eng === 6) {                                         // (PHASE's LINE 2 page, then PHASE ENV)
     s.pd = s.pd || { ...PHASE_PD0 };
     const p2 = el("div", { cls: "grp" }, ed), [lw, ld, lr, ln] = V2.line2;

@@ -370,7 +370,6 @@ export function parseSound(r, meta) {                        // a record -> a so
   return { cat: r[1], num: r[2], eng: r[3], k: [...r.slice(4, 8)], env: [...r.slice(8, 12)], latch: r[12] & 1, glide: r[12] >> 1,
            chordOn: r[13] >> 7, voicing: (r[13] >> 4) & 7, chord: r[13] & 15, lfo: [...r.slice(14, 18)],
            fm: { alg: fm[0] & 31, fb: fm[1] & 7, ops: [0, 1, 2, 3, 4, 5].map((i) => [...fm.slice(2 + i * 5, 7 + i * 5)]) }, name,
-           vtype: r[3] === 3 && r[18] < 4 ? r[18] : 0,       // (GR!MM 2.0: VOICE's TYPE, byte 18; before: SOLO)
            pd: pdOf(r[3] === 6 ? r : null) };                 // (GR!MM 2.0: PHASE's LINE 2 and envelopes, bytes 18 ..)
 }
 function pdOf(r) {                                          // a PHASE sound's LINE 2 (bytes 18 ..: 18 bit 0 RING, bit 1
@@ -381,7 +380,6 @@ function pdOf(r) {                                          // a PHASE sound's L
 }                                                            // saved before): all off
 // GR!MM 2.0's sound settings, as the FM-1's screens name them (SOURCE: TYPE, GLIDE; LINE 2; PHASE ENV): the SOUND EDITOR
 // draws its controls from these, the tests check them against the sheets (controls-2.0.csv)
-export const VOICE_TYPES = ["SOLO", "GREGORIAN", "NUNS", "CATHEDRAL"];
 export const LINE2_WAVES = ["SAME", "SAW", "SQR", "PLS", "DSIN", "SPLS", "RSAW", "RTRI", "RTRP"];
 export const timeText = (ms) => {                          // ui.c's ui_time: "5 MS", "120 MS", "1.5 S", "12 S"
   ms = Math.round(ms);
@@ -395,7 +393,6 @@ export const PHASE_PD0 = { ring: 0, noise: 0, wave: 0, dcw: 0, denv: 0, ddec: 0,
 // the controls (label, min, max, default), in the SOUND EDITOR's order
 export const V2_SOUND_CONTROLS = {
   glide: ["GLIDE", 0, 127, 0],                               // every source
-  vtype: ["VOICE TYPE", 0, 3, 0],                            // VOICE
   line2: [["WAVE", 0, 8, 0], ["DCW", 0, 127, 0], ["RING", 0, 1, 0], ["NOISE", 0, 1, 0]],   // PHASE, under "PHASE LINE 2"
   env: [["DCW", 0, 127, 0], ["D DEC", 0, 127, 0], ["PITCH", -64, 63, 0], ["P DEC", 0, 127, 0]],   // PHASE, under "PHASE ENV"
 };
@@ -409,7 +406,6 @@ export function buildRecord(s) {
     r[18] = 0x80 | (s.fm.alg & 31), r[19] = s.fm.fb & 7;
     s.fm.ops.forEach((o, i) => r.set(o, 20 + i * 5));
   }
-  if (s.eng === 3) r[18] = (s.vtype || 0) & 3;               // (GR!MM 2.0: VOICE's TYPE: SOLO, GREGORIAN, NUNS, CATHEDRAL)
   if (s.eng === 6 && s.pd) {                                 // (GR!MM 2.0: PHASE: LINE 2's RING, NOISE, WAVE, DCW)
     r[18] = (s.pd.ring ? 1 : 0) | (s.pd.noise ? 2 : 0);
     r[19] = Math.min(s.pd.wave || 0, 8), r[20] = (s.pd.dcw || 0) & 127;

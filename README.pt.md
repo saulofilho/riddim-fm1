@@ -25,6 +25,13 @@ dub para "versionar" a música enquanto ela toca.
   - A tela de boot: o compacto gira, o braço desce e assenta, o nome aparece e os ecos caem atrás dele.
   - A HOME: o sound system, uma caixa de som por trilha (T1 vermelho, T2 verde, T3 ouro, T4 azul). Os cones empurram
     com o som de cada trilha; uma trilha muda apaga e leva uma fita, DROP.
+- **DRUM, um kit roots** (uma fonte de som, no lugar da antiga VOICE): 20 tambores sintetizados em 27 teclas, de F3
+  para cima: KICK, HAT, CROSS (o cross-stick), PEDAL HAT, SNARE, OPEN HAT, RIMSHOT, os tons, SHAKER, COWBELL, STEP
+  KICK, WOOD, SYNDRUM (agudo e grave também), STICKS, SPRING (a mola chacoalhada), FLOOR TOM, TIMBALE, RIDE, CRASH, DUB
+  KICK. Knobs: KIT (STUDIO, YARD, DUB, STEPPERS), TUNE, DECAY, HUMAN (atrás do tempo). Um golpe corta o mesmo tambor
+  soando (os chimbais cortam um ao outro); o kit tem seus próprios dez golpes, nunca as seis vozes que as outras
+  trilhas dividem. A página DRUM desenha o kit e acende a peça tocada. Nove kits de fábrica na categoria DRUMS: ONE
+  DROP, ROCKERS, STEPPERS, DUB, RUB-A-DUB, ROCKSTEADY, DEEP ROOTS, TIGHT, BOOMY.
 - **O emulador web e o editor** (`web/`), com o nome RIDDIM: o mesmo firmware compilado para WebAssembly.
 - A groovebox por baixo: quatro trilhas, sete fontes de som, sequenciador de 64 passos por trilha, arpejador, acorde
   numa tecla, GENERATE, tape, grain, delay e reverb, modo song, MIDI de entrada e saída, MIDI clock. O manual próprio
@@ -35,9 +42,8 @@ dub para "versionar" a música enquanto ela toca.
 O [PLAN.md](PLAN.md) tem o roteiro inteiro e o andamento; o mood board está em
 [docs/moodboard/](docs/moodboard/index.html). Em resumo:
 
-- **Bateria:** um kit roots sintetizado (bumbo abafado, cross-stick, rimshot, chimbal aberto e fechado, viradas de
-  tom, syndrum, crash da mola) e estilos que tocam sozinhos: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, EARLY,
-  RUB-A-DUB, com viradas e o HUMAN, que toca atrás do tempo.
+- **Estilos de bateria** (o kit já está na 0.1): estilos que tocam sozinhos numa trilha DRUM: ONE DROP, ROCKERS,
+  STEPPERS, FLYERS, ROCKSTEADY, EARLY, RUB-A-DUB, com viradas e o HUMAN, que toca atrás do tempo.
 - **A banda:** linhas sobre o acorde que você segura: SKANK (o corte no 2 e no 4), BUBBLE (o órgão), BASS (raiz,
   quinta, oitava e passagem, com espaço para respirar), HORNS.
 - **Dub:** reverb de mola, eco de fita que chega à auto-oscilação, varredura de filtro, THROW (a trilha vai para o
@@ -82,5 +88,5 @@ O RIDDIM se apoia no trabalho de outros autores de firmware para o FM-1. Quem fe
 
 ## Licença
 
-GPL-3.0-only ([LICENSE](LICENSE)); alguns arquivos são Apache-2.0 ou MIT, os samples de fábrica CC0 1.0 e as
-wavetables de coro CC BY 4.0, como lista o [LICENSING.md](LICENSING.md). M-VAVE e FM-1 são marcas dos seus donos.
+GPL-3.0-only ([LICENSE](LICENSE)); alguns arquivos são Apache-2.0 ou MIT e os samples de fábrica CC0 1.0, como lista
+o [LICENSING.md](LICENSING.md). M-VAVE e FM-1 são marcas dos seus donos.

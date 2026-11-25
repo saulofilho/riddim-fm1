@@ -73,8 +73,9 @@ static const uint16_t OBJ_VERS[NOBJV][7] = {{8, 52, 20, 260, 288, FM_ALL, FX2_PK
 #define SLS_P (4096u - OBJ_HDR - 4u)            /* the stream's bytes a sector */
 #define SLS_N 3u                                /* its sectors: 3, 4, 5 */
 enum { OBJ_WORK, OBJ_SLOTS };
-enum { CAT_DRONE, CAT_PAD, CAT_BELL, CAT_ORGAN, CAT_KEYS, CAT_BASS, CAT_TEXTURE, CAT_VOICE, CAT_OTHER, NCAT };
-static const char *const CAT_NAME[NCAT] = {"DRONE", "PAD", "BELL", "ORGAN", "KEYS", "BASS", "TEXTURE", "VOICE", "OTHER"};
+enum { CAT_DRONE, CAT_PAD, CAT_BELL, CAT_ORGAN, CAT_KEYS, CAT_BASS, CAT_TEXTURE, CAT_DRUMS, CAT_OTHER, NCAT };   /* (RIDDIM:
+                                                 * DRUMS where GR!MM had VOICE) */
+static const char *const CAT_NAME[NCAT] = {"DRONE", "PAD", "BELL", "ORGAN", "KEYS", "BASS", "TEXTURE", "DRUMS", "OTHER"};
 _Static_assert(NENG <= PK_ENG, "a save keeps every source's settings");
 _Static_assert(SND_N * SND_SIZE <= 4096u && OBJ_HDR + WORK_PK + 4u <= 4096u && 4u * SLOT_ALL <= SLS_N * SLS_P &&
                SAVE_NSECT >= 3u + SLS_N, "the save sectors");
@@ -82,12 +83,12 @@ _Static_assert(SND_N * SND_SIZE <= 4096u && OBJ_HDR + WORK_PK + 4u <= 4096u && 4
 /* the factory sounds: GR!MM's own (first drafts), records as the user's (no CRC: in the image, read-only), first in
  * each CATEGORY's list; their names beside them. Bytes: CATEGORY, its number, the source, its four, ENV (ATTACK, DECAY,
  * SUSTAIN, RELEASE), LATCH, CHORD (chord mode off: VOICING << 4 | CHORD TYPE), LFO (RATE, DEPTH, DESTINATION, SHAPE).
- * Sources: 0 VA (WAVE 0 SAW, 1 SQUARE, 2 SUPERSAW), 1 FM (PATCH 0 BELL, 1 ORGAN, 2 SOFT PAD, 3 REED), 3 VOICE, 4 WHEEL,
+ * Sources: 0 VA (WAVE 0 SAW, 1 SQUARE, 2 SUPERSAW), 1 FM (PATCH 0 BELL, 1 ORGAN, 2 SOFT PAD, 3 REED), 3 DRUM (KIT 0 STUDIO,
+ * 1 YARD, 2 DUB, 3 STEPPERS; TUNE 64 = 0; DECAY 64 = x 1; HUMAN), 4 WHEEL,
  * 5 PHYS (MODEL 0 MODAL, 1 STRING, 2 MEMBRANE, 3 SYMPATH), 6 PHASE. LFO DESTINATION 0 PITCH, 1 VOLUME, 3 .. 6 KNOB 1 .. 4;
  * SHAPE 0 SINE, 1 TRIANGLE, 5 RANDOM, 6 DRIFT */
 #define FSND(c, n, e, k0, k1, k2, k3, a, d, s, r, la, ch, lr, ld, lt, ls)                                              \
     {SND_MAGIC1, c, n, e, k0, k1, k2, k3, a, d, s, r, la, ch, lr, ld, lt, ls}
-#define FSNDV(c, n, ty, k0, k1, k2, k3, a, d, s, r, la, ch, lr, ld, lt, ls)   /* (V2) VOICE and its TYPE (byte 18) */     {SND_MAGIC1, c, n, ENG_VOICE, k0, k1, k2, k3, a, d, s, r, la, ch, lr, ld, lt, ls, ty}
 static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     /* PADS */
     FSND(CAT_PAD, 1, ENG_VA, 2, 70, 62, 20, 105, 100, 110, 100, 1, 0x11, 30, 15, 5, 0),     /* CRYPT PAD */
@@ -101,7 +102,8 @@ static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     FSND(CAT_DRONE, 2, ENG_VA, 1, 5, 52, 30, 100, 90, 120, 110, 1, 0x05, 25, 30, 5, 0),     /* ABYSS */
     FSND(CAT_DRONE, 3, ENG_PHYS, 0, 100, 120, 60, 90, 90, 90, 100, 1, 0x05, 70, 20, 6, 5),  /* IRON LUNG */
     FSND(CAT_DRONE, 4, ENG_WHEEL, 0, 0, 10, 0, 70, 40, 60, 90, 1, 0x05, 15, 0, 1, 0),       /* TOMB HUM */
-    FSND(CAT_DRONE, 5, ENG_VOICE, 96, 6, 100, 90, 90, 90, 115, 100, 1, 0x05, 115, 30, 1, 5), /* STATIC PRAYER */
+    FSND(CAT_DRONE, 5, ENG_VA, 1, 0, 40, 20, 100, 90, 120, 105, 1, 0x05, 30, 12, 1, 0),     /* SUB DRONE (RIDDIM: VA, where
+                                                                                             * VOICE's STATIC PRAYER was) */
     FSND(CAT_DRONE, 6, ENG_FM, 1, 50, 64, 12, 95, 90, 120, 100, 1, 0x05, 40, 0, 0, 0),      /* DEEP WELL */
     /* BELLS & METAL */
     FSND(CAT_BELL, 1, ENG_FM, 0, 64, 90, 10, 0, 120, 0, 110, 0, 0x00, 40, 0, 0, 0),         /* IRON BELL */
@@ -110,12 +112,13 @@ static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     FSND(CAT_BELL, 4, ENG_FM, 0, 85, 30, 20, 80, 100, 70, 95, 0, 0x00, 40, 0, 0, 0),        /* GLASS HARP */
     FSND(CAT_BELL, 5, ENG_PHYS, 0, 70, 110, 45, 85, 90, 90, 100, 0, 0x00, 40, 0, 0, 0),     /* BOWED BELL */
     FSND(CAT_BELL, 6, ENG_FM, 0, 110, 20, 30, 0, 70, 0, 70, 0, 0x00, 40, 0, 0, 0),          /* SHRINE */
-    /* CHOIRS & VOICES */
-    FSND(CAT_VOICE, 1, ENG_VOICE, 0, 14, 30, 40, 85, 90, 90, 95, 0, 0x12, 100, 1, 0, 0),    /* CHOIR OF GHOSTS */
-    FSND(CAT_VOICE, 2, ENG_VOICE, 120, 4, 90, 45, 75, 80, 65, 90, 0, 0x05, 40, 0, 0, 0),    /* MONKS */
-    FSND(CAT_VOICE, 3, ENG_VOICE, 20, 14, 20, 110, 80, 90, 115, 95, 0, 0x13, 35, 10, 3, 6), /* WHISPER CHORUS */
-    FSND(CAT_VOICE, 4, ENG_VOICE, 64, 10, 45, 30, 90, 95, 65, 100, 0, 0x01, 25, 100, 3, 0), /* VIGIL */
-    FSND(CAT_VOICE, 5, ENG_FM, 2, 70, 64, 40, 85, 90, 115, 95, 0, 0x12, 95, 1, 0, 0),       /* HOLLOW HYMN */
+    /* (RIDDIM) DRUM KITS: DRUM, a roots kit on the keys; KIT, TUNE (64: as built), DECAY (64: x 1), HUMAN (behind the
+     * beat); ENV, LATCH, CHORD and LFO are a voice's: not used */
+    FSND(CAT_DRUMS, 1, ENG_DRUM, 0, 64, 64, 30, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* ONE DROP KIT */
+    FSND(CAT_DRUMS, 2, ENG_DRUM, 1, 64, 64, 25, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* ROCKERS KIT */
+    FSND(CAT_DRUMS, 3, ENG_DRUM, 3, 64, 70, 20, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* STEPPERS KIT */
+    FSND(CAT_DRUMS, 4, ENG_DRUM, 2, 64, 72, 35, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* DUB KIT */
+    FSND(CAT_DRUMS, 5, ENG_DRUM, 0, 70, 56, 20, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* RUB-A-DUB KIT */
     /* ORGANS & KEYS */
     FSND(CAT_ORGAN, 1, ENG_WHEEL, 15, 0, 20, 10, 10, 20, 75, 60, 0, 0x00, 40, 0, 0, 0),     /* FUNERAL ORGAN */
     FSND(CAT_ORGAN, 2, ENG_WHEEL, 12, 0, 10, 0, 10, 90, 127, 55, 0, 0x00, 40, 0, 0, 0),     /* CHAPEL */
@@ -126,7 +129,8 @@ static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     /* STRINGS & BRASS */
     FSND(CAT_OTHER, 1, ENG_PHYS, 1, 64, 110, 70, 100, 100, 65, 95, 0, 0x00, 40, 0, 0, 0),   /* HAUNTED STRINGS */
     FSND(CAT_OTHER, 2, ENG_VA, 0, 20, 70, 15, 65, 85, 105, 75, 0, 0x00, 100, 1, 0, 0),      /* DUNGEON BRASS */
-    FSND(CAT_OTHER, 3, ENG_FM, 3, 85, 64, 15, 75, 90, 115, 85, 0, 0x00, 40, 0, 0, 0),       /* WAR HORN */
+    FSND(CAT_OTHER, 3, ENG_FM, 3, 85, 64, 15, 75, 90, 115, 85, 0, 0x15, 40, 0, 0, 0),       /* WAR HORN (RIDDIM: FIFTH OPEN
+                                                                                             * kept for chord mode, as GR!MM's GREGORIAN had) */
     FSND(CAT_OTHER, 4, ENG_PHYS, 1, 50, 115, 60, 85, 95, 70, 95, 0, 0x00, 95, 1, 0, 0),     /* CELLO GRAVE */
     FSND(CAT_OTHER, 5, ENG_VA, 2, 40, 75, 5, 90, 90, 115, 95, 0, 0x00, 70, 1, 0, 0),        /* SORROW STRINGS */
     /* LEADS & PLUCKS */
@@ -136,29 +140,23 @@ static const uint8_t SND_FACTORY[][SND_FSIZE] = {
     FSND(CAT_KEYS, 8, ENG_PHYS, 3, 0, 85, 0, 0, 90, 127, 60, 0, 0x00, 40, 0, 0, 0),         /* LUTE */
     FSND(CAT_KEYS, 9, ENG_PHASE, 3, 0, 40, 4, 80, 90, 70, 80, 0, 0x00, 100, 1, 0, 0),       /* CANDLE */
     /* TEXTURES */
-    FSND(CAT_TEXTURE, 1, ENG_VOICE, 96, 12, 0, 127, 100, 90, 120, 105, 1, 0x00, 30, 90, 4, 0), /* WIND THRU STONE */
-    /* (V2) CHOIRS: VOICE's choir TYPEs (real singers' cycles), a clear vowel (O, A), BUZZ (their tone) warm to open, a
-     * little BREATH, SHIFT their spread, ATTACK ~0.3 .. 0.45 s, a long RELEASE (~5 .. 8 s), no LFO; chord mode OFF (rc12: a
-     * factory sound never switches it on), their CHORD TYPE and VOICING set for it: parallel fifths (organum), minor
-     * chords. SPACE isn't a sound's (the project's, the track's REV send): the
-     * manual says how to set it */
-    FSNDV(CAT_VOICE, 6, VT_GREG, 95, 12, 75, 15, 82, 90, 120, 110, 0, 0x15, 40, 0, 0, 0),  /* GREGORIAN: O, FIFTH OPEN (chord mode off) */
-    FSNDV(CAT_VOICE, 7, VT_GREG, 0, 9, 85, 18, 80, 90, 120, 106, 0, 0x00, 40, 0, 0, 0),    /* PLAINCHANT: A, one line,
-                                                                                             * close */
-    FSNDV(CAT_VOICE, 8, VT_CATH, 0, 15, 80, 12, 85, 90, 105, 112, 0, 0x21, 40, 0, 0, 0),   /* CATHEDRAL CHOIR: A, MIN
-                                                                                             * SPREAD, wide */
-    FSNDV(CAT_VOICE, 9, VT_NUNS, 95, 12, 90, 20, 84, 90, 120, 108, 0, 0x11, 40, 0, 0, 0),  /* NUNS: O, MIN OPEN */
+    FSND(CAT_TEXTURE, 1, ENG_VA, 2, 30, 40, 40, 100, 90, 120, 105, 1, 0x00, 30, 90, 4, 0),  /* SEA BREEZE (RIDDIM: VA, where
+                                                                                             * VOICE's WIND THRU STONE was) */
+    FSND(CAT_DRUMS, 6, ENG_DRUM, 1, 72, 52, 45, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* ROCKSTEADY KIT */
+    FSND(CAT_DRUMS, 7, ENG_DRUM, 1, 56, 80, 40, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* DEEP ROOTS KIT */
+    FSND(CAT_DRUMS, 8, ENG_DRUM, 2, 76, 44, 15, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* TIGHT KIT */
+    FSND(CAT_DRUMS, 9, ENG_DRUM, 3, 52, 90, 30, 0, 64, 127, 64, 0, 0x00, 40, 0, 0, 0),      /* BOOMY KIT */
 };
 static const char *const SND_FNAME[] = {
     "CRYPT PAD", "ASH VEIL", "FROZEN HALL", "LAST LIGHT", "MOSS", "BLACK VELVET",
-    "MONK DRONE", "ABYSS", "IRON LUNG", "TOMB HUM", "STATIC PRAYER", "DEEP WELL",
+    "MONK DRONE", "ABYSS", "IRON LUNG", "TOMB HUM", "SUB DRONE", "DEEP WELL",
     "IRON BELL", "FUNERAL CHIME", "RUST GONG", "GLASS HARP", "BOWED BELL", "SHRINE",
-    "CHOIR OF GHOSTS", "MONKS", "WHISPER CHORUS", "VIGIL", "HOLLOW HYMN",
+    "ONE DROP KIT", "ROCKERS KIT", "STEPPERS KIT", "DUB KIT", "RUB-A-DUB KIT",
     "FUNERAL ORGAN", "CHAPEL", "DEAD HARPSICHORD", "MUSIC BOX", "CATHEDRAL KEYS", "BONE PIANO",
     "HAUNTED STRINGS", "DUNGEON BRASS", "WAR HORN", "CELLO GRAVE", "SORROW STRINGS",
     "WRAITH", "LANTERN", "SPIDER PLUCK", "LUTE", "CANDLE",
-    "WIND THRU STONE",
-    "GREGORIAN", "PLAINCHANT", "CATHEDRAL CHOIR", "NUNS",
+    "SEA BREEZE",
+    "ROCKSTEADY KIT", "DEEP ROOTS KIT", "TIGHT KIT", "BOOMY KIT",
 };   /* (16 characters at most: the header beside HOME's tempo) */
 #define SND_NFACT (sizeof SND_FACTORY / sizeof SND_FACTORY[0])
 _Static_assert(SND_NFACT == sizeof SND_FNAME / sizeof SND_FNAME[0], "a name a factory sound");
@@ -317,7 +315,6 @@ static void snd_pack(uint8_t *r, uint32_t t, uint32_t cat, uint32_t num)   /* tr
     for (k = 0; k < SND_SIZE; k++) r[k] = 0;
     r[0] = SND_MAGIC, r[1] = (uint8_t)cat, r[2] = (uint8_t)num, r[3] = (uint8_t)e;
     if (e == ENG_FM) pk_fm(r + 18, t);          /* (FM: its own patch) */
-    if (e == ENG_VOICE) r[18] = (uint8_t)clamp(trk[t].vty, 0, NVT - 1);   /* (V2: VOICE: its TYPE in the patch's room) */
     if (e == ENG_PHASE) pd_pk(r + 18, t);       /* (V2: PHASE: its LINE 2 and envelopes there) */
     for (k = 0; k < 4u; k++) {
         r[4 + k] = (uint8_t)clamp(trk[t].p[e][k], 0, 255);
@@ -363,7 +360,6 @@ static void snd_apply(const uint8_t *r, uint32_t t)   /* a sound record into tra
     ch_unpack(t, r[13]);
     lfo_uk(r + 14, t);                          /* (saved before the LFO: zeros, DEPTH 0) */
     if (e == ENG_FM) uk_fm(snd_fname(r) ? 0 : r + 18, t);   /* (FM: its patch; a factory sound's: the PATCH as built) */
-    if (e == ENG_VOICE) trk[t].vty = r[18] < NVT ? r[18] : VT_SOLO;   /* (V2: its TYPE; saved before: 0, SOLO) */
     if (e == ENG_PHASE) pd_uk(r + 18, t);       /* (V2: saved before: zeros, all as before) */
     if ((uint32_t)trk[t].eng != e) {
         trk[t].eng = (int32_t)e;
@@ -433,8 +429,6 @@ static uint8_t *pk_track(uint8_t *q, uint32_t t)
     q[0] = (uint8_t)clamp(trk[t].eng, 0, NENG - 1);
     for (e = 0; e < NENG; e++)
         for (k = 0; k < 4u; k++) q[1 + e * 4u + k] = (uint8_t)clamp(trk[t].p[e][k], 0, 255);
-    q[1 + ENG_VOICE * 4u + 1u] = (uint8_t)(clamp(trk[t].p[ENG_VOICE][1], 0, 24) | clamp(trk[t].vty, 0, NVT - 1) << 5);   /*
-                                                 * (V2: VOICE's TYPE over its SHIFT, 0..24: 1.0 had 0 there) */
     for (k = 0; k < 4u; k++) q[33 + k] = (uint8_t)clamp(trk[t].env[k], 0, 127);
     q[29] = (uint8_t)(127 - clamp(trk[t].cut, 0, 127)), q[30] = (uint8_t)clamp(trk[t].res, 0, 127);   /* TRACK (0, 0, 0:
                                                  * open, 0, 100 %: as a save from before it) */
@@ -501,8 +495,7 @@ static const uint8_t *uk_track(const uint8_t *q0, uint32_t t, int isr, uint32_t 
     for (e = 0; e < NENG; e++)                  /* (rc9: every value loaded within its knob's range: a broken save
                                                  * can't put one past it) */
         for (k = 0; k < 4u; k++) trk[t].p[e][k] = clamp(q[1 + e * 4u + k], 0, ENGINES[e]->max[k]);
-    trk[t].p[ENG_VOICE][1] = clamp(q[1 + ENG_VOICE * 4u + 1u] & 31u, 0, ENGINES[ENG_VOICE]->max[1]);
-    trk[t].vty = q[1 + ENG_VOICE * 4u + 1u] >> 5 & 3u;   /* (V2) */
+    trk[t].vty = 0;                             /* (RIDDIM: GR!MM's VOICE TYPE, unused) */
     for (k = 0; k < 4u; k++) trk[t].env[k] = clamp(q[33 + k], 0, 127);
     if (trk[t].latch && !(q[37] & 1u)) {               /* (LATCH ON -> OFF: its latched notes released; at the bar, now) */
         if (!isr) nq_put(NQ_RELEASE, t, 0);

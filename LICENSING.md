@@ -15,14 +15,16 @@ Copyright (C) 2026 RIDDIM, GPL-3.0-only.
 | --- | --- |
 | The name, the package identity (`FM-1_932`), the version (0.1), the file names (`riddim.c`, `riddim.fwsc`, `riddim.wasm`, `firmware/gen/riddim_*.h`, the editor's files and keys: GR!MM's `grimm*` renamed), the saves' own magics (`RDOB`, `RDSL`, `RDST`, `RDSP` and the sound record's `R`, in `store.c`, `platform.c`, `samples.c`, `tools/fm1_sample_upload.py`, `web/editor_core.js`; `firmware/gen/riddim_samples.h` made again with them) | GR!MM's saves are not read |
 | The palette (NOITE: ink and poster paper; the accents RED, GOLD, GREEN, BLUE), a track's ink, the boot screen (the record, the tonearm, the name and its echoes) and HOME's sound system (a speaker box a track, the cones, DROP), in `firmware/src/ui.c` and `riddim.c` | RIDDIM's own, in the place of GR!MM's eye, webs, stars, candles, bats and drips |
-| The tests made RIDDIM's: `tests/run_host.sh` (GR!MM 1.0's saves not read), `tests/rc9_test.py`, `tests/presets_test.py`, `tests/device_names.py`, `web/test_web.mjs` (the names, the version, GR!MM's factory record refused), `tests/data/home_shot.txt` | |
+| The DRUM source `firmware/src/drum.c` (in the place of GR!MM's VOICE): the roots kit's synthesis (20 drums, the 27 keys, the four kits, HUMAN, the spring's rattle), its hook in `voices.c` and `riddim.c` (`note_on`, the keys, MIDI in), its picture in `ui.c` (`pic_drumkit`), the nine DRUM kits in `store.c` (where GR!MM's choirs and voices were; SUB DRONE and SEA BREEZE where its two other VOICE sounds were), its test `tests/drum_test.c` | RIDDIM's own code, after COQUÍ's PERC source (`perc.c`, `tests/perc/perc_test.c`, the same author, GPL-3.0). `sine_i` and `noise32` in it are Felucca's `dsp.c` (as GR!MM's `formant.c` had them), Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments |
+| The tests made RIDDIM's: `tests/run_host.sh` (GR!MM 1.0's saves not read; the drum test), `tests/rc9_test.py`, `tests/presets_test.py`, `tests/device_names.py`, `tests/fx_test.py`, `tests/latch_test.py`, `tests/gen_test.py`, `tests/chord_test.py`, `tests/level_test.py` (DRUM where the choirs were), `tests/tapeoff_test.py` (its reference made again for DRUM), `web/test_web.mjs` (the names, the version, GR!MM's factory record refused, DRUM in the editor), `tests/data/home_shot.txt` | |
 | The web emulator and the editor named RIDDIM (`web/index.html`, `editor.html`, `editor.js`, `editor_core.js`, `panel.js`: titles, messages, footers; the editor's tag to the site) | RIDDIM changes, over GR!MM's pages |
 | `README.md`, `README.pt.md`, `PLAN.md`, `fmhub.json`, `docs/moodboard/`, `docs/screens/riddim-*.png` (rendered from the firmware by host mode) | |
 | The site `site/` (its front page and pictures), `tools/build_site.sh`, `.github/workflows/pages.yml` (GitHub Pages: the site, the web emulator and editor in `emu/`, the mood board) | RIDDIM's own. Fonts from Google Fonts: Anton, Alfa Slab One, Archivo, IBM Plex Mono (SIL OFL 1.1) |
 
-GR!MM's VOICE source and its choir wavetables (made from VocalSet, CC BY 4.0), GR!MM's 44 factory sounds and its four
-factory samples (CC0 1.0) are still in RIDDIM 0.1; the roots sounds and kits that replace them come in later
-versions (`PLAN.md`). This file says so when they leave.
+GR!MM's VOICE source (`formant.c`) and its choir wavetables (made from VocalSet, CC BY 4.0) are not part of RIDDIM:
+neither the code nor the data is in this tree or in the firmware (removed in 0.1, where DRUM came). GR!MM's other 34
+factory sounds and its four factory samples (CC0 1.0) are still in RIDDIM 0.1; the roots sounds that replace them come in
+later versions (`PLAN.md`). This file says so when they leave.
 
 ## GR!MM's licensing
 

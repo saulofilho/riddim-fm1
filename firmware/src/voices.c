@@ -31,7 +31,8 @@
                                                  * at once: ~0.9 of its RELEASE, a voice's last ~16 LSB) */
 #define FIN_STEP (REL_FIN / 207)                /* Q24 a control step: 207 steps, ~150 ms */
 enum { ST_OFF, ST_ATK, ST_SUS, ST_REL, ST_FADE };
-enum { ENG_VA, ENG_FM, ENG_SAMPLE, ENG_VOICE, ENG_WHEEL, ENG_PHYS, ENG_PHASE, NENG };
+#define VB 256u                                 /* frames a render at most (voices_render, drum_block) */
+enum { ENG_VA, ENG_FM, ENG_SAMPLE, ENG_DRUM, ENG_WHEEL, ENG_PHYS, ENG_PHASE, NENG };   /* (RIDDIM: DRUM where GR!MM had VOICE) */
 
 typedef struct {
     volatile uint32_t req;                      /* main loop: + 1 after want_* */
@@ -74,14 +75,14 @@ typedef struct {
     volatile int32_t drv;                       /* (V2) MIXER 1: the DRIVE send, 0..127 (master.c drive_send) */
     volatile int32_t tap;                       /* (V2) MIXER 1: TAPE, how far the track goes through it, 0..127
                                                  * (tapefx.c tape_trk) */
-    volatile int32_t vty;                       /* (V2) VOICE's TYPE (VT_: SOLO, GREGORIAN, NUNS, CATHEDRAL; formant.c) */
+    volatile int32_t vty;                       /* (GR!MM's VOICE TYPE; RIDDIM: unused, kept 0 for the save layout) */
     volatile int32_t pd_ring, pd_noise;         /* (V2) PHASE's LINE 2: RING (line 1 x line 2), NOISE (phase.c) */
     volatile int32_t pd_wav, pd_dcw;            /* (V2) LINE 2's WAVE (0 SAME: line 1's, 1 .. 8), DCW (0 SAME, 1 .. 127) */
     volatile int32_t pd_de, pd_dd, pd_pe, pd_pd;   /* (V2) PHASE ENV: DCW ENV (0 .. 127), its DECAY, PITCH ENV (-64 .. 63
                                                  * semitones), its DECAY (0 .. 127: 10 ms .. ~9.7 s, as ENV's DECAY) */
     volatile int32_t glide;                     /* (V2) SOURCE's GLIDE: 0 off, 1 .. 127 (~10 ms .. 2.5 s; vc_gl) */
 } track_t;
-#define TRK_DEF {ENG_VA, {{0, 10, 90, 30}, {0, 64, 64, 20}, {0, 0, 127, 0}, {0, 12, 64, 10}, {4, 0, 40, 0}, {0, 64, 80, 64}, {0, 0, 60, 0}}, 100, 0, 100, 0, 64, 0, \
+#define TRK_DEF {ENG_VA, {{0, 10, 90, 30}, {0, 64, 64, 20}, {0, 0, 127, 0}, {0, 64, 64, 30}, {4, 0, 40, 0}, {0, 64, 80, 64}, {0, 0, 60, 0}}, 100, 0, 100, 0, 64, 0, \
                  {22, 85, 127, 89}, 0, 0, 0, 0, 0, 4, 1, 50, 64, 0, 0, 0, 127, 0, 100, 0, 0, {{0}}}
 static track_t trk[NT] = {TRK_DEF, TRK_DEF, TRK_DEF, TRK_DEF};   /* VA: SAW, DETUNE 10, CUTOFF 90, RESONANCE 30
                                                  * (Felucca's ANALOG); FM: BELL as made, DETUNE 20; SAMPLE: slot 1,
@@ -156,11 +157,11 @@ static inline uint32_t vinc(int32_t p16)
 #include "analog.c"                             /* the engines */
 #include "fm.c"
 #include "sampler.c"
-#include "formant.c"
+#include "drum.c"                               /* (RIDDIM: DRUM, a roots kit; its own hits, not voices) */
 #include "wheel.c"
 #include "phys.c"
 #include "phase.c"
-static const engine_t *const ENGINES[NENG] = {&VA_ENGINE, &FM_ENGINE, &SAMPLE_ENGINE, &FORMANT_ENGINE, &WHEEL_ENGINE,
+static const engine_t *const ENGINES[NENG] = {&VA_ENGINE, &FM_ENGINE, &SAMPLE_ENGINE, &DRUM_ENGINE, &WHEEL_ENGINE,
                                               &PHYS_ENGINE, &PHASE_ENGINE};   /* (by ENG_) */
 
 /* (V2) GENERATE's notes (gen.c): a voice's volume (0: full; else x / 256) and attack (0: the track's ATTACK; else
@@ -302,7 +303,6 @@ static int32_t env_tick(voice_t *v)
 
 /* the audio ISR: n frames (a multiple of CTL, at most VB) of every sounding voice into tb[its track] (mono); returns
  * the tracks that sound (bit t), whose buffers it zeroed first; the others' are left as they were */
-#define VB 256u
 static void ctl_hook(void);                     /* riddim.c: a control block's notes (the main loop's asks, the
                                                  * sequencer), before the voices */
 static uint32_t voices_render(int32_t (*tb)[VB], uint32_t n)
@@ -315,6 +315,7 @@ static uint32_t voices_render(int32_t (*tb)[VB], uint32_t n)
         wq = (wow_a | wow_b) ? wow_a + (wow_b - wow_a) * (int32_t)b / (int32_t)n : 0;   /* (V2: WOW's bend, a control
                                                  * step's; Q8) */
         ctl_hook();
+        drum_block(tb, b, n, &used);            /* (RIDDIM: DRUM's hits, their own pool) */
         for (k = 0; k < NV; k++)                /* nothing sounds and nothing is asked for: nothing to do */
             if (vc[k].stage != ST_OFF || vc[k].amp || vc[k].req != vc[k].seen) break;
         if (k == NV)

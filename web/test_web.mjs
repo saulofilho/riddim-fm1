@@ -21,7 +21,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { Client, VirtualFM1, LiveSender, MidiTransport, findFM1, OBJ, parseSound, buildRecord, makeBackup, checkBackup,
          restoreBackup, makeSlot, recordOk, unpack7, hex, sampleName, SET_V1, SET_V2, settingsOf, withSettings,
-         sameSettings, crc32, checkSamples, restoreSamples, EditorError, VOICE_TYPES, LINE2_WAVES, V2_SOUND_CONTROLS, PHASE_PD0,
+         sameSettings, crc32, checkSamples, restoreSamples, EditorError, LINE2_WAVES, V2_SOUND_CONTROLS, PHASE_PD0,
          glideText, decayText, pctText, PITCH_TEXT, SEQ, emptyPattern, slotFromWork, slotWithPatterns, patternsFromSlot,
          patternsFromWork, slotTrack, patternFile, parsePatternFile, recallScript, stopScript, BTN_PLAY, chordTable, chordNotes, matchChord,
          recWrite, recRest, recTie, makeGrouper, pcKeyNote, noteName, emptyStep } from "./editor_core.js";
@@ -181,15 +181,14 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
   await cl.put(OBJ.SND + 5, rec, info.fmt);
   const back = await cl.get(OBJ.SND + 5, 64);
   check(eq([...back], [...rec]) && JSON.stringify(parseSound(back, meta)) === JSON.stringify(s), "editor: a sound edited, sent, read back as edited");
-  {                                                          // (GR!MM 2.0: VOICE's TYPE in byte 18: the choirs' read; set, sent, read back)
-    const ty = [40, 41, 42, 43].map((i) => parseSound(Uint8Array.from(meta.factory[i].rec), meta).vtype);
+  {                                                          // (RIDDIM: a DRUM kit, where GR!MM's choirs were: its KIT, TUNE, DECAY, HUMAN)
     const v = parseSound(Uint8Array.from(meta.factory[40].rec), meta);
-    v.vtype = 2, v.name = "TYPE TEST";
+    v.k = [2, 120, 30, 90], v.name = "KIT TEST";
     const vr = buildRecord(v);
     await cl.put(OBJ.SND + 6, vr, info.fmt);
     const vb = parseSound(await cl.get(OBJ.SND + 6, 64), meta);
-    check(ty.join() === "1,1,3,2" && vb.vtype === 2 && vb.k[1] === v.k[1] && parseSound(Uint8Array.from(meta.factory[0].rec), meta).vtype === 0,
-          `editor: VOICE's TYPE read (the choirs: ${ty.join()}), set, sent, read back (${vb.vtype}); other sounds SOLO`);
+    check(meta.engines[3].name === "DRUM" && v.eng === 3 && vb.k.join() === "2,120,30,90" && eq([...await cl.get(OBJ.SND + 6, 64)], [...vr]),
+          `editor: a DRUM kit (${meta.factory[40].name}) edited (KIT, TUNE, DECAY, HUMAN), sent, read back (${vb.k.join()})`);
   }
   const b1 = await makeBackup(cl, info);
   await cl.put(OBJ.SND + 9, rec, info.fmt);
@@ -348,11 +347,11 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
   }
   {                                                          // (the SOUND EDITOR's GR!MM 2.0 controls, live, then STORE IN SLOT)
     const C = V2_SOUND_CONTROLS, live = async (t, sound) => { await cl.trackSet(t, buildRecord(sound)); return parseSound((await cl.track(t)).rec, meta); };
-    check(C.vtype.join() === "VOICE TYPE,0,3,0" && VOICE_TYPES.join() === "SOLO,GREGORIAN,NUNS,CATHEDRAL" &&
+    check(!C.vtype &&
           C.glide.join() === "GLIDE,0,127,0" && C.line2.map((c) => c.join(":")).join() === "WAVE:0:8:0,DCW:0:127:0,RING:0:1:0,NOISE:0:1:0" &&
           C.env.map((c) => c.join(":")).join() === "DCW:0:127:0,D DEC:0:127:0,PITCH:-64:63:0,P DEC:0:127:0" &&
           LINE2_WAVES.join() === "SAME,SAW,SQR,PLS,DSIN,SPLS,RSAW,RTRI,RTRP",
-          "editor: SOUND EDITOR: VOICE TYPE, GLIDE, PHASE LINE 2 (WAVE, DCW, RING, NOISE) and PHASE ENV (DCW, D DEC, PITCH, P DEC): names, ranges, defaults as the FM-1's sheet");
+          "editor: SOUND EDITOR: (no VOICE TYPE: RIDDIM has DRUM) GLIDE, PHASE LINE 2 (WAVE, DCW, RING, NOISE) and PHASE ENV (DCW, D DEC, PITCH, P DEC): names, ranges, defaults as the FM-1's sheet");
     check(glideText(0) === "OFF" && glideText(1) === "10 MS" && glideText(127) === "2.5 S" && decayText(0) === "10 MS" && decayText(127) === "9.7 S" &&
           pctText(0, "SAME") === "SAME" && pctText(127, "OFF") === "100%" && PITCH_TEXT(0) === "OFF" && PITCH_TEXT(-64) === "-64 ST" && PITCH_TEXT(63) === "+63 ST",
           "editor: SOUND EDITOR: the texts (GLIDE OFF, 10 MS .. 2.5 S; DECAY 10 MS .. 9.7 S; PITCH -64 .. +63 ST) as the FM-1 shows them");
@@ -365,8 +364,8 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
     check(ok, `editor: SOUND EDITOR: GLIDE live on every one of the 7 sources, read back${bad}`);
     const vo = parseSound(Uint8Array.from(meta.factory[40].rec), meta);
     ok = true;
-    for (let ty = 0; ty < 4; ty++) { vo.vtype = ty; const b = await live(2, vo); if (b.vtype !== ty || b.eng !== 3) ok = false; }
-    check(ok, "editor: SOUND EDITOR: VOICE TYPE SOLO, GREGORIAN, NUNS, CATHEDRAL live, read back");
+    for (let kt = 0; kt < 4; kt++) { vo.k = [kt, 64 + 8 * kt, 64, 30]; const b = await live(2, vo); if (b.k.join() !== vo.k.join() || b.eng !== 3) ok = false; }
+    check(ok, "editor: SOUND EDITOR: DRUM's KIT STUDIO, YARD, DUB, STEPPERS and its TUNE live, read back");
     const ph = parseSound(Uint8Array.from(meta.factory[3].rec), meta);
     ok = true;
     for (const pd of [{ ring: 1, noise: 0, wave: 8, dcw: 127, denv: 127, ddec: 127, penv: 63, pdec: 127 },
@@ -597,16 +596,15 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
   const bk = html.slice(html.indexOf('id="s-backup"'), html.indexOf("</section>", html.indexOf('id="s-backup"')));
   check(/four sample slots/.test(bk) && !/Samples are not in it/i.test(html) && !/keep their WAV files/.test(bk) && !/cannot send its samples/.test(html),
         'editor page: BACKUP says it holds the four samples; the old "keep their WAV files" is gone');
-  check(/choir recordings: <a [^>]*>VocalSet<\/a> \(Wilkins et al\., 2018\), <a class="lnk" href="https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/">CC BY 4\.0<\/a>/.test(html) &&
-        /choir recordings: VocalSet \(Wilkins et al\., 2018\), CC BY 4\.0/.test(lic) && lic.includes("https://creativecommons.org/licenses/by/4.0/") &&
+  check(!/VocalSet/.test(html) && /choir wavetables \(made from VocalSet, CC BY 4\.0\) are not part of RIDDIM/.test(lic) &&
         ["Press Start 2P", "Terminus", "CC0 1.0", "Emscripten", "Dinghy", "Felucca", "SLOOP"].every((c) => html.includes(c)),
-        "editor page and LICENSING.md: the VocalSet credit (CC BY 4.0, its link) added, the old credits still there");
+        "editor page and LICENSING.md: no VocalSet credit on the page (RIDDIM has no choirs; LICENSING.md says so), the other credits still there");
   check(info.firmware === "0.1" && meta.version === "0.1" && info.factory === 44 && meta.factory.length === 44 && /EDITOR 0\.1/.test(html) &&
         /"FIRMWARE", "RIDDIM " \+ i\.firmware/.test(js) && /\["FACTORY SOUNDS", i\.factory\]/.test(js),
         `editor page: CONNECT shows RIDDIM ${info.firmware} and ${info.factory} factory sounds; the header EDITOR 0.1`);
-  const names = meta.factory.map((x) => x.name), choirs = ["GREGORIAN", "PLAINCHANT", "CATHEDRAL CHOIR", "NUNS"];
+  const names = meta.factory.map((x) => x.name), kits = ["ONE DROP KIT", "STEPPERS KIT", "DUB KIT", "BOOMY KIT"];
   const srcs = meta.factory.map((x) => meta.engines[parseSound(Uint8Array.from(x.rec), meta).eng].name);
-  check(names.length === 44 && new Set(names).size === 44 && choirs.every((c) => names.some((n) => n.toUpperCase() === c)) &&
+  check(names.length === 44 && new Set(names).size === 44 && kits.every((c) => names.some((n) => n.toUpperCase() === c)) &&
         names.some((n) => n.length > 12) && srcs.every(Boolean) && /slotBox\(f, slotLabel/.test(js) && /el\("small", \{ cls: "src" \}/.test(js) &&
         !/\.slot\s*\{[^}]*(text-overflow|white-space:\s*nowrap)/.test(html) && /\.slot \.src \{ display: block/.test(html),
         `editor page: all 44 factory sounds by their full names (longest: ${names.reduce((a, n) => (n.length > a.length ? n : a), "")}), the source a tag on a second line, nothing cut`);
@@ -628,9 +626,9 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
         /sqTyping\(\)/.test(js) && /\(sq\.rec && sqOn\(\)\)/.test(js) && /k === "Backspace"/.test(js) && /k === " "/.test(js) && /k === "z"/.test(js) && /k === "x"/.test(js) &&
         /b\.append\(s\.note \? noteName\(s\.note\) : "OFF"\)/.test(js) && /\(v\) => \(v \? noteName\(v\) : "OFF"\)/.test(js),
         "editor page: STEP RECORD (REC, REST, TIE, MONITOR, MIDI IN without the FM-1's port, kept in localStorage in try/catch, the pedal, the computer's keys, notes as names, the cursor outlined, 44 px buttons)");
-  check(/PHASE LINE 2/.test(js) && /PHASE ENV/.test(js) && /V2_SOUND_CONTROLS/.test(js) && /VOICE_TYPES/.test(js) && /glideText/.test(js) && /decayText/.test(js) &&
+  check(/PHASE LINE 2/.test(js) && /PHASE ENV/.test(js) && /V2_SOUND_CONTROLS/.test(js) && !/VOICE_TYPES/.test(js) && /glideText/.test(js) && /decayText/.test(js) &&
         /b-store/.test(js),
-        "editor page: the SOUND EDITOR draws VOICE TYPE, GLIDE, PHASE LINE 2 and PHASE ENV from the sheet's names");
+        "editor page: the SOUND EDITOR draws GLIDE, PHASE LINE 2 and PHASE ENV from the sheet's names (no VOICE TYPE)");
 }
 
 console.log(fail ? `test_web: ${fail} failed` : "test_web: all ok");

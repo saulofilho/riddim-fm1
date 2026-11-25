@@ -67,3 +67,7 @@ python3 tests/rc11_test.py build/host/riddim
 # GR!MM V2.0.2: the sample slots after another firmware or a cut upload: any slot that does not play gets its factory
 # sample once the boot checks are done, one that plays is never touched, the header says which (tests/samplefix_test.py)
 python3 tests/samplefix_test.py build/host/riddim
+# RIDDIM: DRUM on its own (tests/drum_test.c): every key on every KIT under full scale, heard, ending; the hats one
+# group; its cost. build/host/drum_keys.wav: every key one after another (KIT STUDIO), to listen
+cc -O2 -Wall -Wno-unused-function -Ifirmware/src -Ifirmware/gen -o build/host/drum_test tests/drum_test.c -lm
+build/host/drum_test build/host/drum_keys.wav | tail -2

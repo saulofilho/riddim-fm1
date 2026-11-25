@@ -749,6 +749,12 @@ static void note_on(uint32_t t, uint32_t id, uint32_t note, uint32_t src, int ec
     uint32_t v, i, n, no = 0, on = 0;
     int j;
     if (note > 127u || t >= NT || (trk_quiet >> t & 1u)) return;   /* (a silent track: none) */
+    if (trk[t].eng == ENG_DRUM) {               /* (RIDDIM: DRUM: a hit, its own pool; no voice, no chord, no latch) */
+        drum_hit(t, note, gen_vel);
+        if (echo) ec_put(0x90, t, note), ec_put(0x80, t, note);   /* (a hit: its note off at once, out there too) */
+        else if (mo_seq && src != SRC_KEY) ec_put(0x90, t, note | EC_SEQ), ec_put(0x80, t, note | EC_SEQ);
+        return;
+    }
     while ((j = note_find(t, id, src)) >= 0) {  /* (struck again: its voices out of the list, to be used again) */
         if (echo && no == 0u) ec_put(0x80, t, lat_root[j]);
         if (no < CH_MAX) own[no++] = lat_voice[j];
@@ -807,9 +813,11 @@ static uint32_t tracks_latched(void)            /* bit t: track t has notes on *
         m |= 1u << lat_trk[i];
     return m;
 }
-static int voices_silent(void)                  /* no voice sounds: no note on (latched ones too), no release */
+static int voices_silent(void)                  /* no voice sounds: no note on (latched ones too), no release; (RIDDIM)
+                                                 * no drum hit */
 {
     uint32_t v;
+    if (drum_busy()) return 0;
     for (v = 0; v < NV; v++)
         if (!voice_idle(v)) return 0;
     return 1;
@@ -1258,7 +1266,7 @@ static volatile int32_t *knob_param(uint32_t pg, uint32_t k)   /* what KNOB k + 
                                                {&rv_size, &rv_damp, &rv_mix, &rv_pre}};
     switch (pg) {
     case PG_SOUND: return &trk[sel].p[sel_eng()][k];
-    case PG_SOURCE: return k == 0u ? &trk[sel].eng : k == 1u ? &trk[sel].latch : k == 2u && sel_eng() == ENG_VOICE ? &trk[sel].vty :
+    case PG_SOURCE: return k == 0u ? &trk[sel].eng : k == 1u ? &trk[sel].latch :
                            k == 3u ? &trk[sel].glide : 0;   /* (V2: GLIDE) */
     case PG_ENV: return &trk[sel].env[k];
     case PG_SONG: return k == 0u ? &song_sect : k == 1u ? &song_pat[clamp(song_sect, 0, SONG_N - 1)] :
@@ -1298,12 +1306,12 @@ static volatile int32_t *knob_param(uint32_t pg, uint32_t k)   /* what KNOB k + 
 static const char *knob_name(uint32_t pg, uint32_t k)
 {
     return pg == PG_SOUND ? sel_engine()->knob[k] : pg == PG_MIX1 && !k ? MX_NAME[clamp(mx_sq, 0, MX_N - 1)] :
-           pg == PG_SOURCE && k == 2u && sel_eng() == ENG_VOICE ? "TYPE" : PAGES[pg].knob[k];
+           PAGES[pg].knob[k];
 }
 static int32_t knob_max(uint32_t pg, uint32_t k)
 {
     static const int32_t GRID_MAX[4] = {127, 100, 4, SEQ_N}, PATT_MAX[4] = {SEQ_N, 7, 127, SEQ_NMODE - 1};
-    return pg == PG_SOUND ? sel_engine()->max[k] : pg == PG_SOURCE ? (k == 3u ? 127 : k == 2u ? NVT - 1 : k ? 1 : (int32_t)NENG - 1) :
+    return pg == PG_SOUND ? sel_engine()->max[k] : pg == PG_SOURCE ? (k == 3u ? 127 : k == 2u ? 0 : k ? 1 : (int32_t)NENG - 1) :
            pg == PG_GRID ? GRID_MAX[k] : pg == PG_PATTERN ? PATT_MAX[k] :
            pg == PG_SOUNDS ? (k == 0u ? SND_N - 1 : k == 1u ? NCAT - 1 : k == 2u ? (int32_t)NENG : 2) :
            pg == PG_PROJECTS ? 3 : pg == PG_SCALE ? (k ? NSCALE - 1 : 11) : pg == PG_CHORD ? (k ? NVOICING - 1 : NCHORD - 1) :
@@ -1384,7 +1392,7 @@ static void knob_text(uint32_t pg, uint32_t k, char *s)   /* knob k's value on p
     case PG_SOURCE:
         if (k == 0u) put_s(s, sel_engine()->name);
         else if (k == 1u) put_s(s, v ? "ON" : "OFF");
-        else if (k == 2u) put_s(s, VT_NAME[clamp(v, 0, NVT - 1)]);   /* (V2: VOICE's TYPE) */
+        else if (k == 2u) put_s(s, "-");          /* (RIDDIM: GR!MM's VOICE TYPE: none) */
         else if (v) put_s(ui_time(s, 10u * pow2_q16(clamp(v, 0, 127) * 12)), "");   /* (V2: GLIDE) */
         else put_s(s, "OFF");
         return;
@@ -1787,7 +1795,7 @@ static void cc_apply(const uint8_t *L, uint32_t val)   /* a linked CC: its param
         if (pg == PG_GRID && k == 0u) {         /* NOTE: the note (a SCALE: its nearest), 0 OFF */
             seq_step_t *st = grid_step();
             undo_take(UK_STEP | sel << 8 | (uint32_t)seq[sel].cursor, -1);
-            *p = v ? (int32_t)sc_snap((uint32_t)v) : 0;
+            *p = v ? (trk[sel].eng == ENG_DRUM ? v : (int32_t)sc_snap((uint32_t)v)) : 0;   /* (not on DRUM) */
             grid_put();
             if (!*p) st->lmask = 0, st->chord = 0;
         } else if (pg == PG_MIX1) {
@@ -2107,7 +2115,8 @@ static void app_main(void)
 #endif
 
     for (;;) {
-        uint32_t keys, down, up, rel, b, n, lit = 0, base = (uint32_t)(KEY0 + 12 * set.oct);
+        uint32_t keys, down, up, rel, b, n, lit = 0, base = (uint32_t)(KEY0 + 12 * (trk[sel].eng == ENG_DRUM ? 0 : set.oct));   /* (RIDDIM: a DRUM track: the
+                                                 * kit at any octave) */
         uint8_t st, d1, d2;
         int32_t d;
         platform_poll();
@@ -2344,7 +2353,8 @@ static void app_main(void)
                 b_used |= 1u << BTN_FX;
                 continue;
             }
-            n = sc_snap(base + k);              /* (a SCALE: its nearest note) */
+            n = trk[sel].eng == ENG_DRUM ? base + k : sc_snap(base + k);   /* (a SCALE: its nearest note; RIDDIM: not
+                                                 * on DRUM, a key is a drum) */
             ch_last = (int32_t)n;
             if (rec && !(playing && trk[sel].arp)) {   /* REC: the note into the track's sequence (stopped: the
                                                  * cursor's step, the cursor on; playing: the nearest step), heard while
@@ -2430,7 +2440,7 @@ static void app_main(void)
             if (set.mch >= MCH_ALL) t = sel;
             else if (c - set.mch < NT) t = c - set.mch;
             else continue;                      /* (not one of the tracks' channels) */
-            n = sc_snap(d1);                    /* (a SCALE: its nearest note) */
+            n = trk[t].eng == ENG_DRUM ? d1 : sc_snap(d1);   /* (a SCALE: its nearest note; not on DRUM) */
             if (on && t == sel) ch_last = (int32_t)n;
             if (off && (midi_held[d1] >> (4u + t) & 1u)) {   /* (V2) the off of a note that came again before it (a DAW's
                                                  * loop: the earlier one's off, late): passed over, the note goes on */
@@ -2458,7 +2468,7 @@ static void app_main(void)
         }
         midi_out();                             /* the notes out over USB-MIDI (the echoes from the audio ISR) */
 
-        base = (uint32_t)(KEY0 + 12 * set.oct);
+        base = (uint32_t)(KEY0 + 12 * (trk[sel].eng == ENG_DRUM ? 0 : set.oct));   /* (RIDDIM: a DRUM track: the kit at any octave) */
         for (k = 0; k < nlat && k < NV; k++) {  /* the selected track's notes, on the keys they came from: the
                                                  * physical key (never the note after SCALE or chord), a MIDI note's
                                                  * number as it came, a step's note */

@@ -17,7 +17,7 @@ from pathlib import Path
 EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/latch")
 OUT.mkdir(parents=True, exist_ok=True)
-ENG_FM, ENG_PHYS = 1, 5
+ENG_FM, ENG_DRUM, ENG_PHYS = 1, 3, 5
 C4, E4, G4, A3, D4 = 0x80, 0x800, 0x4000, 0x10, 0x200
 bad = 0
 
@@ -62,9 +62,12 @@ ENV = {0: settings(0), 1: settings(1)}
 NAME = {0: "FROM SOUND", 1: "ALWAYS OFF"}
 
 # every factory sound (PRESETS 1 .. 40), each setting
-n_ok = 0
+n_ok = n_drum = 0
 for k in range(1, 45):
     eng = run("eng", [(300, f"enc 6 {k}"), (500, "probe")], 600, ENV[0])[500]["eng"]
+    if eng == ENG_DRUM:                         # (RIDDIM: a DRUM kit: hits, nothing held to latch)
+        n_drum += 1
+        continue
     edit = [(700 + 100 * i, "btn 6") for i in range(4 if eng == ENG_FM else 2)]   # (FM: FM ALGO, FM OP before SOURCE)
     for s in (0, 1):
         ev = [(300, f"enc 6 {k}"), (600, "probe")] + edit + [(1200, "probe"), (1250, "enc 3 1"), (1300, "probe")]
@@ -80,10 +83,10 @@ for k in range(1, 45):
               not p[2100]["notes"] and p[2400]["latch"] == 0 and not p[2800]["notes"] and p[3200]["latch"] == 1 and
               p[3600]["notes"] and p[3900]["latch"] == 0 and not p[3900]["notes"] and p[4500]["latch"] == nxt and
               (bool(p[4500]["notes"]) == bool(nxt)))
-        n_ok += ok
+        n_ok += bool(ok)
         check(f"{NAME[s]}, sound {k}", ok, {t: (p[t]["latch"], p[t]["notes"]) for t in sorted(p)}, quiet=True)
-check(f"all 44 factory sounds, both settings: loaded as set; EDIT's LATCH and SEL + OCT+ latch and let go ({n_ok}/88)",
-      n_ok == 88)
+check(f"the 35 factory sounds with voices (the nine DRUM kits: hits), both settings: loaded as set; EDIT's LATCH and "
+      f"SEL + OCT+ latch and let go ({n_ok}/70)", n_ok == 70 and n_drum == 9)
 
 # slots A..D and the project keep their tracks' LATCH (SYSTEM 3 acts on a sound's load only)
 for s in (0, 1):

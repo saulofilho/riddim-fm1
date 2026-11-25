@@ -316,7 +316,7 @@ static void ui_slab_make(uint32_t k, slab_t *S)
         if (eng == ENG_SAMPLE && k == 0u) { put_u(S->val, (uint32_t)v + 1u); return; }   /* (the name: the caption) */
         if (eng == ENG_VA && k == 0u) { put_s(S->val, v == WAVE_SUPER ? "SUPER" : v == WAVE_SQR ? "SQR" : "SAW"); return; }
         if (eng == ENG_PHYS && k == 0u) { put_s(S->val, md == PM_MEMB ? "MEMB" : md == PM_SYMP ? "SYMP" : N_PHYS_MODEL[md]); return; }
-        if (mx <= 24 || (eng == ENG_SAMPLE && k == 2u) || (eng == ENG_VOICE && k == 0u) ||
+        if (mx <= 24 || (eng == ENG_SAMPLE && k == 2u) || (eng == ENG_DRUM) ||
             (eng == ENG_PHYS && k == 1u && md == PM_SYMP)) {   /* (the source's own words) */
             sel_engine()->text(trk[sel].p[eng], k, t);
             ui_squeeze(S->val, t);
@@ -324,8 +324,8 @@ static void ui_slab_make(uint32_t k, slab_t *S)
         }
         ui_3(S->val, ui_pc(v));
         return;
-    case PG_SOURCE:                             /* SOURCE, LATCH, (V2) VOICE's TYPE */
-        if (k == 2u) { static const char *const VS[NVT] = {"SOLO", "GREG", "NUNS", "CATHED"}; put_s(S->val, VS[clamp(v, 0, NVT - 1)]); return; }
+    case PG_SOURCE:                             /* SOURCE, LATCH, (none), GLIDE */
+        if (k == 2u) { put_s(S->val, "---"); return; }   /* (RIDDIM: GR!MM's VOICE TYPE: none) */
         if (k == 3u) { if (v) ui_time(S->val, 10u * pow2_q16(clamp(v, 0, 127) * 12)); else put_s(S->val, "OFF"); return; }   /* (V2:
                                                  * GLIDE) */
         put_s(S->val, k ? (v ? "ON" : "OFF") : ENGINES[clamp(v, 0, NENG - 1)]->name);
@@ -836,35 +836,55 @@ static void pic_sample(void)                    /* the slot's sample, the loop (
     }
 }
 
-static void pic_voice(void)                     /* a mouth singing VOWEL: A open, E wide, I narrow, O round, U small;
-                                                 * (V2) two fangs from its upper lip, the longer the more it is open */
+/* (RIDDIM) DRUM: a roots kit as it stands: the kick in front, the snare and the hi-hat on the left, two toms over the
+ * kick, the floor tom, the crash and the ride, the syndrum pad and a timbale on the right, the spring tank on the floor,
+ * and the small things (cowbell, wood, shaker, sticks); the piece last struck lit in the accent; the caption: the KIT and
+ * the last hit's name */
+static void dk_box(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint16_t head, uint16_t body)   /* a drum seen from
+                                                 * the front: its head the top row, its body below, in staves */
 {
-    static const int8_t RX[5] = {14, 17, 18, 9, 6}, RY[5] = {10, 6, 3, 10, 6};
-    const volatile int32_t *p = trk[sel].p[ENG_VOICE];
-    int32_t v = clamp(p[0], 0, 127) * 4 * 256 / 127, i = v >> 8, f = v & 255, x, y, rx, ry, sh = clamp(p[1], 0, 24) - 12;
-    char s[24], t[12];
-    if (i >= 4) i = 3, f = 256;
-    rx = (RX[i] * (256 - f) + RX[i + 1] * f) / 256 + sh / 4;
-    ry = (RY[i] * (256 - f) + RY[i + 1] * f) / 256;
-    formant_text(p, 0, t);
-    put_s(put_s(s, "VOWEL "), t);
-    formant_text(p, 1, t);
-    {
-        char r[16];
-        put_s(put_s(r, "SHIFT "), t);
-        ui_caption(s, r);
-    }
-    for (y = 0; y < 30; y++)
-        for (x = 0; x < 54; x++) {
-            int32_t dx = x - 27, dy = y - 15, o = (dx * dx) * (ry + 3) * (ry + 3) + (dy * dy) * (rx + 3) * (rx + 3),
-                    oo = (rx + 3) * (rx + 3) * (ry + 3) * (ry + 3), n = (dx * dx) * ry * ry + (dy * dy) * rx * rx,
-                    nn = rx * rx * ry * ry;
-            int32_t fd = dx < 0 ? -dx : dx, fx = rx / 2 > 2 ? rx / 2 : 2, fl = ry * 2 / 3;   /* (a fang: at +-fx,
-                                                 * fl cells long, a cell narrower its last third) */
-            int32_t fang = fd >= fx - 1 && fd <= fx + 1 && dy < 0 && dy <= -ry + fl - (fd != fx ? fl / 3 : 0);
-            if (o <= oo) ui_cell(x, y, n <= nn ? (fang ? UI_W : dy > ry / 2 && dy * 3 > ry && n * 4 <= nn * 3 ? ui_acc : UI_K) :
-                                 UI_L);
+    int32_t x, y;
+    for (x = x0; x <= x1; x++) ui_cell(x, y0, head);
+    for (y = y0 + 1; y <= y1; y++)
+        for (x = x0; x <= x1; x++) ui_cell(x, y, (x - x0) % 3 == 2 ? UI_D : body);
+}
+static void pic_drumkit(void)
+{
+    uint32_t lk = drum_lit[sel], k = lk ? lk - 1u : 99u;
+#define DK_ON(c) (c)
+    int kick = k == 0u || k == 12u || k == 24u, hat = k == 1u || k == 3u || k == 5u;
+    int snare = k == 2u || k == 4u || k == 6u || k == 20u || k == 25u, syn = k >= 14u && k <= 16u;
+    int spring = k == 18u || k == 26u;
+    int32_t x, y;
+    char l[24], t[12];
+    drum_text(trk[sel].p[ENG_DRUM], 0, t);
+    put_s(put_s(l, "KIT "), t);
+    ui_caption(l, lk ? DKEY_NAME[k] : "PLAY A KEY");
+    for (y = 15; y < 30; y++)                   /* the kick, seen from the front: a ring, its head */
+        for (x = 20; x < 35; x++) {
+            int32_t dx = 2 * (x - 27) + 1, dy = 2 * (y - 22) + 1, r = dx * dx + dy * dy;
+            if (r <= 15 * 15) ui_cell(x, y, r > 12 * 12 ? (kick ? ui_acc : UI_W) : r <= 3 * 3 ? UI_M : kick ? UI_L : UI_D);
         }
+    for (y = 7; y < 30; y++) ui_cell(4, y, UI_D);   /* the hi-hat: its stand, */
+    for (x = 1; x <= 8; x++) ui_cell(x, 7, hat ? ui_acc : UI_L), ui_cell(x, 8, hat && k == 5u ? UI_M : UI_L);   /* its pair */
+    dk_box(9, 17, 18, 21, snare ? ui_acc : UI_W, snare ? UI_L : UI_M);   /* the snare */
+    for (y = 22; y < 30; y++) ui_cell(13, y, UI_D);
+    dk_box(19, 9, 25, 13, k == 11u ? ui_acc : UI_W, k == 11u ? UI_L : UI_M);   /* the toms: high, */
+    dk_box(29, 9, 35, 13, k == 9u ? ui_acc : UI_W, k == 9u ? UI_L : UI_M);    /* middle, */
+    dk_box(38, 18, 45, 28, k == 7u || k == 19u ? ui_acc : UI_W, k == 7u || k == 19u ? UI_L : UI_M);   /* floor */
+    for (x = 9; x <= 18; x++) ui_cell(x, 3, k == 23u ? ui_acc : UI_L);   /* the crash, */
+    for (y = 4; y < 17; y++) ui_cell(13, y, UI_D);
+    for (x = 40; x <= 52; x++) ui_cell(x, 5, k == 22u ? ui_acc : UI_L);  /* the ride, its bell */
+    ui_cell(46, 4, k == 22u ? ui_acc : UI_W);
+    for (y = 6; y < 12; y++) ui_cell(46, y, UI_D);
+    dk_box(47, 11, 51, 13, syn ? ui_acc : UI_W, syn ? UI_L : UI_M);   /* the syndrum's pad, */
+    dk_box(47, 15, 52, 17, k == 21u ? ui_acc : UI_W, k == 21u ? UI_L : UI_M);   /* the timbale */
+    for (x = 47; x <= 53; x++) ui_cell(x, 28 - (x & 1), spring ? ui_acc : UI_M);   /* the spring tank's coil */
+    ui_cell(36, 14, k == 10u ? ui_acc : UI_L), ui_cell(37, 14, k == 10u ? ui_acc : UI_L);   /* cowbell, */
+    ui_cell(20, 15, k == 13u ? ui_acc : UI_M), ui_cell(21, 15, k == 13u ? ui_acc : UI_M);   /* wood, */
+    ui_cell(1, 25, k == 8u ? ui_acc : UI_M), ui_cell(2, 25, k == 8u ? ui_acc : UI_M), ui_cell(1, 26, k == 8u ? ui_acc : UI_M);   /* shaker, */
+    for (x = 0; x < 4; x++) ui_cell(49 + x, 21 + x, k == 17u ? ui_acc : UI_L), ui_cell(52 - x, 21 + x, k == 17u ? ui_acc : UI_L);   /* sticks */
+#undef DK_ON
 }
 
 static void pic_wheel(void)                     /* the nine drawbars of the registration (PERC: its bar's tip) */
@@ -1009,10 +1029,6 @@ static void pic_source(void)                    /* the seven sources, the track'
         ui_text(140, 140, "GLIDE", 1, UI_M);
         if (trk[sel].glide) ui_time(g, 10u * pow2_q16(clamp(trk[sel].glide, 0, 127) * 12)); else put_s(g, "OFF");
         ui_text(140, 152, g, 1, trk[sel].glide ? UI_L : UI_M);
-    }
-    if (e == ENG_VOICE) {                       /* (V2) VOICE's TYPE: one singer, or a choir a note */
-        ui_text(140, 112, "TYPE", 1, UI_M);
-        ui_text(140, 126, VT_NAME[clamp(trk[sel].vty, 0, NVT - 1)], 1, trk[sel].vty ? ui_acc : UI_L);
     }
 }
 
@@ -1702,7 +1718,7 @@ static void ui_pic_draw(void)
         case ENG_VA: pic_va(); return;
         case ENG_FM: pic_fm(); return;
         case ENG_SAMPLE: pic_sample(); return;
-        case ENG_VOICE: pic_voice(); return;
+        case ENG_DRUM: pic_drumkit(); return;
         case ENG_WHEEL: pic_wheel(); return;
         case ENG_PHYS: pic_phys(); return;
         default: pic_phase(); return;
@@ -1748,7 +1764,7 @@ static uint32_t ui_pic_key(void)
             UI_H(trk[t].pd_pd), UI_H(trk[t].glide), UI_H(trk[t].fx), UI_H(trk[t].cut),   /* (rc9: HOME's CUT, DRY;
                                                  * MIXER 1's FX0) */
             UI_H(trk[t].ftype), UI_H(trk[t].fpos);
-    UI_H(trk[sel].fm_alg), UI_H(trk[sel].fm_fb), UI_H(fm_op), UI_H(trk[sel].p[ENG_FM][0]);
+    UI_H(trk[sel].fm_alg), UI_H(trk[sel].fm_fb), UI_H(fm_op), UI_H(trk[sel].p[ENG_FM][0]), UI_H(drum_lit[sel]);   /* (RIDDIM: DRUM's last hit) */
     UI_H(trk[sel].latch), UI_H(trk[sel].chord), UI_H(trk[sel].ch_type), UI_H(trk[sel].ch_voice), UI_H(sc_root), UI_H(sc_scale);
     if (PAGES[page].btn == BTN_SEL) UI_H(ch_last), UI_H(ui_oct);
     UI_H(trk_quiet);

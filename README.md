@@ -26,6 +26,13 @@ the tune while it plays.
     behind it.
   - HOME: the sound system, a speaker box a track (T1 red, T2 green, T3 gold, T4 blue). The cones push with each
     track's sound; a muted track goes dark and wears a strip of tape, DROP.
+- **DRUM, a roots kit** (a sound source, in the place of the old VOICE): 20 synthesized drums on 27 keys, from F3 up:
+  KICK, HAT, CROSS (the cross-stick), PEDAL HAT, SNARE, OPEN HAT, RIMSHOT, the toms, SHAKER, COWBELL, STEP KICK, WOOD,
+  SYNDRUM (high and low too), STICKS, SPRING (the tank shaken), FLOOR TOM, TIMBALE, RIDE, CRASH, DUB KICK. Knobs: KIT
+  (STUDIO, YARD, DUB, STEPPERS), TUNE, DECAY, HUMAN (behind the beat). A hit cuts the same drum sounding (the hats
+  cut each other); the kit has its own ten hits, never the six voices the other tracks share. The DRUM page draws
+  the kit and lights the piece you hit. Nine factory kits in the DRUMS category: ONE DROP, ROCKERS, STEPPERS, DUB,
+  RUB-A-DUB, ROCKSTEADY, DEEP ROOTS, TIGHT, BOOMY.
 - **The web emulator and the editor** (`web/`), named RIDDIM: the same firmware compiled to WebAssembly.
 - The groovebox under it: four tracks, seven sound sources, a 64-step sequencer per track, the arpeggiator, one-key
   chords, GENERATE, tape, grain, delay and reverb, song mode, MIDI in and out, MIDI clock. RIDDIM's own manual comes
@@ -36,9 +43,8 @@ the tune while it plays.
 [PLAN.md](PLAN.md) (in Portuguese) has the whole roadmap and its log; the mood board is in
 [docs/moodboard/](docs/moodboard/index.html). In short:
 
-- **Drums:** a synthesized roots kit (a muffled kick, the cross-stick, rimshots, open and closed hats, tom fills, the
-  syndrum, a spring crash) and styles that play by themselves: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY,
-  EARLY, RUB-A-DUB, with fills and a laid-back HUMAN feel.
+- **Drum styles** (the kit is in 0.1): styles that play by themselves on a DRUM track: ONE DROP, ROCKERS, STEPPERS,
+  FLYERS, ROCKSTEADY, EARLY, RUB-A-DUB, with fills and the laid-back HUMAN feel.
 - **The band:** lines over the chord you hold: SKANK (the chop on 2 and 4), BUBBLE (the organ), BASS (root, fifth,
   octave and passing notes, with room to breathe), HORNS.
 - **Dub:** a spring reverb, a tape echo that runs into self-oscillation, filter sweeps, THROW (a track into the echo
@@ -83,5 +89,5 @@ RIDDIM stands on the work of other FM-1 firmware authors. Who made what, and eve
 
 ## Licence
 
-GPL-3.0-only ([LICENSE](LICENSE)); a few files are Apache-2.0 or MIT, the factory samples CC0 1.0 and the choir
-wavetables CC BY 4.0, as [LICENSING.md](LICENSING.md) lists. M-VAVE and FM-1 are trademarks of their owners.
+GPL-3.0-only ([LICENSE](LICENSE)); a few files are Apache-2.0 or MIT and the factory samples CC0 1.0, as
+[LICENSING.md](LICENSING.md) lists. M-VAVE and FM-1 are trademarks of their owners.
