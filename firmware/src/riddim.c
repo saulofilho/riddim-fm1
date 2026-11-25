@@ -47,7 +47,7 @@
  *              knob turned: what it changed a moment; the battery beside the tempo; the slabs: T1 .. T4, their
  *              LEVEL) ->
  *              MIXER 1 (the track's LEVEL, DLY SEND, REV SEND, GRAIN SEND) -> MIXER 2 (PAN);
- *              held: SYSTEM (COLOUR: RED, AMBER, TEAL, VIOLET, the accent everywhere; MIDI CHANNEL: "1-4" (T1 .. T4 on
+ *              held: SYSTEM (COLOUR: RED, GOLD, GREEN, BLUE, the accent everywhere; MIDI CHANNEL: "1-4" (T1 .. T4 on
  *              channels 1..4) .. "13-16", ALL > SEL (any channel plays the selected track), for MIDI in and out; TUNE
  *              -50 .. +50 cents, every source; SCREEN OFF: NEVER, 1, 5, 15, 30 MIN untouched, the screen dark, all else
  *              running, the first touch only wakes it), HOME again: SYSTEM 2 (MIDI LEARN: LEARN, a knob turned on any
@@ -1338,7 +1338,7 @@ static const char *lfo_dest_name(int32_t d)     /* DESTINATION: its name (a knob
     d = clamp(d, 0, NLFODEST - 1);
     return d >= LD_K1 && d <= LD_K4 ? knob_name(PG_SOUND, (uint32_t)(d - LD_K1)) : LFO_DEST_NAME[d];
 }
-static const char *const COL_NAME[4] = {"RED", "AMBER", "TEAL", "VIOLET"};   /* SYSTEM: COLOUR */
+static const char *const COL_NAME[4] = {"RED", "GOLD", "GREEN", "BLUE"};   /* SYSTEM: COLOUR */
 static const char *const SCR_NAME[5] = {"NEVER", "1 MIN", "5 MIN", "15 MIN", "30 MIN"};   /* SCREEN OFF */
 static const char *const LEARN_NAME[3] = {"OFF", "LEARN", "CLEAR ALL"};   /* SYSTEM 2: MIDI LEARN */
 static char *mch_text(char *s, int32_t v)       /* MIDI CHANNEL: "1-4" .. "13-16", "ALL > SEL", "CH 1 > SEL" .. */

@@ -65,7 +65,7 @@ para trocar).
 | Formato | 4 tracks: **T1 bateria** (GROOVE), **T2 baixo**, **T3 skank** (guitarra e piano), **T4 bubble** (órgão), melódica ou metais |
 | Som | 100 % sintetizado. **Nenhuma gravação de disco, nenhum riddim famoso copiado nota por nota.** Os 4 slots de sample ficam para o usuário |
 | Dub | É o coração: página DUB com mutes por track no compasso, THROW para o eco, mola, filtro e VERSION (o dub que se mixa sozinho) |
-| Temas no FM-1 | **NOITE** (padrão, tinta) e **PAPEL** (creme, para luz do dia) |
+| Temas no FM-1 | **NOITE** (feito). **PAPEL** (creme, para luz do dia): a decidir, ver Andamento |
 | Hardware | Simulador e emulador web até haver teste no FM-1. Aceitar as duas flashes (`0x856014` e `0xB36014`), como o COQUÍ |
 | Repositório | git local; trabalho no `main`; o autor faz push, merge e tags; público só quando o autor mandar |
 | Licença | GPL-3.0-only, autoria de cada parte em `LICENSING.md` |
@@ -130,6 +130,27 @@ para trocar).
   610160 B, `FM-1_932`. Nada testado no FM-1.
 - Falta na Fase 1: temas NOITE e PAPEL, tela de boot, HOME, os textos "GR!MM" que aparecem na tela e na web,
   `LICENSING.md`, READMEs PT e EN, `fmhub.json`.
+
+**2026-11-25: Fase 1, a tela.** Telas em `docs/screens/riddim-boot.png` e `riddim-home.png` (do modo host).
+
+- **Paleta NOITE** (`ui.c`): tinta `#17130E`, tinta gasta, papel na sombra, papel cinza, papel `#EFE4CB`. Cores de
+  destaque do SYSTEM: RED, GOLD, GREEN, BLUE (eram RED, AMBER, TEAL, VIOLET). Tinta por track na HOME: T1 vermelho,
+  T2 verde, T3 ouro, T4 azul.
+- **Boot:** o compacto gira (um brilho nos sulcos, uma volta a cada ~1,8 s), o braço desce em ~1,5 s, e o nome
+  aparece com três ecos azuis caindo atrás dele. Linha de baixo: `FM-1 / ROOTS / DUB / V0.1`.
+- **HOME:** a pilha do sound system, uma caixa por track; o cone empurra com o som da track (depois do LEVEL); track
+  muda (ou fora do solo) apaga e leva a fita DROP; o rótulo da track selecionada na cor de destaque. Saíram o olho, as
+  teias, as estrelas, as velas, os morcegos e as gotas do GR!MM.
+- Versão **0.1** (`tools/build.py`, `tests/run_host.sh`, `web/build_web.sh`). Texto "VOLUME (AS GR!MM 1.0)" virou
+  "VOLUME (CLASSIC)".
+- `tests/data/home_shot.txt`: roteiro de host que mostra a HOME (mute no T3, notas no T1 e no T2).
+- `tests/run_host.sh` passa (14 suítes, 302 checagens, mais o de saves); `./build.sh` compila: 503216 B (eram
+  506108), RAM 86232 B (eram 87928). **Nada testado no FM-1**: o custo de desenhar a HOME e o boot no aparelho não
+  foi medido.
+- **PAPEL fica para depois:** o GR!MM tem uma paleta fixa, sem troca de tema; um tema claro pede que todas as
+  figuras de todas as páginas funcionem nas duas paletas. Decidir se vale.
+- Falta na Fase 1: os textos "GR!MM" do editor e do emulador web (junto com o emulador, que pede o Emscripten; o
+  `web/test_web.mjs` confere alguns deles e a versão "2.0"), `LICENSING.md`, READMEs PT e EN, `fmhub.json`.
 
 Orçamento da base, igual ao medido no COQUÍ em 2026-11-05:
 
