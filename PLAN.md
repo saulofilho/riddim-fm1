@@ -222,6 +222,32 @@ para trocar).
 - Falta na Fase 2: medir a CPU no FM-1 (`tools/fm1_cpu.py`) com 10 golpes e as 6 vozes; ouvir no alto-falante do
   aparelho; ajustar os ganhos de ouvido.
 
+**2026-11-25: o site completo e o novo visual.** (Tudo visto localmente, `riddim-site`, porta 8822; nada no FM-1.)
+
+- **Site** (`site/index.html`), na linguagem nova: hero com a parede de caixas em SVG (os cones pulsam com o áudio que
+  toca) e as placas RIDDIM / REGGAE ROOTS / ONE DROP / DUB; barra com links de seta (Ouça, Instalar, Emulador, Editor,
+  Live, Guia, Manual) e EN/PT; **Ouça**: os 9 kits, cada um como uma amostra (nome enorme, rótulos mono, a grade de
+  16 passos com a virada; o passo tocando aceso); **O kit**: as 27 teclas em tiles, cada uma toca o seu tambor;
+  **Na tela**; **Como instalar** (Hub: em breve; terminal; Rescue) sobre vermelho; **Toque, edite, assista**
+  (emulador, editor, visão ao vivo, guia PDF, manual) sobre verde; **Vem aí**. Sem rolagem lateral em 375 px.
+- **Sons do site** (`tools/gen_site.py`, no contêiner Linux com `imageio-ffmpeg`): `site/audio/kit-01..09.mp3`
+  (cada kit numa batida do seu estilo, 4 compassos, tocada por notas MIDI com VELOCITY ligado: acentos e ghost
+  notes), `keys.mp3` (as 27 teclas), `demo.mp3` (8 compassos de one drop, também o DEMO da visão ao vivo) e
+  `site/riddim-data.js`.
+- **Visão ao vivo** (`web/live.html`, vai para `emu/`): porte da do COQUÍ, com a cena das caixas (cones empurrados
+  pelas notas de cada trilha, ou pelo som no DEMO), espectro, osciloscópio, as trilhas, as teclas, o sequenciador, os
+  knobs e os efeitos lidos por SysEx.
+- **Manual** (`MANUAL.md`) do RIDDIM, sem GR!MM: DRUM e suas teclas, HOME do sound system, os kits, o editor, o
+  emulador e a visão ao vivo. **Telas** (`docs/screens/`, 20 páginas) refeitas pelo próprio firmware
+  (`tools/gen_screens.py`) na paleta NOITE; antes eram as do GR!MM.
+- **Guias** de primeiros passos, 8 páginas A4, EN e PT (`tools/gen_guide.py`, Chrome headless):
+  `docs/riddim-first-guide.pdf`, `docs/riddim-guia.pdf`, e em HTML em `site/guide/`. A receita do one drop no
+  sequenciador foi tocada no modo host antes de ir para o guia.
+- **Editor e emulador** na paleta do pôster (tinta, creme, vermelho, ouro de foco); a "gota" do GR!MM virou uma fileira
+  de caixas de som; `web/test_web.mjs` atualizado (100 checagens passam).
+- Falta: o mood board v2 na linguagem nova (ou tirá-lo do site); um card próprio para o Hub (`docs/card.png`, hoje o
+  do GR!MM); refazer os sons do site quando os estilos (Fase 3) existirem.
+
 Orçamento da base, igual ao medido no COQUÍ em 2026-11-05:
 
 | Recurso | Usado | Limite | Livre |
@@ -235,6 +261,21 @@ A pool está cheia (reverb, delay, grain, tape). A mola e o eco de fita da Fase 
 o GRAIN e os coros do VOICE (o COQUÍ fez o mesmo), e reaproveitar o buffer do delay para o eco.
 
 ## Mood
+
+**Atualizado em 2026-11-25 (o rumo vale daqui em diante):** a linguagem é a do **pôster de sound system e das placas
+pintadas à mão** (referências do autor: o pôster "Queremos! Sister Nancy", no Behance, e uma parede de placas
+jamaicanas pintadas). Paredes de caixas de som em cores chapadas (verde, vermelho, ouro, preto; cones azul-violeta,
+telas douradas, fileiras de triângulos, estrelas), letras de placa gordas com contorno e sombra (Lilita One), tudo com
+borda irregular de pintura. A diagramação do site segue uma página de amostra de fundição tipográfica (gt-america.com):
+barra fina com links de seta, amostras enormes de ponta a ponta, rótulos mono, listas com fio sobre campos de cor.
+Cores do site: tinta `#0E0C0A`, papel `#EFE2BC`, creme `#F6EBC8`, ouro `#E9B12C`, vermelho `#C21F1A`, verde
+`#1F7A3C`, folha `#5C8F2C`, azul `#4B4FB0`, céu `#7CC4C6`. Vermelho, ouro e verde como campos e tintas, nunca como
+bandeira em faixas; nenhum slogan religioso. Nada das referências é copiado.
+O mood board (`docs/moodboard/`) é o v1 (cartaz e dub plate, tinta e papel): fica como histórico; a tela do FM-1 (NOITE)
+segue nele por enquanto.
+
+### Mood v1 (2026-11-25, o começo)
+
 
 Direção **"cartaz de dance e dub plate"**: o reggae raiz visto pelo que se imprimia, carimbava e pintava à mão para o
 sound system. Três referências, misturadas:

@@ -1,182 +1,482 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: GPL-3.0-only
      Copyright (C) 2026 RIDDIM
-     RIDDIM's site (GitHub Pages): tools/build_site.sh puts it together with the web emulator (emu/) and the mood board. -->
+     RIDDIM's site (GitHub Pages): tools/build_site.sh puts it together with the web emulator (emu/) and the mood board.
+     The look: a sound-system poster's wall of speakers and hand-painted sign boards; the layout: a type foundry's
+     specimen page (a thin bar of arrow links, full-bleed specimens, mono captions, lists on fields of colour). The
+     sounds (audio/) and the data (riddim-data.js): tools/gen_site.py, from the firmware in host mode. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RIDDIM</title>
-<meta name="description" content="RIDDIM, a roots reggae firmware for the M-VAVE FM-1, in development: try it in your browser.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230b0907'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23E8A825' stroke='%23C7382B' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%230b0907'/%3E%3C/svg%3E">
+<meta name="description" content="RIDDIM, a roots reggae firmware for the M-VAVE FM-1, in development: listen to the kits, play the 27 keys, try it in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231F7A3C'/%3E%3Crect x='4' y='4' width='24' height='24' fill='%23C21F1A'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%234B4FB0'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%230E0C0A'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Alfa+Slab+One&family=Archivo:wght@500;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Archivo:wght@400;600;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --tinta:#17130E; --tinta2:#221C15; --tinta3:#2E261C; --papel:#EFE4CB; --texto:#d9cdb2; --cinza:#A39882;
-  --vermelho:#C7382B; --ouro:#E8A825; --verde:#2E7A47; --eco:#3E6E9E;
+  --ink:#0E0C0A; --board:#15110D; --cream:#F6EBC8; --paper:#EFE2BC; --gold:#E9B12C; --red:#C21F1A; --green:#1F7A3C;
+  --leaf:#5C8F2C; --blue:#4B4FB0; --sky:#7CC4C6; --mute:#6D6150;
+  --t1:#C21F1A; --t2:#1F7A3C; --t3:#E9B12C; --t4:#4B4FB0;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--tinta);color:var(--papel);font:16px/1.6 Archivo,system-ui,sans-serif}
-a{color:var(--ouro)}
-main{max-width:1000px;margin:0 auto;padding:0 16px 96px}
-.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--cinza);font-size:12px}
-nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
-nav .lang{display:flex;gap:6px}
-nav button{background:none;border:2px solid var(--tinta3);color:var(--cinza);font:500 12px "IBM Plex Mono";letter-spacing:.1em;padding:6px 10px;cursor:pointer}
-nav button[aria-pressed="true"]{border-color:var(--ouro);color:var(--ouro)}
-header{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;padding-top:20px;overflow:hidden}   /* (the record turning: its square's corners) */
-h1{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:clamp(80px,16vw,176px);line-height:.86;margin:0;letter-spacing:.01em;
-  text-shadow:0 .08em 0 rgba(62,110,158,.6),0 .16em 0 rgba(62,110,158,.32),0 .24em 0 rgba(62,110,158,.15)}
-.sub{font-size:19px;max-width:620px;margin:34px 0 0;color:var(--texto)}
-.sub b{color:var(--papel)}
-#plate{width:min(260px,62vw);height:auto;animation:spin 7.5s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){#plate{animation:none}}
-@media (max-width:720px){header{grid-template-columns:1fr} #plate{justify-self:center;width:200px;order:-1}}
-.status{margin-top:28px;border-left:6px solid var(--ouro);background:var(--tinta2);padding:14px 18px;max-width:720px;color:var(--texto)}
-.status b{color:var(--papel)}
-.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
-.pill{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:999px;border:4px solid var(--papel);
-  color:var(--papel);text-decoration:none;font:400 16px "Alfa Slab One";text-transform:uppercase;letter-spacing:.02em}
-.pill.go{background:var(--ouro);border-color:var(--ouro);color:var(--tinta)}
-.pill:focus-visible{outline:3px solid var(--eco);outline-offset:3px}
-h2{font-family:"Alfa Slab One",serif;font-weight:400;font-size:28px;margin:76px 0 4px}
-h2 + .mono{margin:0 0 22px}
-.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-.screens figure{margin:0;background:var(--tinta2);padding:12px}
-.screens img{display:block;width:100%;height:auto;image-rendering:pixelated;border:6px solid #050403;border-radius:6px}
-.screens figcaption{margin-top:10px;font-size:14px;color:var(--cinza)}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.card{background:var(--tinta2);padding:18px 20px;border-top:6px solid var(--c)}
-.card h3{margin:0 0 8px;font:400 18px "Alfa Slab One";text-transform:uppercase}
-.card p{margin:0;font-size:15px;color:var(--texto)}
-ul.list{margin:0;padding-left:20px;color:var(--texto);max-width:760px}
-ul.list li{margin:6px 0}
-ul.list b{color:var(--papel)}
-.mood{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.sw{width:44px;height:44px}
-footer{margin-top:80px;padding-top:18px;border-top:4px solid var(--tinta3);color:var(--cinza);font-size:14px}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 Archivo,system-ui,sans-serif}
+a{color:inherit}
+.mono{font:500 12px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase}
+.wrap{padding:0 16px}
+@media (min-width:900px){.wrap{padding:0 28px}}
+
+/* the bar: the name, arrow links (as a foundry's specimen page) */
+.bar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:10px 16px;background:var(--paper);border-bottom:2px solid var(--ink)}
+@media (min-width:900px){.bar{padding:10px 28px}}
+.bar .name{font:400 22px/1 "Lilita One",sans-serif;text-decoration:none;letter-spacing:.02em}
+.bar nav{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px 16px}
+.bar nav a{text-decoration:none;white-space:nowrap}
+.bar nav a:hover{color:var(--red)}
+.bar .lang button{font:500 12px "IBM Plex Mono";background:none;border:0;padding:4px;cursor:pointer;color:var(--mute)}
+.bar .lang button[aria-pressed="true"]{color:var(--ink);text-decoration:underline}
+@media (max-width:720px){.bar nav .opt{display:none}}
+
+/* signs: the painter's letters on boards */
+.sign{display:inline-block;padding:.14em .32em .1em;font-family:"Lilita One",sans-serif;font-weight:400;line-height:.95;letter-spacing:.01em;
+  box-shadow:0 .06em 0 rgba(0,0,0,.25)}
+.s-black{background:var(--board);color:var(--gold);-webkit-text-stroke:.018em var(--red);
+  text-shadow:.04em .05em 0 var(--red)}
+.s-green{background:var(--green);color:var(--ink);
+  text-shadow:-.025em -.025em 0 var(--gold),.025em -.025em 0 var(--gold),-.025em .025em 0 var(--gold),.025em .025em 0 var(--gold),.07em .07em 0 var(--red)}
+.s-gold{background:var(--gold);color:var(--ink);
+  text-shadow:-.025em -.025em 0 var(--cream),.025em -.025em 0 var(--cream),-.025em .025em 0 var(--cream),.025em .025em 0 var(--cream),.07em .07em 0 var(--green)}
+.s-red{background:var(--red);color:var(--green);
+  text-shadow:-.03em -.03em 0 var(--gold),.03em -.03em 0 var(--gold),-.03em .03em 0 var(--gold),.03em .03em 0 var(--gold)}
+.letters{font-family:"Lilita One",sans-serif;font-weight:400;line-height:.9;letter-spacing:.005em}
+
+/* the hero: the wall of speakers */
+.hero{position:relative;min-height:calc(100svh - 50px);background:var(--leaf);overflow:hidden;display:grid;place-items:center;padding:48px 16px}
+#wall{position:absolute;inset:0;width:100%;height:100%}
+.hero .stack{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:12px;max-width:min(1100px,100%)}
+.hero .title{font-size:clamp(84px,19vw,260px);transform:rotate(-1.2deg)}
+.hero .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.hero .small{font-size:clamp(24px,4.2vw,52px)}
+.hero .s-green.small{transform:rotate(1.5deg)}
+.hero .s-gold.small{transform:rotate(-1deg)}
+.hero .s-red.small{transform:rotate(.8deg)}
+.hero .tag{background:var(--cream);color:var(--ink);padding:8px 12px;max-width:560px;font-size:16px;transform:rotate(.4deg)}
+.hero .vert{position:absolute;z-index:2;left:14px;top:50%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;
+  font:900 clamp(18px,2.6vw,34px)/1 Archivo;letter-spacing:.06em;color:var(--cream);text-shadow:2px 2px 0 var(--ink)}
+@media (max-width:720px){.hero .vert{display:none}}
+
+/* sections as a specimen page: a small title over a rule, mono captions */
+section{padding:56px 0 64px}
+.sh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:2px solid currentColor;padding-bottom:8px;margin-bottom:22px}
+.sh h2{margin:0;font:800 20px/1.1 Archivo;letter-spacing:.01em}
+.lede{font-size:clamp(20px,2.6vw,30px);line-height:1.25;max-width:1000px;margin:0 0 8px}
+.lede b{font-weight:800}
+
+/* status */
+.status{background:var(--board);color:var(--cream)}
+.status .lede b{color:var(--gold)}
+
+/* LISTEN: a row a kit, as a specimen row */
+.kit{border-top:2px solid var(--ink);padding:14px 0 22px}
+.kit:last-child{border-bottom:2px solid var(--ink)}
+.kit .ctl{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;color:var(--mute)}
+.kit .ctl b{color:var(--ink);font-weight:500}
+.kit .ctl .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ink);margin-right:6px;vertical-align:0}
+.kit .ctl .dot.o{background:none;border:1.5px solid var(--ink)}
+.kit .big{font-size:clamp(46px,11vw,150px);margin:6px 0 10px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;cursor:pointer;
+  background:none;border:0;padding:0;text-align:left;color:var(--ink)}
+.kit .big .play{flex:none;width:.62em;height:.62em;border-radius:50%;background:var(--red);position:relative}
+.kit .big .play::after{content:"";position:absolute;left:38%;top:28%;border-left:.22em solid var(--cream);border-top:.13em solid transparent;border-bottom:.13em solid transparent}
+.kit.on .big .play{background:var(--green)}
+.kit.on .big .play::after{left:32%;top:30%;width:.08em;height:.2em;border:0;background:var(--cream);box-shadow:.11em 0 0 var(--cream)}
+.kit.on .big .nm{color:var(--red)}
+.lanes{display:grid;grid-template-columns:minmax(70px,120px) 1fr;gap:3px 10px;align-items:center}
+.lanes .st{display:grid;grid-template-columns:repeat(16,1fr);gap:3px}
+.lanes .st i{height:18px;background:#E2D3A8}
+.lanes .st i:nth-child(4n+1){background:#D8C691}
+.lanes .st i.x{background:var(--ink)}
+.lanes .st i.X{background:var(--red)}
+.lanes .st i.o{background:var(--mute)}
+.lanes .st i.now{outline:3px solid var(--green);outline-offset:-3px}
+.lanes .lab{color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lanes .fillrow{color:var(--red)}
+
+/* THE KIT: a tile a key */
+.keys{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:2px solid var(--ink);border-left:2px solid var(--ink)}
+@media (min-width:700px){.keys{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1100px){.keys{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.key{border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);background:var(--paper);padding:10px 12px 14px;cursor:pointer;
+  text-align:left;font:inherit;color:inherit;min-height:128px;display:flex;flex-direction:column;justify-content:space-between}
+.key:hover{background:var(--cream)}
+.key.blk{background:var(--board);color:var(--cream)}
+.key.blk:hover{background:#2a221a}
+.key .nm{font:400 clamp(26px,3.4vw,44px)/.95 "Lilita One"}
+.key.hit{background:var(--gold);color:var(--ink)}
+.key:focus-visible,.kit .big:focus-visible,.row-link:focus-visible{outline:3px solid var(--blue);outline-offset:-3px}
+
+/* SCREENS */
+.shots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (min-width:900px){.shots{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.shots figure{margin:0}
+.shots img{display:block;width:100%;height:auto;image-rendering:pixelated;border:8px solid var(--board)}
+.shots figcaption{margin-top:6px;color:var(--mute)}
+
+/* fields of colour with lists: INSTALL, TOOLS */
+.field{color:var(--cream)}
+.field.red{background:var(--red)}
+.field.green{background:var(--green)}
+.field.board{background:var(--board)}
+.list{border-top:2px solid currentColor}
+.row-link{display:grid;grid-template-columns:1fr;gap:4px 24px;padding:16px 0 18px;border-bottom:2px solid currentColor;text-decoration:none}
+@media (min-width:800px){.row-link{grid-template-columns:minmax(220px,1.1fr) 2fr minmax(120px,.6fr)}}
+.row-link .t{font:400 clamp(28px,3.6vw,46px)/1 "Lilita One"}
+.row-link .d{max-width:640px}
+.row-link .a{text-align:left}
+@media (min-width:800px){.row-link .a{text-align:right}}
+a.row-link:hover .t{text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:6px}
+.row-link code{font:500 14px "IBM Plex Mono";background:rgba(0,0,0,.22);padding:1px 5px}
+.soon{opacity:.7}
+
+/* COMING */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{padding:16px 18px 20px;color:var(--cream)}
+.card h3{margin:0 0 6px;font:400 34px/1 "Lilita One"}
+.card p{margin:0}
+
+footer{background:var(--ink);color:var(--cream);padding:40px 0 56px}
+footer p{margin:6px 0;max-width:900px}
+footer a{color:var(--gold)}
 [data-l]{display:none}
 html[lang="en"] [data-l="en"],html[lang="pt-BR"] [data-l="pt"]{display:revert}
+html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]{display:grid}   /* (revert would make the link inline) */
 </style>
 </head>
 <body>
-<main>
-<nav>
-  <span class="mono">FM-1 · roots · dub</span>
-  <span class="lang" role="group" aria-label="Language">
-    <button type="button" data-set="en" aria-pressed="true">EN</button>
-    <button type="button" data-set="pt-BR" aria-pressed="false">PT</button>
-  </span>
-</nav>
-
-<header>
-  <div>
-    <h1>RIDDIM</h1>
-    <p class="sub" data-l="en">A <b>roots reggae firmware</b> for the M-VAVE FM-1. Rocksteady, one drop, rockers, steppers, and
-      <b>dub played live</b>: a whole band synthesized on the FM-1 and a dub desk to version the tune while it plays.</p>
-    <p class="sub" data-l="pt">Um <b>firmware de reggae roots</b> para o M-VAVE FM-1. Rocksteady, one drop, rockers, steppers e
-      <b>dub tocado ao vivo</b>: a banda inteira sintetizada no FM-1 e uma mesa de dub para versionar a música enquanto ela toca.</p>
-  </div>
-  <svg id="plate" viewBox="0 0 300 300" role="img" aria-label="A dub plate turning">
-    <defs><path id="arc" d="M150,150 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>
-    <circle cx="150" cy="150" r="148" fill="#0b0907"/>
-    <g fill="none" stroke="#1f1913" stroke-width="1.2"><circle cx="150" cy="150" r="140"/><circle cx="150" cy="150" r="130"/>
-      <circle cx="150" cy="150" r="120"/><circle cx="150" cy="150" r="110"/><circle cx="150" cy="150" r="100"/></g>
-    <path d="M150 12 a138 138 0 0 1 60 14" fill="none" stroke="#746858" stroke-width="3"/>
-    <circle cx="150" cy="150" r="88" fill="#E8A825"/>
-    <circle cx="150" cy="150" r="88" fill="none" stroke="#C7382B" stroke-width="6"/>
-    <text font-family="Alfa Slab One" font-size="13" fill="#17130E" letter-spacing="3"><textPath href="#arc">PRE-RELEASE · SOUND SYSTEM SPECIAL · 0.1 ·</textPath></text>
-    <text x="150" y="146" text-anchor="middle" font-family="Anton" font-size="34" fill="#17130E">RIDDIM</text>
-    <text x="150" y="170" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#17130E" letter-spacing="2">VERSION · SIDE B</text>
-    <circle cx="150" cy="150" r="5" fill="#0b0907"/>
-  </svg>
+<header class="bar">
+  <a class="name" href="#top">RIDDIM</a>
+  <nav class="mono" aria-label="Sections and tools">
+    <a href="#listen">↓ <span data-l="en">Listen</span><span data-l="pt">Ouça</span></a>
+    <a href="#install">↓ <span data-l="en">Install</span><span data-l="pt">Instalar</span></a>
+    <a href="emu/">↗ <span data-l="en">Emulator</span><span data-l="pt">Emulador</span></a>
+    <a class="opt" href="emu/editor.html">↗ Editor</a>
+    <a class="opt" href="emu/live.html">↗ Live</a>
+    <a class="opt" data-l="en" href="riddim-first-guide.pdf">↗ Guide</a><a class="opt" data-l="pt" href="riddim-guia.pdf">↗ Guia</a>
+    <a class="opt" href="https://github.com/saulofilho/riddim-fm1/blob/main/MANUAL.md">↗ Manual</a>
+    <span class="lang" role="group" aria-label="Language"><button type="button" data-set="en" aria-pressed="true">EN</button><button type="button" data-set="pt-BR" aria-pressed="false">PT</button></span>
+  </nav>
 </header>
 
-<div class="status">
-  <p data-l="en" style="margin:0"><b>Version 0.1, in development.</b> Not released, not on the FM-1 Firmware Hub, and not tested
-    on an FM-1 yet. Today RIDDIM is a four-track groovebox with its own name, saves and screens; the reggae band and the
-    dub desk are on the way.</p>
-  <p data-l="pt" style="margin:0"><b>Versão 0.1, em desenvolvimento.</b> Sem release, fora do FM-1 Firmware Hub e ainda não testada
-    num FM-1. Hoje o RIDDIM é uma groovebox de quatro trilhas com nome, saves e telas próprios; a banda de reggae e a mesa
-    de dub estão a caminho.</p>
+<div class="hero" id="top">
+  <svg id="wall" aria-hidden="true" preserveAspectRatio="xMidYMid slice"></svg>
+  <div class="vert">ROOTS · ROCKERS · DUB · FM-1</div>
+  <div class="stack">
+    <div class="sign s-black title">RIDDIM</div>
+    <div class="row">
+      <span class="sign s-green small" data-l="en">ROOTS REGGAE</span><span class="sign s-green small" data-l="pt">REGGAE ROOTS</span>
+      <span class="sign s-gold small">ONE DROP</span>
+      <span class="sign s-red small">DUB</span>
+    </div>
+    <p class="tag" data-l="en"><b>A roots reggae firmware for the M-VAVE FM-1.</b> A whole band synthesized on the FM-1, and a dub desk to version the tune while it plays.</p>
+    <p class="tag" data-l="pt"><b>Um firmware de reggae roots para o M-VAVE FM-1.</b> A banda inteira sintetizada no FM-1, e uma mesa de dub para versionar a música enquanto ela toca.</p>
+  </div>
 </div>
 
-<div class="cta">
-  <a class="pill go" href="emu/"><span data-l="en">Play it in your browser</span><span data-l="pt">Toque no navegador</span></a>
-  <a class="pill" href="emu/editor.html"><span data-l="en">The editor</span><span data-l="pt">O editor</span></a>
-  <a class="pill" href="https://github.com/saulofilho/riddim-fm1"><span data-l="en">Source</span><span data-l="pt">Código</span></a>
-</div>
+<section class="status">
+  <div class="wrap">
+    <div class="sh mono"><h2>Version 0.1</h2><span data-l="en">in development</span><span data-l="pt">em desenvolvimento</span></div>
+    <p class="lede" data-l="en"><b>The drums are here:</b> DRUM, a roots kit of 20 synthesized drums on the 27 keys, and nine factory kits. Next: drum styles that play by themselves, the band's lines (skank, bubble, bass) and the dub desk (spring, tape echo, VERSION). <b>Not tested on an FM-1 yet</b>, and not on the Firmware Hub: play it in the emulator meanwhile.</p>
+    <p class="lede" data-l="pt"><b>A bateria chegou:</b> DRUM, um kit roots de 20 tambores sintetizados nas 27 teclas, e nove kits de fábrica. Depois: estilos de bateria que tocam sozinhos, as linhas da banda (skank, bubble, baixo) e a mesa de dub (mola, eco de fita, VERSION). <b>Ainda não testado num FM-1</b>, e fora do Firmware Hub: enquanto isso, toque no emulador.</p>
+  </div>
+</section>
 
-<h2 data-l="en">On the screen</h2><h2 data-l="pt">Na tela</h2>
-<div class="mono" data-l="en">rendered from the firmware itself, 240 × 240</div>
-<div class="mono" data-l="pt">desenhado pelo próprio firmware, 240 × 240</div>
-<div class="screens">
-  <figure><img src="img/riddim-boot.png" width="480" height="480" alt="RIDDIM's boot screen: a record turns, the tonearm sets down, the name and its echoes in blue">
-    <figcaption data-l="en">The boot: a dub plate turns, the tonearm sets down, the name echoes.</figcaption>
-    <figcaption data-l="pt">O boot: o dub plate gira, o braço desce, o nome ecoa.</figcaption></figure>
-  <figure><img src="img/riddim-home.png" width="480" height="480" alt="RIDDIM's HOME: four speaker boxes, one a track; T3 muted wears a DROP tape">
-    <figcaption data-l="en">HOME: the sound system, a box a track. The cones push with the sound; a muted track wears DROP.</figcaption>
-    <figcaption data-l="pt">HOME: o sound system, uma caixa por trilha. Os cones empurram com o som; trilha muda leva DROP.</figcaption></figure>
-</div>
+<section id="listen">
+  <div class="wrap">
+    <div class="sh mono"><h2 data-l="en">Listen</h2><h2 data-l="pt">Ouça</h2><span data-l="en">nine kits · recorded from the firmware itself</span><span data-l="pt">nove kits · gravados do próprio firmware</span></div>
+    <p class="lede" data-l="en">Each kit playing a beat in its style, four bars, the fourth with its fill. The beats are played on the keys, the way you would: the styles that play themselves come next.</p>
+    <p class="lede" data-l="pt">Cada kit tocando uma batida no seu estilo, quatro compassos, o quarto com a virada. As batidas são tocadas nas teclas, como você faria: os estilos que tocam sozinhos vêm depois.</p>
+    <div id="kits"></div>
+  </div>
+</section>
 
-<h2 data-l="en">Coming</h2><h2 data-l="pt">Vem aí</h2>
-<div class="mono" data-l="en">the plan, in short</div><div class="mono" data-l="pt">o plano, em resumo</div>
-<div class="cards">
-  <div class="card" style="--c:var(--vermelho)"><h3 data-l="en">Drums</h3><h3 data-l="pt">Bateria</h3>
-    <p data-l="en"><b>The kit is in 0.1:</b> 20 synthesized drums, the cross-stick at its heart, the syndrum and the spring. Next, styles that play by themselves: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB.</p>
-    <p data-l="pt"><b>O kit já está na 0.1:</b> 20 tambores sintetizados, com o cross-stick no centro, o syndrum e a mola. Agora, estilos que tocam sozinhos: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB.</p></div>
-  <div class="card" style="--c:var(--verde)"><h3 data-l="en">The band</h3><h3 data-l="pt">A banda</h3>
-    <p data-l="en">Lines over the chord you hold: SKANK on 2 and 4, the organ's BUBBLE, a BASS that leaves room, HORNS at the end of the phrase.</p>
-    <p data-l="pt">Linhas sobre o acorde que você segura: SKANK no 2 e no 4, o BUBBLE do órgão, um BASS que deixa espaço, HORNS no fim da frase.</p></div>
-  <div class="card" style="--c:var(--eco)"><h3>Dub</h3>
-    <p data-l="en">A spring reverb, a tape echo that runs away, THROW, mutes that land on the bar, and VERSION, which mixes the dub by itself.</p>
-    <p data-l="pt">Reverb de mola, eco de fita que dispara, THROW, mutes que entram no compasso e VERSION, que mixa o dub sozinho.</p></div>
-  <div class="card" style="--c:var(--ouro)"><h3 data-l="en">Nothing copied</h3><h3 data-l="pt">Nada copiado</h3>
-    <p data-l="en">Every sound synthesized. No record samples, no famous riddim transcribed: the styles are written in the style.</p>
-    <p data-l="pt">Todo som sintetizado. Nenhum sample de disco, nenhum riddim famoso transcrito: os estilos são escritos no estilo.</p></div>
-</div>
+<section id="kit" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sh mono"><h2 data-l="en">The kit</h2><h2 data-l="pt">O kit</h2><span data-l="en">27 keys, F3 to G5 · click to hear</span><span data-l="pt">27 teclas, F3 a G5 · clique para ouvir</span></div>
+    <div class="keys" id="keys" role="group" aria-label="The ONE DROP KIT's 27 keys"></div>
+  </div>
+</section>
 
-<h2 data-l="en">The look</h2><h2 data-l="pt">O visual</h2>
-<div class="mono" data-l="en">dance poster, dub plate, speaker box</div><div class="mono" data-l="pt">cartaz de dance, dub plate, caixa de som</div>
-<div class="mood">
-  <i class="sw" style="background:#17130E;outline:1px solid #3a3024"></i><i class="sw" style="background:#EFE4CB"></i>
-  <i class="sw" style="background:#C7382B"></i><i class="sw" style="background:#2E7A47"></i>
-  <i class="sw" style="background:#E8A825"></i><i class="sw" style="background:#3E6E9E"></i>
-  <a class="pill" href="moodboard/"><span data-l="en">The mood board</span><span data-l="pt">O mood board</span></a>
-</div>
+<section id="screens" style="padding-top:24px">
+  <div class="wrap">
+    <div class="sh mono"><h2 data-l="en">On the screen</h2><h2 data-l="pt">Na tela</h2><span>240 × 240</span></div>
+    <div class="shots">
+      <figure><img src="img/boot.png" width="480" height="480" alt="RIDDIM's boot screen: a record turns, the tonearm sets down, the name echoes"><figcaption class="mono">Boot</figcaption></figure>
+      <figure><img src="img/home.png" width="480" height="480" alt="HOME: the sound system, a box a track; the muted track wears DROP"><figcaption class="mono">Home</figcaption></figure>
+      <figure><img src="img/drum.png" width="480" height="480" alt="The DRUM page: the kit as it stands, the piece just hit lit"><figcaption class="mono">Edit › Drum</figcaption></figure>
+      <figure><img src="img/seq.png" width="480" height="480" alt="The sequencer's grid"><figcaption class="mono">Seq › Grid</figcaption></figure>
+      <figure><img src="img/mixer1.png" width="480" height="480" alt="MIXER 1's six tiles"><figcaption class="mono">Home › Mixer 1</figcaption></figure>
+      <figure><img src="img/perform.png" width="480" height="480" alt="The PERFORM page: throws, stutter, filter, GENERATE"><figcaption class="mono">FX (hold) › Perform</figcaption></figure>
+    </div>
+  </div>
+</section>
 
-<h2 data-l="en">Install</h2><h2 data-l="pt">Instalar</h2>
-<ul class="list" data-l="en">
-  <li><b>Not yet.</b> The first release comes with the results of a test on a real FM-1, then the FM-1 Firmware Hub.</li>
-  <li>Until then, <a href="emu/">the emulator</a> runs the same firmware in your browser.</li>
-</ul>
-<ul class="list" data-l="pt">
-  <li><b>Ainda não.</b> A primeira release vem com os resultados de um teste num FM-1 de verdade, e depois o FM-1 Firmware Hub.</li>
-  <li>Até lá, <a href="emu/">o emulador</a> roda o mesmo firmware no seu navegador.</li>
-</ul>
+<section id="install" class="field red">
+  <div class="wrap">
+    <div class="sh mono"><h2 data-l="en">How to install</h2><h2 data-l="pt">Como instalar</h2><span>Chrome · Edge · USB</span></div>
+    <div class="list">
+      <div class="row-link soon"><span class="t">Firmware Hub</span>
+        <span class="d" data-l="en">The easy way: open RIDDIM on the FM-1 Firmware Hub, plug the FM-1 in over USB, press Install. RIDDIM goes there with its first release, after a test on a real FM-1.</span>
+        <span class="d" data-l="pt">O jeito fácil: abrir o RIDDIM no FM-1 Firmware Hub, ligar o FM-1 pelo USB, apertar Install. O RIDDIM vai para lá com a primeira release, depois de um teste num FM-1 de verdade.</span>
+        <span class="a mono" data-l="en">coming</span><span class="a mono" data-l="pt">em breve</span></div>
+      <div class="row-link"><span class="t" data-l="en">From a terminal</span><span class="t" data-l="pt">Pelo terminal</span>
+        <span class="d" data-l="en">Build it from source (<code>./build.sh</code> → <code>build/riddim.fwsc</code>) and install it with <code>python3 tools/fm1_install.py build/riddim.fwsc</code> (Python 3, <code>pip install mido python-rtmidi</code>). <b>0.1 has not been on an FM-1:</b> at your own risk.</span>
+        <span class="d" data-l="pt">Compile do código (<code>./build.sh</code> → <code>build/riddim.fwsc</code>) e instale com <code>python3 tools/fm1_install.py build/riddim.fwsc</code> (Python 3, <code>pip install mido python-rtmidi</code>). <b>A 0.1 nunca rodou num FM-1:</b> por sua conta e risco.</span>
+        <span class="a mono">FM-1_932</span></div>
+      <a class="row-link" href="https://thefirmwarehub.com/"><span class="t" data-l="en">Stuck?</span><span class="t" data-l="pt">Travou?</span>
+        <span class="d" data-l="en">Hold OCT− while switching on for the USB rescue, then use the Rescue page on the FM-1 Firmware Hub to put any firmware back.</span>
+        <span class="d" data-l="pt">Segure OCT− ao ligar para o resgate por USB, e use a página Rescue do FM-1 Firmware Hub para voltar qualquer firmware.</span>
+        <span class="a mono">↗ Rescue</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="tools" class="field green">
+  <div class="wrap">
+    <div class="sh mono"><h2 data-l="en">Play it, edit it, watch it</h2><h2 data-l="pt">Toque, edite, assista</h2><span data-l="en">in the browser</span><span data-l="pt">no navegador</span></div>
+    <div class="list">
+      <a class="row-link" href="emu/"><span class="t" data-l="en">Web emulator</span><span class="t" data-l="pt">Emulador web</span>
+        <span class="d" data-l="en">The FM-1's panel in your browser, running the same firmware: switch it on and play with the mouse or the computer keyboard. No FM-1 needed.</span>
+        <span class="d" data-l="pt">O painel do FM-1 no navegador, rodando o mesmo firmware: ligue e toque com o mouse ou o teclado do computador. Sem precisar de FM-1.</span>
+        <span class="a mono">↗ emu/</span></a>
+      <a class="row-link" href="emu/editor.html"><span class="t">Editor</span>
+        <span class="d" data-l="en">The four tracks' sounds live, your 64 sound slots, the samples, the sequencer, the effects and a full backup, over USB. Try it without an FM-1 too.</span>
+        <span class="d" data-l="pt">Os sons das quatro trilhas ao vivo, seus 64 slots de som, os samples, o sequenciador, os efeitos e um backup completo, pelo USB. Dá para testar sem FM-1 também.</span>
+        <span class="a mono">↗ editor</span></a>
+      <a class="row-link" href="emu/live.html"><span class="t" data-l="en">Live view</span><span class="t" data-l="pt">Visão ao vivo</span>
+        <span class="d" data-l="en">Your FM-1 drawn as it plays: the speaker boxes push with each track's notes, the spectrum, a scope, the steps, the knobs. For the stage or a stream. DEMO plays without an FM-1.</span>
+        <span class="d" data-l="pt">Seu FM-1 desenhado enquanto toca: as caixas empurram com as notas de cada trilha, o espectro, um osciloscópio, os passos, os knobs. Para o palco ou uma live. DEMO toca sem FM-1.</span>
+        <span class="a mono">↗ live</span></a>
+      <a class="row-link" data-l="en" href="riddim-first-guide.pdf"><span class="t">First steps guide</span>
+        <span class="d">Eight pages: the controls, switching on, playing the kit, building a one drop, dubbing it, the buttons, the 27 keys. Also in Portuguese.</span>
+        <span class="a mono">↗ PDF</span></a>
+      <a class="row-link" data-l="pt" href="riddim-guia.pdf"><span class="t">Guia de primeiros passos</span>
+        <span class="d">Oito páginas: os controles, ligar, tocar o kit, montar um one drop, fazer o dub, os botões, as 27 teclas. Também em inglês.</span>
+        <span class="a mono">↗ PDF</span></a>
+      <a class="row-link" href="https://github.com/saulofilho/riddim-fm1/blob/main/MANUAL.md"><span class="t" data-l="en">The manual</span><span class="t" data-l="pt">O manual</span>
+        <span class="d" data-l="en">Every page, knob and combo, the DRUM source and its keys, the effects, MIDI, the factory sounds.</span>
+        <span class="d" data-l="pt">Cada página, knob e combo, a fonte DRUM e suas teclas, os efeitos, o MIDI, os sons de fábrica (em inglês).</span>
+        <span class="a mono">↗ MANUAL.md</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="coming">
+  <div class="wrap">
+    <div class="sh mono"><h2 data-l="en">Coming</h2><h2 data-l="pt">Vem aí</h2><span>PLAN.md</span></div>
+    <div class="cards">
+      <div class="card" style="background:var(--red)"><h3 data-l="en">Styles</h3><h3 data-l="pt">Estilos</h3>
+        <p data-l="en">Drum styles that play by themselves: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB, with fills.</p>
+        <p data-l="pt">Estilos de bateria que tocam sozinhos: ONE DROP, ROCKERS, STEPPERS, FLYERS, ROCKSTEADY, RUB-A-DUB, com viradas.</p></div>
+      <div class="card" style="background:var(--green)"><h3 data-l="en">The band</h3><h3 data-l="pt">A banda</h3>
+        <p data-l="en">Lines over the chord you hold: SKANK on 2 and 4, the organ's BUBBLE, a BASS that leaves room, HORNS.</p>
+        <p data-l="pt">Linhas sobre o acorde que você segura: SKANK no 2 e no 4, o BUBBLE do órgão, um BASS que deixa espaço, HORNS.</p></div>
+      <div class="card" style="background:var(--blue)"><h3>Dub</h3>
+        <p data-l="en">A spring reverb, a tape echo that runs away, THROW, mutes on the bar, and VERSION, the dub that mixes itself.</p>
+        <p data-l="pt">Reverb de mola, eco de fita que dispara, THROW, mutes no compasso e VERSION, o dub que se mixa sozinho.</p></div>
+      <div class="card" style="background:var(--board)"><h3 data-l="en">Nothing copied</h3><h3 data-l="pt">Nada copiado</h3>
+        <p data-l="en">Every sound synthesized. No record samples, no famous riddim transcribed: the styles are written in the style.</p>
+        <p data-l="pt">Todo som sintetizado. Nenhum sample de disco, nenhum riddim famoso transcrito: os estilos são escritos no estilo.</p></div>
+    </div>
+  </div>
+</section>
 
 <footer>
-  <p data-l="en">RIDDIM · free software, <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSE">GPL-3.0-only</a> ·
-    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSING.md">credits and licences</a> ·
-    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/README.md">README</a></p>
-  <p data-l="pt">RIDDIM · software livre, <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSE">GPL-3.0-only</a> ·
-    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSING.md">créditos e licenças</a> ·
-    <a href="https://github.com/saulofilho/riddim-fm1/blob/main/README.pt.md">README</a></p>
-  <p data-l="en">Unofficial firmware. M-VAVE and FM-1 are trademarks of their owners; RIDDIM is not made or endorsed by them.</p>
-  <p data-l="pt">Firmware não oficial. M-VAVE e FM-1 são marcas dos seus donos; o RIDDIM não é feito nem endossado por eles.</p>
+  <div class="wrap">
+    <p class="mono">RIDDIM <span id="ver">0.1</span> · M-VAVE FM-1</p>
+    <p data-l="en">Free software, <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSE">GPL-3.0-only</a> · <a href="https://github.com/saulofilho/riddim-fm1">source</a> · <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSING.md">credits and licences</a> · <a href="moodboard/">mood board</a> · fonts: Lilita One, Archivo, IBM Plex Mono (SIL OFL 1.1)</p>
+    <p data-l="pt">Software livre, <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSE">GPL-3.0-only</a> · <a href="https://github.com/saulofilho/riddim-fm1">código</a> · <a href="https://github.com/saulofilho/riddim-fm1/blob/main/LICENSING.md">créditos e licenças</a> · <a href="moodboard/">mood board</a> · fontes: Lilita One, Archivo, IBM Plex Mono (SIL OFL 1.1)</p>
+    <p data-l="en">Unofficial firmware. M-VAVE and FM-1 are trademarks of their owners; RIDDIM is not made or endorsed by them.</p>
+    <p data-l="pt">Firmware não oficial. M-VAVE e FM-1 são marcas dos seus donos; o RIDDIM não é feito nem endossado por eles.</p>
+  </div>
 </footer>
-</main>
+
+<script src="riddim-data.js"></script>
 <script>
 (() => {
-  const root = document.documentElement, btns = [...document.querySelectorAll("[data-set]")];
-  const set = (l) => { root.lang = l; btns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.set === l))); };
-  let saved = null;
-  try { saved = localStorage.getItem("riddim-lang"); } catch (e) {}
-  set(saved === "pt-BR" || saved === "en" ? saved : (navigator.language || "").toLowerCase().startsWith("pt") ? "pt-BR" : "en");
-  btns.forEach((b) => b.addEventListener("click", () => { set(b.dataset.set); try { localStorage.setItem("riddim-lang", b.dataset.set); } catch (e) {} }));
+const D = window.RIDDIM || { kits: [], keys: [], keyStarts: [], keyGap: 800, version: "0.1" };
+const $ = (s) => document.querySelector(s);
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+$("#ver").textContent = D.version;
+
+/* ---------- language ---------- */
+const root = document.documentElement, langBtns = [...document.querySelectorAll("[data-set]")];
+const setLang = (l) => { root.lang = l; langBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.set === l))); };
+let saved = null;
+try { saved = localStorage.getItem("riddim-lang"); } catch (e) {}
+setLang(saved === "pt-BR" || saved === "en" ? saved : (navigator.language || "").toLowerCase().startsWith("pt") ? "pt-BR" : "en");
+langBtns.forEach((b) => b.addEventListener("click", () => { setLang(b.dataset.set); try { localStorage.setItem("riddim-lang", b.dataset.set); } catch (e) {} }));
+
+/* ---------- the wall of speakers (SVG): boxes in columns, as on a sound-system poster ---------- */
+const NS = "http://www.w3.org/2000/svg", wall = $("#wall");
+const C = { ink: "#0E0C0A", red: "#C21F1A", gold: "#E9B12C", green: "#1F7A3C", leaf: "#5C8F2C", blue: "#4B4FB0", sky: "#7CC4C6", cream: "#F6EBC8" };
+const cones = [];
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || wall).appendChild(e); return e; }
+function buildWall() {
+  wall.innerHTML = "";
+  cones.length = 0;
+  const W = 1600, H = 1000, colW = 160, pad = 10;
+  wall.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const defs = el("defs", {});
+  const f = el("filter", { id: "rough", x: "-5%", y: "-5%", width: "110%", height: "110%" }, defs);
+  el("feTurbulence", { type: "fractalNoise", baseFrequency: "0.035", numOctaves: "2", seed: "7", result: "n" }, f);
+  el("feDisplacementMap", { in: "SourceGraphic", in2: "n", scale: "5" }, f);
+  const mesh = el("pattern", { id: "mesh", width: "7", height: "7", patternUnits: "userSpaceOnUse" }, defs);
+  el("path", { d: "M0 0L7 7M7 0L0 7", stroke: C.ink, "stroke-width": "1.3" }, mesh);
+  el("rect", { width: W, height: H, fill: C.leaf });
+  const g = el("g", { filter: "url(#rough)" });
+  let seed = 11;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const frames = [C.green, C.red, C.gold, C.blue], inners = [C.red, C.gold, C.green, C.red];
+  const coneCols = [C.blue, C.red, C.green, C.blue, C.sky];
+  for (let x = 0, ci = 0; x < W; x += colW, ci++) {
+    let y = (ci % 2) * -40;
+    let kind = ci % 3;
+    while (y < H) {
+      const k = (kind++) % 4, fr = frames[(ci + kind) % 4], inn = inners[(ci + 2 * kind) % 4];
+      if (k === 0 || k === 2) {                             // a cone box
+        const h = 220;
+        el("rect", { x: x + pad, y, width: colW - 2 * pad, height: h, fill: fr, stroke: C.ink, "stroke-width": 4 }, g);
+        el("rect", { x: x + pad + 12, y: y + 12, width: colW - 2 * pad - 24, height: h - 60, fill: inn, stroke: C.ink, "stroke-width": 3 }, g);
+        const cx = x + colW / 2, cy = y + 12 + (h - 60) / 2, r = 48;
+        const cg = el("g", { "data-band": String(ci % 4) }, g);
+        el("circle", { cx, cy, r: r + 6, fill: C.ink }, cg);
+        el("circle", { cx, cy, r, fill: coneCols[(ci + kind) % coneCols.length], stroke: C.ink, "stroke-width": 3 }, cg);
+        el("circle", { cx, cy, r: r * 0.62, fill: "none", stroke: C.ink, "stroke-width": 4 }, cg);
+        el("circle", { cx, cy, r: r * 0.26, fill: C.ink }, cg);
+        cones.push({ g: cg, cx, cy, band: ci % 4 });
+        for (let i = 0; i < 3; i++) el("rect", { x: x + pad + 14 + i * ((colW - 2 * pad - 28) / 3), y: y + h - 38, width: (colW - 2 * pad - 28) / 3 - 6, height: 24, fill: C.ink }, g);
+        y += h + 6;
+      } else if (k === 1) {                                 // a horn strip: triangles
+        const h = 70;
+        el("rect", { x: x + pad, y, width: colW - 2 * pad, height: h, fill: C.ink, stroke: C.ink, "stroke-width": 4 }, g);
+        const tc = [C.red, C.gold, C.green, C.blue][(ci + Math.floor(rnd() * 4)) % 4];
+        el("path", { d: `M${x + pad + 6} ${y + 8}L${x + colW / 2 - 6} ${y + h / 2}L${x + pad + 6} ${y + h - 8}Z`, fill: tc }, g);
+        el("path", { d: `M${x + colW - pad - 6} ${y + 8}L${x + colW / 2 + 6} ${y + h / 2}L${x + colW - pad - 6} ${y + h - 8}Z`, fill: tc }, g);
+        y += h + 6;
+      } else {                                              // a grille box, then a driver strip
+        const h = 170;
+        el("rect", { x: x + pad, y, width: colW - 2 * pad, height: h, fill: C.red, stroke: C.ink, "stroke-width": 4 }, g);
+        const cx = x + colW / 2, cy = y + h / 2;
+        el("circle", { cx, cy, r: 58, fill: C.gold, stroke: C.ink, "stroke-width": 4 }, g);
+        el("circle", { cx, cy, r: 56, fill: "url(#mesh)" }, g);
+        el("circle", { cx, cy, r: 9, fill: C.ink }, g);
+        y += h + 6;
+        const sh = 54;
+        el("rect", { x: x + pad, y, width: colW - 2 * pad, height: sh, fill: C.gold, stroke: C.ink, "stroke-width": 4 }, g);
+        for (let i = 0; i < 3; i++) {
+          const dx = x + pad + 22 + i * ((colW - 2 * pad - 44) / 2);
+          el("circle", { cx: dx, cy: y + sh / 2, r: 15, fill: C.ink }, g);
+          el("path", { d: `M${dx - 20} ${y + 8}L${dx + 20} ${y + sh - 8}M${dx + 20} ${y + 8}L${dx - 20} ${y + sh - 8}`, stroke: C.ink, "stroke-width": 3 }, g);
+        }
+        y += sh + 6;
+      }
+    }
+  }
+  const stars = el("g", {});                                // the poster's stars along the top
+  for (let x = 40; x < W; x += 120) {
+    const p = [];
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 11 : 26; p.push(`${x + r * Math.cos(a)},${32 + r * Math.sin(a)}`); }
+    el("polygon", { points: p.join(" "), fill: C.ink }, stars);
+  }
+}
+buildWall();
+
+/* ---------- the audio: one element at a time; the cones push with it ---------- */
+let ac = null, an = null, fbuf = null, current = null;
+const sources = new WeakMap();
+function hook(audio) {
+  try {
+    if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); an = ac.createAnalyser(); an.fftSize = 256; fbuf = new Uint8Array(an.frequencyBinCount); an.connect(ac.destination); }
+    if (ac.state === "suspended") ac.resume();
+    if (!sources.has(audio)) { const s = ac.createMediaElementSource(audio); s.connect(an); sources.set(audio, s); }
+  } catch (e) { /* (no Web Audio: it still plays, the cones stay still) */ }
+}
+function pulse() {
+  if (an && current && !current.paused) {
+    an.getByteFrequencyData(fbuf);
+    const band = (b) => { let m = 0; const a = [1, 4, 12, 30][b], z = [4, 12, 30, 80][b]; for (let i = a; i < z; i++) m = Math.max(m, fbuf[i]); return m / 255; };
+    const lv = [0, 1, 2, 3].map(band);
+    if (!reduce) cones.forEach((c) => { const s = 1 + 0.16 * lv[c.band]; c.g.setAttribute("transform", `translate(${c.cx} ${c.cy}) scale(${s}) translate(${-c.cx} ${-c.cy})`); });
+  } else cones.forEach((c) => c.g.removeAttribute("transform"));
+  requestAnimationFrame(pulse);
+}
+requestAnimationFrame(pulse);
+
+/* ---------- LISTEN: a row a kit ---------- */
+const kitsEl = $("#kits"), rows = [];
+D.kits.forEach((k, i) => {
+  const n = String(i + 1).padStart(2, "0");
+  const row = document.createElement("article");
+  row.className = "kit";
+  const lane = (l, cls) => `<span class="lab mono ${cls || ""}">${l.key}</span><span class="st">${[...l.steps].map((c) => `<i class="${c === "." ? "" : c}"></i>`).join("")}</span>`;
+  row.innerHTML = `<div class="ctl mono"><span><span class="dot"></span>KIT <b>${n}</b> / ${String(D.kits.length).padStart(2, "0")}</span>
+    <span><span class="dot"></span><b>${k.style}</b></span><span><span class="dot"></span><b>${k.bpm}</b> BPM</span>
+    <span><span class="dot o"></span>SHUFFLE <b>${k.shuffle}%</b></span><span><span class="dot o"></span>PRESETS <b>${k.preset}</b></span></div>
+    <button class="big letters" type="button" aria-label="Play ${k.name}"><span class="play" aria-hidden="true"></span><span class="nm">${k.name}</span></button>
+    <div class="lanes">${k.lanes.map((l) => lane(l)).join("")}${k.fill.length ? `<span class="lab mono fillrow">FILL ↓</span><span></span>` + k.fill.map((l) => lane(l, "fillrow")).join("") : ""}</div>`;
+  const audio = new Audio(`audio/kit-${n}.mp3`);
+  audio.preload = "none";
+  const btn = row.querySelector(".big"), cols = [...row.querySelectorAll(".st")].map((s) => [...s.children]);
+  btn.addEventListener("click", () => {
+    if (current === audio && !audio.paused) { audio.pause(); return; }
+    if (current && current !== audio) current.pause();
+    hook(audio);
+    current = audio;
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  });
+  audio.addEventListener("play", () => row.classList.add("on"));
+  audio.addEventListener("pause", () => { row.classList.remove("on"); cols.forEach((c) => c.forEach((i) => i.classList.remove("now"))); });
+  audio.addEventListener("ended", () => audio.dispatchEvent(new Event("pause")));
+  rows.push({ audio, cols, k });
+  kitsEl.appendChild(row);
+});
+(function steps() {                                         // the step playing, lit (four bars; the shuffle left out)
+  rows.forEach(({ audio, cols, k }) => {
+    if (audio.paused) return;
+    const s = Math.floor(audio.currentTime / (60 / k.bpm / 4)) % 16;
+    cols.forEach((c) => c.forEach((i, j) => i.classList.toggle("now", j === s)));
+  });
+  requestAnimationFrame(steps);
+})();
+
+/* ---------- THE KIT: a tile a key, a slice of keys.mp3 each ---------- */
+const NOTES = ["F3", "F#3", "G3", "G#3", "A3", "A#3", "B3", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5"];
+const keysAudio = new Audio("audio/keys.mp3");
+keysAudio.preload = "none";
+let stopT = null;
+D.keys.forEach((name, i) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "key" + (NOTES[i].includes("#") ? " blk" : "");
+  b.innerHTML = `<span class="mono">${NOTES[i]} · ${String(i + 1).padStart(2, "0")}</span><span class="nm">${name}</span>`;
+  b.setAttribute("aria-label", `${name}, key ${NOTES[i]}: play`);
+  b.addEventListener("click", () => {
+    if (current && current !== keysAudio) current.pause();
+    hook(keysAudio);
+    current = keysAudio;
+    keysAudio.currentTime = (D.keyStarts[i] || i * D.keyGap) / 1000;
+    keysAudio.play().catch(() => {});
+    clearTimeout(stopT);
+    stopT = setTimeout(() => keysAudio.pause(), D.keyGap - 40);
+    b.classList.add("hit");
+    setTimeout(() => b.classList.remove("hit"), 220);
+  });
+  $("#keys").appendChild(b);
+});
 })();
 </script>
 </body>

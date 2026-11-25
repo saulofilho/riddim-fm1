@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 RIDDIM
 """RIDDIM's first-steps guide, in English and Portuguese: eight A4 pages as HTML (site/guide/en.html, pt.html, also on
-the site) and as PDF (docs/riddim-first-guide.pdf, docs/riddim-guia.pdf, and a copy in site/), printed by headless
+the site) and as PDF (docs/riddim-first-guide.pdf, docs/riddim-guia.pdf: tools/build_site.sh copies them to the site), printed by headless
 Chrome (CHROME, or Google Chrome's usual place on a Mac). Every recipe in it was played in host mode first.
   python3 tools/gen_guide.py [--no-pdf]
 """
@@ -128,31 +128,37 @@ T = {
 CSS = """
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
-:root { --tinta:#17130E; --papel:#EFE4CB; --papel2:#E4D7B8; --cinza:#6E6352; --vermelho:#C7382B; --ouro:#E8A825; --verde:#2E7A47; --eco:#3E6E9E; }
+:root { --tinta:#0E0C0A; --papel:#EFE2BC; --papel2:#E2D3A8; --cinza:#6D6150; --vermelho:#C21F1A; --ouro:#E9B12C; --verde:#1F7A3C; --folha:#5C8F2C; --eco:#4B4FB0; --creme:#F6EBC8; }
 html, body { margin: 0; background: #888; }
 body { font: 11.5pt/1.5 Archivo, system-ui, sans-serif; color: var(--tinta); }
 .page { width: 210mm; height: 297mm; margin: 0 auto 8mm; background: var(--papel); padding: 18mm 18mm 16mm; position: relative; overflow: hidden; page-break-after: always; }
 @media print { html, body { background: none; } .page { margin: 0; } }
 .kick { font: 500 9pt "IBM Plex Mono", monospace; letter-spacing: .14em; color: var(--cinza); text-transform: uppercase; }
-h1 { font: 400 92pt/0.86 Anton, Impact, sans-serif; margin: 8mm 0 0; letter-spacing: .01em; text-shadow: 0 .08em 0 rgba(62,110,158,.55), 0 .16em 0 rgba(62,110,158,.3), 0 .24em 0 rgba(62,110,158,.14); }
-h2 { font: 400 26pt/1.05 "Alfa Slab One", serif; margin: 2mm 0 5mm; }
+h1 { display: inline-block; font: 400 88pt/0.95 "Lilita One", sans-serif; margin: 6mm 0 0; padding: 2mm 6mm 1mm; background: var(--tinta); color: var(--ouro); -webkit-text-stroke: 1.6pt var(--vermelho); text-shadow: 3pt 4pt 0 var(--vermelho); transform: rotate(-1.2deg); }
+h2 { display: inline-block; font: 400 25pt/1.05 "Lilita One", sans-serif; margin: 2mm 0 5mm; padding: 1.5mm 4mm 1mm; background: var(--verde); color: var(--tinta); text-shadow: -1pt -1pt 0 var(--ouro), 1pt -1pt 0 var(--ouro), -1pt 1pt 0 var(--ouro), 1pt 1pt 0 var(--ouro), 2.5pt 2.5pt 0 var(--vermelho); }
 .lead { font-size: 15pt; max-width: 150mm; margin: 14mm 0 0; }
 .sub { color: var(--cinza); margin-top: 4mm; max-width: 150mm; }
 .foot { position: absolute; left: 18mm; right: 18mm; bottom: 9mm; display: flex; justify-content: space-between; font: 500 8pt "IBM Plex Mono", monospace; letter-spacing: .1em; color: var(--cinza); text-transform: uppercase; border-top: 2px solid var(--tinta); padding-top: 2mm; }
-.plate { position: absolute; right: 16mm; bottom: 34mm; width: 92mm; }
-.cover-band { position: absolute; left: 0; right: 0; bottom: 22mm; height: 6mm; background: linear-gradient(90deg, var(--vermelho) 0 25%, var(--verde) 25% 50%, var(--ouro) 50% 75%, var(--eco) 75%); }
+.plate { position: absolute; right: 16mm; bottom: 62mm; width: 80mm; }
+.page.cover { background: var(--folha); }
+.page.cover .lead, .page.cover .sub { background: var(--creme); padding: 3mm 4mm; color: var(--tinta); }
+.page.cover .kick { color: var(--creme); }
+.page.cover .foot { color: var(--creme); border-color: var(--creme); }
+.boxes { position: absolute; left: 0; right: 0; bottom: 20mm; height: 34mm; display: flex; gap: 2mm; padding: 0 4mm; }
+.boxes i { flex: 1; border: 1.2mm solid var(--tinta); display: flex; align-items: center; justify-content: center; }
+.boxes i::after { content: ""; width: 60%; aspect-ratio: 1; border-radius: 50%; background: var(--eco); border: 1.4mm solid var(--tinta); box-shadow: inset 0 0 0 3mm var(--eco), inset 0 0 0 4mm var(--tinta); }
 ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
 ol.steps li { counter-increment: s; position: relative; padding: 2.4mm 0 2.4mm 13mm; border-bottom: 1px solid var(--papel2); }
-ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 2mm; width: 9mm; height: 9mm; background: var(--tinta); color: var(--papel); font: 400 12pt "Alfa Slab One"; display: flex; align-items: center; justify-content: center; }
+ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 2mm; width: 9mm; height: 9mm; background: var(--vermelho); color: var(--ouro); font: 400 14pt "Lilita One"; display: flex; align-items: center; justify-content: center; }
 .row { display: flex; gap: 7mm; align-items: flex-start; }
 .shot { width: 62mm; flex: none; border: 3mm solid var(--tinta); image-rendering: pixelated; }
 .shot.big { width: 78mm; }
 .cap { font: 500 8pt "IBM Plex Mono"; color: var(--cinza); text-transform: uppercase; letter-spacing: .08em; margin-top: 1.5mm; }
 table { border-collapse: collapse; width: 100%; font-size: 10.5pt; }
-th { text-align: left; font: 400 10pt "Alfa Slab One"; border-bottom: 2px solid var(--tinta); padding: 1.6mm 2mm; }
+th { text-align: left; font: 400 12pt "Lilita One"; border-bottom: 2px solid var(--tinta); padding: 1.6mm 2mm; }
 td { border-bottom: 1px solid var(--papel2); padding: 1.6mm 2mm; vertical-align: top; }
 td b, li b { font-weight: 800; }
-.box { background: var(--tinta); color: var(--papel); padding: 4mm 5mm; margin-top: 5mm; }
+.box { background: var(--tinta); color: var(--creme); padding: 4mm 5mm; margin-top: 5mm; font: 400 13pt "Lilita One"; }
 .box b { color: var(--ouro); }
 .note { background: var(--papel2); padding: 3mm 4mm; margin-top: 4mm; }
 .fm1 { background: #1e1a16; border-radius: 4mm; padding: 5mm; display: grid; grid-template-columns: 30mm 1fr 52mm; gap: 4mm; color: var(--papel); font: 500 7pt "IBM Plex Mono"; letter-spacing: .05em; margin: 2mm 0 6mm; }
@@ -192,8 +198,8 @@ def foot(L, n):
     return f'<div class="foot"><span>RIDDIM · {L["title"].split("— ")[1]}</span><span>{URL} · {n}/8</span></div>'
 
 
-def page(inner, L, n):
-    return f'<section class="page">{inner}{foot(L, n)}</section>'
+def page(inner, L, n, cls=""):
+    return f'<section class="page {cls}">{inner}{foot(L, n)}</section>'
 
 
 def keyboard(hl=()):
@@ -212,8 +218,9 @@ def grid16(rows):
 
 def build(L):
     p = []
+    boxes = "".join(f'<i style="background:{c}"></i>' for c in ("#C21F1A", "#E9B12C", "#1F7A3C", "#C21F1A", "#E9B12C", "#1F7A3C"))
     p.append(page(f'<div class="kick">{L["kicker"]}</div><h1>RIDDIM</h1><p class="lead">{L["lead"]}</p><p class="sub">{L["sub"]}</p>'
-                  f'{PLATE}<div class="cover-band"></div>', L, 1))
+                  f'{PLATE}<div class="boxes">{boxes}</div>', L, 1, "cover"))
     ctl = "".join(f"<tr><td><b>{a}</b></td><td>{b}</td></tr>" for a, b in L["ctl"])
     fm1 = ('<div class="fm1"><div>' + "".join(f'<div class="k"><i></i>{k}</div>' for k in ("MASTER", "SELECT", "PRESETS", "ALGORITHM")) +
            '</div><div class="scr"><img src="../img/home.png" alt=""></div><div class="bt">' +
@@ -246,7 +253,7 @@ def build(L):
                   f'<div class="box">KITS: <b>{L["kits"]}</b></div><p class="note">{L["save"]}</p><p>{L["more"]}</p>', L, 8))
     return (f'<!doctype html><html lang="{L["lang"]}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
             f'<title>{L["title"]}</title><link rel="preconnect" href="https://fonts.googleapis.com">'
-            '<link href="https://fonts.googleapis.com/css2?family=Anton&family=Alfa+Slab+One&family=Archivo:wght@500;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">'
+            '<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Anton&family=Archivo:wght@500;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">'
             f'<style>{CSS}</style></head><body>{"".join(p)}</body></html>')
 
 
@@ -273,8 +280,7 @@ def main():
         pdf = ROOT / "docs" / f"{L['file']}.pdf"
         subprocess.run([c, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--virtual-time-budget=8000",
                         f"--print-to-pdf={pdf}", html.as_uri()], check=True, capture_output=True)
-        shutil.copy2(pdf, SITE / pdf.name)
-        print(f"{code}: {pdf.relative_to(ROOT)} ({pdf.stat().st_size // 1024} KB), site/{pdf.name}")
+        print(f"{code}: {pdf.relative_to(ROOT)} ({pdf.stat().st_size // 1024} KB; tools/build_site.sh puts it on the site)")
 
 
 if __name__ == "__main__":

@@ -14,14 +14,14 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%230b0907'/%3E%3Ccircle cx='16' cy='16' r='7' fill='%23E8A825' stroke='%23C7382B' stroke-width='2'/%3E%3C/svg%3E">
 <style>
 @font-face { font-family: "Press Start 2P"; src: url("PressStart2P-Regular.ttf") format("truetype"); font-display: block; }
-:root { --k: #17130e; --d: #2e261c; --m: #746858; --n: #a39882; --l: #d8ccb0; --w: #efe4cb; --a: #c7382b; --f: #e8a825;
-        --t1: #d84a3c; --t2: #4fa56b; --t3: #f2be4a; --t4: #6e9ccb; color-scheme: dark; }
+:root { --k: #0e0c0a; --d: #221c15; --m: #6d6150; --n: #a39882; --l: #e2d3a8; --w: #f6ebc8; --a: #c21f1a; --f: #e9b12c;
+        --t1: #d8352e; --t2: #5c8f2c; --t3: #e9b12c; --t4: #6e72d0; color-scheme: dark; }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--k); color: var(--l); }
 body { font: 13px/1.5 system-ui, "Segoe UI", Arial, sans-serif; }
 .px, h1, h2, h3, button, select, .lbl { font-family: "Press Start 2P", monospace; font-size: 8px; line-height: 1.6; font-weight: normal; }
 header { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; align-items: stretch; }
-header .tag { background: var(--a); color: var(--k); padding: 8px 10px; font-size: 16px; text-decoration: none; display: flex; align-items: center; }
+header .tag { background: var(--a); color: var(--f); padding: 8px 10px; font-size: 16px; text-decoration: none; display: flex; align-items: center; }
 header .bar { flex: 1; min-width: 260px; background: var(--d); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 10px; }
 #status { color: var(--m); flex: 1; min-width: 160px; }
 #status.on { color: var(--w); }
@@ -120,7 +120,7 @@ canvas { display: block; width: 100%; image-rendering: pixelated; }
 import { Client, MidiTransport, VirtualFM1, findFM1, parseSound, settingsOf, FX_PAGES, OBJ, EditorError } from "./editor_core.js";
 
 const $ = (id) => document.getElementById(id);
-const TC = ["#d84a3c", "#4fa56b", "#f2be4a", "#6e9ccb"];
+const TC = ["#d8352e", "#5c8f2c", "#e9b12c", "#6e72d0"];
 const NOTE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const noteName = (n) => NOTE[n % 12] + (Math.floor(n / 12) - 1);
 const say = (t, cls = "") => { $("status").textContent = t.toUpperCase(); $("status").className = "px " + cls; };
@@ -259,9 +259,9 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 function dial(parent) {
   const d = document.createElement("div");
   d.className = "knob";
-  d.innerHTML = `<svg viewBox="0 0 72 64"><path d="M14 54 A26 26 0 1 1 58 54" fill="none" stroke="#2e261c" stroke-width="8"/>
-    <path class="arc" d="M14 54 A26 26 0 1 1 58 54" fill="none" stroke="#c7382b" stroke-width="8" pathLength="100" stroke-dasharray="0 100"/>
-    <line class="ptr" x1="36" y1="36" x2="36" y2="16" stroke="#efe4cb" stroke-width="4"/></svg>
+  d.innerHTML = `<svg viewBox="0 0 72 64"><path d="M14 54 A26 26 0 1 1 58 54" fill="none" stroke="#221c15" stroke-width="8"/>
+    <path class="arc" d="M14 54 A26 26 0 1 1 58 54" fill="none" stroke="#c21f1a" stroke-width="8" pathLength="100" stroke-dasharray="0 100"/>
+    <line class="ptr" x1="36" y1="36" x2="36" y2="16" stroke="#f6ebc8" stroke-width="4"/></svg>
     <div class="lbl">—</div><div class="px val">—</div>`;
   parent.appendChild(d);
   const arc = d.querySelector(".arc"), ptr = d.querySelector(".ptr");
@@ -401,7 +401,7 @@ function frame(now) {
 
   // the scene: the sound system (HOME's: a box a track), the cones pushed by their notes, the spectrum on the floor
   const W = 480, H = 270;
-  sx.fillStyle = "#17130e"; sx.fillRect(0, 0, W, H);
+  sx.fillStyle = "#0e0c0a"; sx.fillRect(0, 0, W, H);
   const NB = 24, base = 250, bw = W / NB;
   if (an) an.getByteFrequencyData(fbuf);
   for (let i = 0; i < NB; i++) {                            // (the bars: the spectrum, log-spaced, in the four inks)
@@ -412,16 +412,23 @@ function frame(now) {
     sx.fillStyle = TC[i % 4];
     for (let y = 0; y < h; y += 4) sx.fillRect(i * bw + 3, base - y - 3, bw - 6, 3);
   }
-  sx.fillStyle = "#2e261c"; sx.fillRect(0, base + 2, W, H - base);
+  sx.fillStyle = "#221c15"; sx.fillRect(0, base + 2, W, H - base);
+  const bands = [0, 1, 2, 3].map((b) => {                   // (no FM-1: the cones pushed by the sound, a band a box)
+    let m = 0;
+    const lo = [1, 6, 20, 60][b], hi = [6, 20, 60, 200][b];
+    if (an) for (let j = lo; j < hi; j++) m = Math.max(m, fbuf[j]);
+    return m / 255;
+  });
   for (let k = 0; k < 4; k++) {                             // the boxes
+    if (!client && an) push[k] = Math.max(push[k], Math.max(0, bands[k] - 0.35) * 1.5);
     const bx = 18 + k * 114, by = 22, BW = 102, BH = 176, cx = bx + BW / 2, cy = by + 62, ty = by + 134, p = push[k];
-    sx.fillStyle = "#2e261c"; sx.fillRect(bx, by, BW, BH);
+    sx.fillStyle = "#221c15"; sx.fillRect(bx, by, BW, BH);
     sx.strokeStyle = TC[k]; sx.lineWidth = 4; sx.strokeRect(bx + 2, by + 2, BW - 4, BH - 4);
     const disc = (x, y, r, c) => { sx.fillStyle = c; sx.beginPath(); sx.arc(x, y, r, 0, 7); sx.fill(); };
-    disc(cx, cy, 40, TC[k]); disc(cx, cy, 36, "#0b0907"); disc(cx, cy, 28 + p * 3, "#2e261c"); disc(cx, cy, 20, "#17130e");
-    disc(cx, cy, 6 + p * 9, p > 0.05 ? TC[k] : "#746858");
-    disc(cx, ty, 18, TC[k]); disc(cx, ty, 14, "#0b0907"); disc(cx, ty, 4 + p * 5, p > 0.05 ? TC[k] : "#746858");
-    sx.fillStyle = k === selT ? "#c7382b" : "#d8ccb0"; sx.font = "10px 'Press Start 2P'"; sx.textAlign = "center";
+    disc(cx, cy, 40, TC[k]); disc(cx, cy, 36, "#0b0907"); disc(cx, cy, 28 + p * 3, "#221c15"); disc(cx, cy, 20, "#0e0c0a");
+    disc(cx, cy, 6 + p * 9, p > 0.05 ? TC[k] : "#6d6150");
+    disc(cx, ty, 18, TC[k]); disc(cx, ty, 14, "#0b0907"); disc(cx, ty, 4 + p * 5, p > 0.05 ? TC[k] : "#6d6150");
+    sx.fillStyle = k === selT ? "#c21f1a" : "#e2d3a8"; sx.font = "10px 'Press Start 2P'"; sx.textAlign = "center";
     sx.fillText(`T${k + 1}`, cx, by + BH - 8);
     if (p === 1 && level > 0.05) rings.push({ k, x: cx, y: cy, at: now });
     push[k] = Math.max(0, p - 0.08);
@@ -429,30 +436,30 @@ function frame(now) {
   for (let i = rings.length - 1; i >= 0; i--) {             // the echo's rings: out and fading over 1.2 s
     const g = rings[i], a = (now - g.at) / 1200;
     if (a >= 1) { rings.splice(i, 1); continue; }
-    sx.globalAlpha = (1 - a) * 0.8; sx.strokeStyle = "#4a7fb5"; sx.lineWidth = 3;
+    sx.globalAlpha = (1 - a) * 0.8; sx.strokeStyle = "#7cc4c6"; sx.lineWidth = 3;
     sx.beginPath(); sx.arc(g.x, g.y, 44 + a * 70, 0, 7); sx.stroke();
   }
   sx.globalAlpha = 1;
   if (rings.length > 40) rings.splice(0, rings.length - 40);
   // the scope
   const OW = 960, OH = 180;
-  ox.fillStyle = "#17130e"; ox.fillRect(0, 0, OW, OH);
-  ox.strokeStyle = "#2e261c"; ox.lineWidth = 2; ox.beginPath(); ox.moveTo(0, OH / 2); ox.lineTo(OW, OH / 2); ox.stroke();
+  ox.fillStyle = "#0e0c0a"; ox.fillRect(0, 0, OW, OH);
+  ox.strokeStyle = "#221c15"; ox.lineWidth = 2; ox.beginPath(); ox.moveTo(0, OH / 2); ox.lineTo(OW, OH / 2); ox.stroke();
   if (an) {
     an.getByteTimeDomainData(tbuf);
     let z = 0;
     for (let i = 1; i < 1024; i++) if (tbuf[i - 1] < 128 && tbuf[i] >= 128) { z = i; break; }   // (still: on a rising edge)
-    ox.strokeStyle = "#4a7fb5"; ox.lineWidth = 3; ox.beginPath();
+    ox.strokeStyle = "#7cc4c6"; ox.lineWidth = 3; ox.beginPath();
     for (let i = 0; i < 1024; i++) { const x = (i / 1023) * OW, y = OH / 2 + ((tbuf[z + i] - 128) / 128) * (OH / 2 - 6); i ? ox.lineTo(x, y) : ox.moveTo(x, y); }
     ox.stroke();
   }
   // L / R meters
-  [[l, 0], [r, 1]].forEach(([v, k]) => { const w = Math.min(1, v * 4) * 120; ox.fillStyle = "#2e261c"; ox.fillRect(OW - 132, 8 + k * 14, 120, 8); ox.fillStyle = v > 0.22 ? "#c7382b" : "#4fa56b"; ox.fillRect(OW - 132, 8 + k * 14, w, 8); });
+  [[l, 0], [r, 1]].forEach(([v, k]) => { const w = Math.min(1, v * 4) * 120; ox.fillStyle = "#221c15"; ox.fillRect(OW - 132, 8 + k * 14, 120, 8); ox.fillStyle = v > 0.22 ? "#c21f1a" : "#5c8f2c"; ox.fillRect(OW - 132, 8 + k * 14, w, 8); });
 
   // the roll: the last 4 seconds, a lane a track
   const RW = 960, RH = 240, span = 4000, lane = RH / 4;
-  rx.fillStyle = "#17130e"; rx.fillRect(0, 0, RW, RH);
-  for (let k = 1; k < 4; k++) { rx.fillStyle = "#2e261c"; rx.fillRect(0, k * lane, RW, 2); }
+  rx.fillStyle = "#0e0c0a"; rx.fillRect(0, 0, RW, RH);
+  for (let k = 1; k < 4; k++) { rx.fillStyle = "#221c15"; rx.fillRect(0, k * lane, RW, 2); }
   while (roll.length && roll[0].end && now - roll[0].end > span) roll.shift();
   if (roll.length > 400) roll.splice(0, roll.length - 400);
   roll.forEach((e) => {
@@ -465,13 +472,13 @@ function frame(now) {
   const KW = 960, KH = 160, lo = 53, hi = 79, whites = [];
   for (let n = lo; n <= hi; n++) if (![1, 3, 6, 8, 10].includes(n % 12)) whites.push(n);
   const ww = KW / whites.length;
-  kx.fillStyle = "#17130e"; kx.fillRect(0, 0, KW, KH);
-  whites.forEach((n, i) => { const t = keysOn.get(n); kx.fillStyle = t != null ? TC[t] : "#efe4cb"; kx.fillRect(i * ww + 2, 0, ww - 4, KH); });
+  kx.fillStyle = "#0e0c0a"; kx.fillRect(0, 0, KW, KH);
+  whites.forEach((n, i) => { const t = keysOn.get(n); kx.fillStyle = t != null ? TC[t] : "#f6ebc8"; kx.fillRect(i * ww + 2, 0, ww - 4, KH); });
   whites.forEach((n, i) => {
     if (n + 1 > hi || ![1, 3, 6, 8, 10].includes((n + 1) % 12)) return;
-    const t = keysOn.get(n + 1); kx.fillStyle = t != null ? TC[t] : "#2e261c"; kx.fillRect((i + 1) * ww - ww * 0.3, 0, ww * 0.6, KH * 0.6);
+    const t = keysOn.get(n + 1); kx.fillStyle = t != null ? TC[t] : "#221c15"; kx.fillRect((i + 1) * ww - ww * 0.3, 0, ww * 0.6, KH * 0.6);
   });
-  [...keysOn.keys()].filter((n) => n < lo || n > hi).length && (kx.fillStyle = "#e8a825", kx.font = "14px 'Press Start 2P'", kx.textAlign = "left", kx.fillText("+ OUT OF RANGE", 8, KH - 10));
+  [...keysOn.keys()].filter((n) => n < lo || n > hi).length && (kx.fillStyle = "#e9b12c", kx.font = "14px 'Press Start 2P'", kx.textAlign = "left", kx.fillText("+ OUT OF RANGE", 8, KH - 10));
 
   // the sequencer
   if (lastTick && now - lastTick > 600) { bpmAvg = 0; }

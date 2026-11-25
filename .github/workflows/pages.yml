@@ -6,7 +6,7 @@ name: pages
 on:
   push:
     branches: [main]
-    paths: ["site/**", "web/**", "firmware/**", "docs/moodboard/**", "tools/build_site.sh", ".github/workflows/pages.yml"]
+    paths: ["site/**", "web/**", "firmware/**", "docs/moodboard/**", "docs/riddim-*.pdf", "tools/build_site.sh", ".github/workflows/pages.yml"]
   workflow_dispatch:
 permissions:
   contents: read

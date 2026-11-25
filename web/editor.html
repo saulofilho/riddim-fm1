@@ -13,14 +13,14 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 fill=%22%230b0b0a%22/%3E%3Crect x=%223%22 y=%223%22 width=%2210%22 height=%2210%22 fill=%22%23c8321e%22/%3E%3C/svg%3E">
 <style>
 @font-face { font-family: "Press Start 2P"; src: url("PressStart2P-Regular.ttf") format("truetype"); font-display: block; }
-:root { --k: #0b0b0a; --d: #26251f; --m: #5e5b54; --n: #8f887b; --l: #b8b4a9; --w: #e8e4d8; --a: #c8321e; --f: #ff6a3d; color-scheme: dark; }
+:root { --k: #0e0c0a; --d: #221c15; --m: #6d6150; --n: #a39882; --l: #e2d3a8; --w: #f6ebc8; --a: #c21f1a; --f: #e9b12c; color-scheme: dark; }
 /* --m: off, empty, disabled things; --n: help text (as the hub's --ash); --f: keyboard focus (the hub's ember) */
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--k); color: var(--l); }
 body { font: 13px/1.5 system-ui, "Segoe UI", Arial, sans-serif; }
 .px, h1, h2, h3, button, label, select, input, nav a, .slot, table { font-family: "Press Start 2P", monospace; font-size: 8px; line-height: 1.6; }
 header { display: flex; gap: 6px; padding: 6px; }
-header .tag { background: var(--a); color: var(--k); padding: 8px 10px; font-size: 16px; text-decoration: none; }
+header .tag { background: var(--a); color: var(--f); padding: 8px 10px; font-size: 16px; text-decoration: none; }
 header .bar { flex: 1; min-width: 0; background: var(--d); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; padding: 0 12px; }
 header .bar span { font-size: 8px; }
 header .bar b { font-size: 16px; font-weight: normal; color: var(--l); }
@@ -120,16 +120,11 @@ canvas#alg { display: block; width: 100%; max-width: 432px; image-rendering: pix
 #sq-recmsg { color: var(--w); margin: 2px 0 6px; min-height: 14px; }
 #sq-recmsg.bad { color: var(--f); }
 a.lnk { color: var(--l); }
-/* the drip under the header: the hub's, in this page's colours */
-.drip { height: 22px; margin: 0 6px 10px; background:
-  linear-gradient(var(--d), var(--d)) 0 0 / 100% 6px no-repeat,
-  linear-gradient(var(--a), var(--a)) 8% 6px / 6px 9px no-repeat,
-  linear-gradient(var(--a), var(--a)) 21% 6px / 6px 16px no-repeat,
-  linear-gradient(var(--a), var(--a)) 37% 6px / 6px 6px no-repeat,
-  linear-gradient(var(--a), var(--a)) 52% 6px / 6px 14px no-repeat,
-  linear-gradient(var(--a), var(--a)) 68% 6px / 6px 8px no-repeat,
-  linear-gradient(var(--a), var(--a)) 83% 6px / 6px 16px no-repeat,
-  linear-gradient(var(--a), var(--a)) 95% 6px / 6px 7px no-repeat; }
+/* (RIDDIM) a row of speaker boxes under the header, as the site's wall: red, gold, green, blue, each with its cone */
+.boxes { height: 26px; margin: 0 6px 10px; background:
+  radial-gradient(circle at 50% 50%, var(--k) 0 6px, transparent 6.5px) 0 0 / 52px 26px repeat-x,
+  repeating-linear-gradient(90deg, #c21f1a 0 48px, var(--k) 48px 52px, #e9b12c 52px 100px, var(--k) 100px 104px,
+    #1f7a3c 104px 152px, var(--k) 152px 156px, #4b4fb0 156px 204px, var(--k) 204px 208px); }
 /* keyboard focus: seen on everything that takes it */
 a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, nav a:focus-visible, .slot:focus-visible,
 input[type=range]:focus-visible { outline: 3px solid var(--f); outline-offset: 2px; }
@@ -151,7 +146,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--f); outline-offset: 2
   <a class="tag px" href="../" aria-label="RIDDIM: the site">RIDDIM</a>
   <div class="bar"><b class="px">EDITOR 0.1</b><span><a class="lnk px" href="index.html">WEB EMULATOR</a> · <span id="conn" class="px">NOT CONNECTED</span></span></div>
 </header>
-<div class="drip" role="presentation"></div>
+<div class="boxes" role="presentation"></div>
 <div class="wrap">
   <nav>
     <a href="#connect" data-s="connect">CONNECT</a>

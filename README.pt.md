@@ -8,8 +8,9 @@ dub para "versionar" a música enquanto ela toca.
 > RIDDIM é uma groovebox de quatro trilhas com nome, saves e telas próprios: a banda de reggae e a mesa de dub estão
 > planejadas, não feitas (ver [O plano](#o-plano)). Firmware não oficial, não feito nem endossado pela M-VAVE.
 
-**[O site do RIDDIM](https://saulofilho.github.io/riddim-fm1/)** · **[Toque no navegador](https://saulofilho.github.io/riddim-fm1/emu/)**
-(o firmware de verdade, sem precisar de FM-1) · **[O editor](https://saulofilho.github.io/riddim-fm1/emu/editor.html)**
+**[O site do RIDDIM](https://saulofilho.github.io/riddim-fm1/)** · **[Ouça os kits](https://saulofilho.github.io/riddim-fm1/#listen)** · **[Toque no navegador](https://saulofilho.github.io/riddim-fm1/emu/)** (o firmware de
+verdade, sem precisar de FM-1) · **[O editor](https://saulofilho.github.io/riddim-fm1/emu/editor.html)** · **[A visão ao vivo](https://saulofilho.github.io/riddim-fm1/emu/live.html)** (seu
+FM-1 desenhado enquanto toca) · **[Guia de primeiros passos (PDF)](docs/riddim-guia.pdf)** · **[O manual](MANUAL.md)** (em inglês)
 
 **[In English](README.md)**
 
@@ -32,7 +33,11 @@ dub para "versionar" a música enquanto ela toca.
   soando (os chimbais cortam um ao outro); o kit tem seus próprios dez golpes, nunca as seis vozes que as outras
   trilhas dividem. A página DRUM desenha o kit e acende a peça tocada. Nove kits de fábrica na categoria DRUMS: ONE
   DROP, ROCKERS, STEPPERS, DUB, RUB-A-DUB, ROCKSTEADY, DEEP ROOTS, TIGHT, BOOMY.
-- **O emulador web e o editor** (`web/`), com o nome RIDDIM: o mesmo firmware compilado para WebAssembly.
+- **O emulador web, o editor e a visão ao vivo** (`web/`): o mesmo firmware compilado para WebAssembly; a visão ao
+  vivo desenha um FM-1 enquanto ele toca pelo USB (notas, clock, som e knobs), com um DEMO que não precisa de FM-1.
+- **O site** (`site/`, GitHub Pages): os nove kits gravados do firmware com as batidas desenhadas, as 27 teclas para
+  clicar, as telas, como instalar, as ferramentas. Sons e dados saem do firmware em modo host (`tools/gen_site.py`), as
+  telas do manual também (`tools/gen_screens.py`), os guias de `tools/gen_guide.py`.
 - A groovebox por baixo: quatro trilhas, sete fontes de som, sequenciador de 64 passos por trilha, arpejador, acorde
   numa tecla, GENERATE, tape, grain, delay e reverb, modo song, MIDI de entrada e saída, MIDI clock. O manual próprio
   do RIDDIM vem com os recursos de reggae.
