@@ -12,7 +12,7 @@
  *   23 TRACK op 0 READ t / 1 SET t, pack7 sound (64 B) [, its name] / 2 SELECT t
  *                              -> op, t, the selected track, rc (READ: then pack7 track t's sound now, then its name
  *                                 as HOME shows it, if it has one)
- *   24 CPU                     -> the budget, NOW, PEAK, then NOW split by stage (grimm.c cpu_stage), u35 fm1_ticks
+ *   24 CPU                     -> the budget, NOW, PEAK, then NOW split by stage (riddim.c cpu_stage), u35 fm1_ticks
  *                              each (GR!MM V2: a diagnostic, tools/fm1_cpu.py; no protocol number of its own); rc9:
  *                              then u35 the USB recording's dropouts since power-on
  *   25 FX   op 0 READ          -> op, rc, the project's effects as their pages' knobs (TAPE, GRAIN, DELAY, SPACE, MASTER,
@@ -29,7 +29,7 @@
  * A PUT's bytes gather in store.c's sector image (st_img: free between saves; a reply is made in its last KiB); it
  * commits only when the sequencer stands and nothing sounds, its CRC, size, format and contents checked, through
  * store.c's saves (each written sector read back); refused, nothing changes. While a PUT is open (15 s after its last
- * DATA) the autosave waits (grimm.c: ed_open). Main loop only (samples_poll). */
+ * DATA) the autosave waits (riddim.c: ed_open). Main loop only (samples_poll). */
 
 #define ED_PROTO 2u                             /* this protocol's version (INFO; 2: TRACK) */
 #define ED_FMT 1u                               /* the objects' format: sounds of 64 B, slots of SLOT_ALL, settings

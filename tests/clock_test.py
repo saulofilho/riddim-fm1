@@ -4,16 +4,16 @@
 """GR!MM V2's MIDI in host mode (tests/run_host.sh): the clock in from USB and the TRS jack at 60, 120 and 240 BPM for
 5 minutes each (the tempo shown, no drift: 4 ticks a pulse, exactly), START / STOP / CONTINUE, the clock lost (the
 FM-1's own tempo, playing on), the other source's clock and the tempo knobs ignored, the clock out (CLOCK INT+OUT:
-evenly spaced, START and STOP), INT ignoring it all, and MIDI CHANNEL's CH n > SEL. Each a script for build/host/grimm
+evenly spaced, START and STOP), INT ignoring it all, and MIDI CHANNEL's CH n > SEL. Each a script for build/host/riddim
 (firmware/src/host.c: "clock", "trs", "probe"); prints a line a check, exit 1 on a failure.
-  python3 tests/clock_test.py [build/host/grimm]"""
+  python3 tests/clock_test.py [build/host/riddim]"""
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/clock")
 OUT.mkdir(parents=True, exist_ok=True)
 CLOCK = {"INT": 0, "OUT": 1, "USB": 2, "TRS": 3}

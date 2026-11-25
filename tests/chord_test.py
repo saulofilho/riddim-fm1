@@ -10,14 +10,14 @@ track's chord on / off, CHORD TYPE and VOICING apply to that track only; only th
     once, ALGORITHM turned between)
   - a key held while ALGORITHM changes the track; a preset loaded on T2 (it never switches chord mode on); a project (slot A) saved and recalled; NEW
   - the SEQ grid's "CHORD" caption and SEL's CHORD page show the selected track's chord mode
-    python3 tests/chord_test.py build/host/grimm"""
+    python3 tests/chord_test.py build/host/riddim"""
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/chordtest")
 OUT.mkdir(parents=True, exist_ok=True)
 bad = 0

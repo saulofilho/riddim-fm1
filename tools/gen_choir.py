@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 GR!MM
-"""GR!MM V2: VOICE's choir TYPEs' wavetables (firmware/gen/grimm_choir.h) from real singers: VocalSet.
+"""GR!MM V2: VOICE's choir TYPEs' wavetables (firmware/gen/riddim_choir.h) from real singers: VocalSet.
 
   VocalSet: A Singing Voice Dataset. Julia Wilkins, Prem Seetharaman, Alison Wahl, Bryan Pardo (Northwestern
   University), 2018. https://doi.org/10.5281/zenodo.1442513 . CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
@@ -19,7 +19,7 @@ the first three resonances, their peaks twice as high).
 
   python3 tools/gen_choir.py fetch DIR      VocalSet's straight long tones (100 files, ~84 MB) into DIR, from Zenodo
                                             by HTTP ranges (not the whole 2 GB archive)
-  python3 tools/gen_choir.py make DIR       the tables from DIR -> firmware/gen/grimm_choir.h (numpy)
+  python3 tools/gen_choir.py make DIR       the tables from DIR -> firmware/gen/riddim_choir.h (numpy)
 """
 import io
 import re
@@ -30,7 +30,7 @@ import wave
 from pathlib import Path
 
 URL = "https://zenodo.org/api/records/1442513/files/VocalSet11.zip/content"   # (VocalSet 1.1)
-OUT = Path(__file__).resolve().parent.parent / "firmware" / "gen" / "grimm_choir.h"
+OUT = Path(__file__).resolve().parent.parent / "firmware" / "gen" / "riddim_choir.h"
 VOWELS = "aeiou"
 NH = 64                                         # harmonics measured (the largest cycle's)
 SIZES = (256, 128, 64, 32)                      # a cycle's sizes, harmonics: size / 4

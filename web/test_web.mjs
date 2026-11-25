@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 GR!MM
-// The browser build against host mode: runs web/dist/grimm.wasm as web/worklet.js does (Asyncify), one millisecond at
+// The browser build against host mode: runs web/dist/riddim.wasm as web/worklet.js does (Asyncify), one millisecond at
 // a time, with firmware/src/host.c's script, and compares with what tests/run_host.sh made:
 //   - the sound, sample for sample (GR!MM V2: the app applies MASTER, fm1_master: tests/run_host.sh renders at the
-//     knob's 1022, as here; its 24-bit words, build/host/grimm.raw, rounded as the page's floats are here);
-//   - the screen at 2500, 3500, 6000 and 15500 ms, pixel for pixel (build/host/grimm-*.png), all but the CPU row: it shows the
+//     knob's 1022, as here; its 24-bit words, build/host/riddim.raw, rounded as the page's floats are here);
+//   - the screen at 2500, 3500, 6000 and 15500 ms, pixel for pixel (build/host/riddim-*.png), all but the CPU row: it shows the
 //     longest app_audio() as this computer's clock measured it (fm1_ticks), which is not the same twice;
 //   - the settings: not saved (nothing changes the octave), as host mode;
 //   - the editor page's core (web/editor_core.js) against a fake FM-1, the wasm's own editor.c (the "virtual FM-1"):
@@ -27,7 +27,7 @@ import { Client, VirtualFM1, LiveSender, MidiTransport, findFM1, OBJ, parseSound
          recWrite, recRest, recTie, makeGrouper, pcKeyNote, noteName, emptyStep } from "./editor_core.js";
 
 let ex, data, size, started = false, rewinding = false;
-const { instance } = await WebAssembly.instantiate(readFileSync("web/dist/grimm.wasm"), {
+const { instance } = await WebAssembly.instantiate(readFileSync("web/dist/riddim.wasm"), {
   env: {
     web_yield() {
       if (rewinding) { ex.asyncify_stop_rewind(); rewinding = false; return; }
@@ -98,7 +98,7 @@ for (;;) {
 const check = (ok, what) => { console.log((ok ? "  ok    " : "  FAIL  ") + what); if (!ok) fail++; };
 
 // the sound
-const raw = readFileSync("build/host/grimm.raw"), host24 = new Int32Array(raw.buffer, raw.byteOffset, raw.length / 4);
+const raw = readFileSync("build/host/riddim.raw"), host24 = new Int32Array(raw.buffer, raw.byteOffset, raw.length / 4);
 const host = Int16Array.from(host24, (v) => Math.round(v / 128));   // (GR!MM V2: the 24-bit words, as the page plays them)
 let diff = 0, first = -1, peak = 0;
 for (let i = 0; i < Math.max(host.length, sound.length); i++) {
@@ -132,7 +132,7 @@ function png(path) {                               // 8-bit RGB, not interlaced 
   return { w, px };
 }
 for (const t of SHOTS) {
-  const { w, px } = png(`build/host/grimm-${t}.png`), fb = screens[t];
+  const { w, px } = png(`build/host/riddim-${t}.png`), fb = screens[t];
   let bad = 0;
   for (let y = 0; y < 240; y++)
     for (let x = 0; x < 240; x++) {
@@ -141,7 +141,7 @@ for (const t of SHOTS) {
       const rgb = [Math.floor((c >> 11) * 255 / 31), Math.floor((c >> 5 & 63) * 255 / 63), Math.floor((c & 31) * 255 / 31)];
       if (rgb[0] !== px[o] || rgb[1] !== px[o + 1] || rgb[2] !== px[o + 2]) bad++;
     }
-  check(bad === 0, `screen at ${t} ms: pixel for pixel as build/host/grimm-${t}.png, the CPU row aside` + (bad ? ` (${bad} differ)` : ""));
+  check(bad === 0, `screen at ${t} ms: pixel for pixel as build/host/riddim-${t}.png, the CPU row aside` + (bad ? ` (${bad} differ)` : ""));
 }
 
 // the settings
@@ -149,7 +149,7 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
 // the editor
 {
   const eq = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
-  const vf = await VirtualFM1.create(readFileSync("web/dist/grimm.wasm"));
+  const vf = await VirtualFM1.create(readFileSync("web/dist/riddim.wasm"));
   vf.warmUp();
   const cl = new Client(vf), info = await cl.info(), meta = vf.meta();
   check(info.proto === 2 && info.sounds === 64 && info.slotSize === 2532 && info.setSize === 170 && info.factory === 44,
@@ -582,7 +582,7 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
 // the editor page's texts and looks (web/editor.html, editor.js, LICENSING.md): naming, credits, BACKUP, names whole, the hub's look
 {
   const html = readFileSync("web/editor.html", "utf8"), js = readFileSync("web/editor.js", "utf8"), lic = readFileSync("LICENSING.md", "utf8");
-  const vf = await VirtualFM1.create(readFileSync("web/dist/grimm.wasm")), meta = vf.meta(), info = await new Client(vf).info();
+  const vf = await VirtualFM1.create(readFileSync("web/dist/riddim.wasm")), meta = vf.meta(), info = await new Client(vf).info();
   mkdirSync("build/web", { recursive: true });                // (the page's script parses: it is a module, so a copy as .mjs)
   writeFileSync("build/web/editor_check.mjs", js);
   let syntax = "";
@@ -616,7 +616,7 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
         "editor page: help text #8f887b, the GR!MM tag to hub.html, the drip, 3px #ff6a3d focus, the menu one scrolling row under 600 px");
   check(/<a href="#sequencer" data-s="sequencer">SEQUENCER<\/a>/.test(html) && ["sq-slot", "sq-import", "sq-now", "sq-send", "sq-preview", "sq-stop", "sq-save", "sq-load", "sq-clear", "sq-grid", "sq-step", "sq-trk"].every((i) => html.includes(`id="${i}"`)) &&
         /repeat\(8, minmax\(0, 1fr\)\)/.test(html) && /@media \(min-width: 900px\) \{ \.sqgrid/.test(html) && /canWrite\(OBJ\.SLOT \+ k, next/.test(js) &&
-        /grimm-slot-\$\{L\}-backup/.test(js) && /slotWithPatterns\(cur, sq\.pats\)/.test(js) && /type: "reply"/.test(readFileSync("web/worklet.js", "utf8")),
+        /riddim-slot-\$\{L\}-backup/.test(js) && /slotWithPatterns\(cur, sq\.pats\)/.test(js) && /type: "reply"/.test(readFileSync("web/worklet.js", "utf8")),
         "editor page: the SEQUENCER section (grid 8 wide on a phone, 16 on a computer; IMPORT, SEND with a probe and a backup first, PREVIEW, files)");
   check(["sq-rec", "sq-rest", "sq-tie", "sq-mon", "sq-octd", "sq-octu", "sq-midi", "sq-midi-scan", "sq-recst", "sq-recmsg"].every((i) => html.includes(`id="${i}"`)) &&
         /min-height: 44px/.test(html) && /\.sqgrid\.rec \.sqs\.sel \{[^}]*outline: 3px solid var\(--f\)/.test(html) &&

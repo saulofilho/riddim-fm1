@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RIDDIM — mood board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Alfa+Slab+One&family=Archivo:wght@500;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#17130E; --tinta2:#221C15; --tinta3:#2E261C; --papel:#EFE4CB; --cinza:#A39882;
+  --vermelho:#C7382B; --ouro:#E8A825; --verde:#2E7A47; --eco:#3E6E9E;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .13 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--tinta);color:var(--papel);font:16px/1.55 Archivo,system-ui,sans-serif}
+main{max-width:1060px;margin:0 auto;padding:0 16px 110px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--cinza);font-size:12px}
+/* hero */
+header{padding-top:44px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:clamp(84px,17vw,190px);line-height:.86;margin:10px 0 0;letter-spacing:.01em;
+  text-shadow:.12em .02em 0 rgba(62,110,158,.55),.24em .04em 0 rgba(62,110,158,.3),.36em .06em 0 rgba(62,110,158,.14)}
+.sub{font-size:18px;max-width:640px;margin:22px 0 0}
+.sub b{color:var(--ouro)}
+#plate{width:min(300px,70vw);height:auto;animation:spin 7.5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#plate{animation:none}}
+@media (max-width:720px){header{grid-template-columns:1fr} #plate{justify-self:center;width:220px}}
+h2{font-family:"Alfa Slab One",serif;font-weight:400;font-size:30px;letter-spacing:.01em;margin:84px 0 4px}
+h2 + .mono{margin:0 0 22px}
+p.lead{max-width:720px;margin:0 0 22px;color:#d9cdb2}
+/* references */
+.refs{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.ref{background:var(--tinta2)}
+.ref .art{aspect-ratio:1/1;position:relative;overflow:hidden}
+.ref .txt{padding:14px 18px 18px}
+.ref h3{margin:0;font:400 19px "Alfa Slab One";text-transform:uppercase}
+.ref p{margin:6px 0 0;font-size:14px;color:var(--cinza)}
+.poster{position:absolute;inset:0;background:var(--ouro) var(--grain);color:var(--tinta);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:18px;font-family:Anton;text-transform:uppercase;line-height:.9}
+.poster .a{font-size:30px;font-family:"Alfa Slab One"}
+.poster .b{font-size:84px;letter-spacing:.01em;color:var(--vermelho);text-shadow:2px 1px 0 var(--tinta)}
+.poster .c{font-size:38px}
+.poster .d{font-size:22px;margin-top:10px;border-top:4px solid var(--tinta);border-bottom:4px solid var(--tinta);padding:6px 10px;font-family:"Alfa Slab One"}
+.poster .e{font:500 12px "IBM Plex Mono";letter-spacing:.14em;margin-top:12px}
+.poster .star{position:absolute;font-size:46px;color:var(--verde)}
+.ref svg{position:absolute;inset:0;width:100%;height:100%}
+/* palette */
+.sws{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.sw{background:var(--tinta2)}
+.sw i{display:block;height:90px;background-image:var(--grain)}
+.sw div{padding:10px 12px;font-size:13px}
+.sw b{display:block;font:400 14px "Alfa Slab One";text-transform:uppercase}
+.sw span{color:var(--cinza);font-family:"IBM Plex Mono"}
+.sw em{display:block;font-style:normal;color:#d9cdb2;margin-top:2px}
+.trackmap{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.trackmap span{padding:6px 14px;font:400 15px "Alfa Slab One";color:var(--tinta)}
+/* type */
+.type{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.type > div{background:var(--tinta2);padding:22px}
+.t1{font:400 64px/1 Anton;text-transform:uppercase}
+.t2{font:400 30px/1.1 "Alfa Slab One";text-transform:uppercase}
+.t3{font:500 13px "IBM Plex Mono";letter-spacing:.14em;text-transform:uppercase;color:var(--cinza)}
+.echo{text-shadow:.14em .03em 0 rgba(62,110,158,.55),.28em .06em 0 rgba(62,110,158,.3),.42em .09em 0 rgba(62,110,158,.14)}
+/* screens */
+.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.screen{background:var(--tinta2);padding:14px}
+.screen canvas{display:block;width:100%;aspect-ratio:1/1;height:auto;background:#000;border:6px solid #050403;border-radius:6px}
+.screen h3{margin:12px 0 0;font:400 17px "Alfa Slab One";text-transform:uppercase}
+.screen p{margin:4px 0 0;font-size:14px;color:var(--cinza)}
+/* player */
+.deck{background:var(--tinta2);padding:20px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row + .row{margin-top:14px}
+.pill{height:52px;padding:0 24px;border-radius:999px;border:4px solid var(--papel);background:none;color:var(--papel);font:400 17px "Alfa Slab One";
+  text-transform:uppercase;cursor:pointer;min-width:120px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.pill.on{background:var(--ouro);border-color:var(--ouro);color:var(--tinta)}
+.pill.small{height:42px;font-size:14px;min-width:0;padding:0 18px;border-width:3px}
+.pill.trk{border-color:var(--c);color:var(--c)}
+.pill.trk.on{background:var(--c);color:var(--tinta)}
+.pill.trk.pending{animation:blink .4s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+.pill.throw{border-color:var(--eco);color:var(--papel)}
+.pill.throw.on{background:var(--eco);border-color:var(--eco)}
+.lbl{font:500 12px "IBM Plex Mono";letter-spacing:.14em;text-transform:uppercase;color:var(--cinza);margin-right:6px;min-width:64px}
+input[type=range]{accent-color:var(--eco);width:min(260px,60vw)}
+.status{margin-top:16px;font:500 13px "IBM Plex Mono";letter-spacing:.14em;text-transform:uppercase;color:var(--cinza)}
+.status b{color:var(--ouro);font-weight:500}
+/* lists */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.box{background:var(--tinta2);padding:20px 22px}
+.box h3{margin:0 0 10px;font:400 18px "Alfa Slab One";text-transform:uppercase}
+.box ul{margin:0;padding-left:18px}
+.box li{margin:4px 0}
+.box.no h3{color:var(--vermelho)}
+.vocab{display:flex;flex-wrap:wrap;gap:8px}
+.vocab span{border:3px solid var(--papel);padding:4px 12px;font:400 16px "Alfa Slab One"}
+.vocab span:nth-child(4n+1){border-color:var(--vermelho)} .vocab span:nth-child(4n+2){border-color:var(--verde)}
+.vocab span:nth-child(4n+3){border-color:var(--ouro)} .vocab span:nth-child(4n){border-color:var(--eco)}
+footer{margin-top:84px;padding-top:18px;border-top:4px solid var(--tinta3)}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div>
+    <div class="mono">FM-1 · firmware de reggae roots · mood board · 2026-11-25</div>
+    <h1>RIDDIM</h1>
+    <p class="sub">A banda inteira e a mesa de dub dentro do FM-1. <b>Cartaz de dance</b>, <b>dub plate</b> e
+      <b>caixa de som</b>: papel gasto de sol, tinta de tipo de madeira e cones que empurram o ar.</p>
+  </div>
+  <svg id="plate" viewBox="0 0 300 300" aria-label="Selo de compacto girando">
+    <defs><path id="arc" d="M150,150 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>
+    <circle cx="150" cy="150" r="148" fill="#0b0907"/>
+    <g fill="none" stroke="#1c1712" stroke-width="1.2">
+      <circle cx="150" cy="150" r="140"/><circle cx="150" cy="150" r="132"/><circle cx="150" cy="150" r="124"/>
+      <circle cx="150" cy="150" r="116"/><circle cx="150" cy="150" r="108"/><circle cx="150" cy="150" r="100"/>
+    </g>
+    <circle cx="150" cy="150" r="88" fill="#E8A825"/>
+    <circle cx="150" cy="150" r="88" fill="none" stroke="#C7382B" stroke-width="6"/>
+    <text font-family="Alfa Slab One" font-size="13" fill="#17130E" letter-spacing="3"><textPath href="#arc">PRE-RELEASE · SOUND SYSTEM SPECIAL · 76 BPM ·</textPath></text>
+    <text x="150" y="146" text-anchor="middle" font-family="Anton" font-size="34" fill="#17130E">RIDDIM</text>
+    <text x="150" y="170" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#17130E" letter-spacing="2">VERSION · SIDE B</text>
+    <path d="M118 190 q16 8 30 -2 t32 4" fill="none" stroke="#2E7A47" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="150" cy="150" r="5" fill="#0b0907"/>
+  </svg>
+</header>
+
+<h2>Três referências</h2>
+<div class="mono">misturadas, nenhuma copiada</div>
+<div class="refs">
+  <div class="ref">
+    <div class="art"><div class="poster">
+      <span class="star" style="left:16px;top:10px">★</span><span class="star" style="right:16px;bottom:56px">★</span>
+      <div class="a">sunday night</div><div class="b">GRAND</div><div class="c">dance &amp; session</div>
+      <div class="d">ROOTS · ROCKERS · DUB</div><div class="e">featuring riddim hi-fi</div>
+    </div></div>
+    <div class="txt"><h3>Cartaz de dance</h3><p>Tipo de madeira condensado, tinta preta em papel de cor, linhas de tamanhos diferentes, estrelas. Dá as letras e a paleta.</p></div>
+  </div>
+  <div class="ref">
+    <div class="art">
+      <svg viewBox="0 0 300 300" aria-hidden="true">
+        <rect width="300" height="300" fill="#2E7A47"/>
+        <rect width="300" height="300" fill="#000" opacity=".12"/>
+        <circle cx="150" cy="150" r="128" fill="#0b0907"/>
+        <g fill="none" stroke="#1f1913" stroke-width="1.2"><circle cx="150" cy="150" r="118"/><circle cx="150" cy="150" r="108"/><circle cx="150" cy="150" r="98"/><circle cx="150" cy="150" r="88"/></g>
+        <circle cx="150" cy="150" r="70" fill="#EFE4CB"/>
+        <text x="150" y="128" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#17130E" letter-spacing="2">NOT FOR SALE</text>
+        <text x="150" y="160" text-anchor="middle" font-family="Alfa Slab One" font-size="22" fill="#C7382B" transform="rotate(-6 150 150)">dubwise</text>
+        <text x="150" y="186" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#17130E">25 · 11 · 76</text>
+        <rect x="96" y="104" width="44" height="16" fill="none" stroke="#3E6E9E" stroke-width="2" transform="rotate(-14 118 112)"/>
+        <circle cx="150" cy="150" r="4" fill="#0b0907"/>
+      </svg>
+    </div>
+    <div class="txt"><h3>Dub plate</h3><p>O selo branco, o carimbo, a data à mão. Disco único, feito para um sound system. É a tela de boot.</p></div>
+  </div>
+  <div class="ref">
+    <div class="art">
+      <svg viewBox="0 0 300 300" aria-hidden="true" id="stackRef">
+        <rect width="300" height="300" fill="#221C15"/>
+        <g id="boxes"></g>
+      </svg>
+    </div>
+    <div class="txt"><h3>Caixa de som</h3><p>A pilha do sound system, pintada à mão. Cada track é uma caixa; o cone empurra no golpe. É a HOME.</p></div>
+  </div>
+</div>
+
+<h2>Paleta</h2>
+<div class="mono">tinta e papel · uma cor por track · o azul só para eco</div>
+<div class="sws">
+  <div class="sw"><i style="background-color:#17130E;outline:1px solid #3a3024"></i><div><b>Tinta</b><span>#17130E</span><em>fundo NOITE, traço</em></div></div>
+  <div class="sw"><i style="background-color:#2E261C"></i><div><b>Tinta gasta</b><span>#2E261C</span><em>caixa apagada, cartões</em></div></div>
+  <div class="sw"><i style="background-color:#EFE4CB"></i><div><b>Papel</b><span>#EFE4CB</span><em>texto, fundo PAPEL</em></div></div>
+  <div class="sw"><i style="background-color:#A39882"></i><div><b>Papel cinza</b><span>#A39882</span><em>legendas</em></div></div>
+  <div class="sw"><i style="background-color:#C7382B"></i><div><b>Vermelho</b><span>#C7382B</span><em>bateria · REC</em></div></div>
+  <div class="sw"><i style="background-color:#2E7A47"></i><div><b>Verde</b><span>#2E7A47</span><em>baixo · PLAY</em></div></div>
+  <div class="sw"><i style="background-color:#E8A825"></i><div><b>Ouro</b><span>#E8A825</span><em>skank · destaque</em></div></div>
+  <div class="sw"><i style="background-color:#3E6E9E"></i><div><b>Azul eco</b><span>#3E6E9E</span><em>bubble · caudas de eco e mola</em></div></div>
+</div>
+<div class="trackmap">
+  <span style="background:var(--vermelho)">T1 DRUMS</span><span style="background:var(--verde);color:var(--papel)">T2 BASS</span>
+  <span style="background:var(--ouro)">T3 SKANK</span><span style="background:var(--eco);color:var(--papel)">T4 BUBBLE</span>
+</div>
+<p class="lead" style="margin-top:16px">Vermelho, ouro e verde entram como <b>tintas de cartaz</b>, nunca lado a lado em faixas de bandeira. O
+  azul do eco é a marca própria: tudo o que é cauda de efeito (eco, mola, throw) aparece nele.</p>
+
+<h2>Tipografia</h2>
+<div class="mono">a marca: a palavra em eco, como a cauda de um delay</div>
+<div class="type">
+  <div><div class="t1 echo">ONE DROP</div><div class="t3" style="margin-top:12px">Anton · títulos, nome, boot</div></div>
+  <div><div class="t2">Skank · Bubble<br>Throw · Spring</div><div class="t3" style="margin-top:12px">Alfa Slab One · rótulos, botões</div></div>
+  <div><div class="t3" style="color:var(--papel);font-size:15px">76 BPM · A MIN · BAR 3/8<br>ECHO 3/16 · FB 62 · SPRING 40</div><div class="t3" style="margin-top:12px">IBM Plex Mono · números e legendas</div></div>
+</div>
+
+<h2>Na tela do FM-1</h2>
+<div class="mono">480 × 480 · tema NOITE · a HOME toca junto com o riddim abaixo</div>
+<div class="screens">
+  <div class="screen"><canvas id="cBoot" width="480" height="480"></canvas><h3>Boot</h3><p>A agulha desce no selo que gira; o nome ecoa até sumir.</p></div>
+  <div class="screen"><canvas id="cHome" width="480" height="480"></canvas><h3>Home</h3><p>A pilha de caixas: o cone pulsa no golpe, o eco sai em anéis azuis, track muda leva fita.</p></div>
+  <div class="screen"><canvas id="cDub" width="480" height="480"></canvas><h3>Dub</h3><p>A mesa: mute por track no compasso, envio de eco e mola, THROW e VERSION.</p></div>
+</div>
+
+<h2>Ouça a ideia</h2>
+<div class="mono">rascunho em web audio · sintetizado · nada gravado</div>
+<p class="lead">Um riddim de dois compassos em lá menor, 76 BPM, para sentir o desenho. Mute entra no próximo compasso
+  (pisca enquanto espera). Segure <b>THROW</b> para mandar o skank e o cross-stick para o eco. <b>VERSION</b> mixa o dub sozinho.</p>
+<div class="deck">
+  <div class="row">
+    <button class="pill" id="play">▶ Play</button>
+    <span class="lbl" style="margin-left:10px">estilo</span>
+    <button class="pill small on" data-style="onedrop">One drop</button>
+    <button class="pill small" data-style="rockers">Rockers</button>
+    <button class="pill small" data-style="steppers">Steppers</button>
+  </div>
+  <div class="row">
+    <span class="lbl">tracks</span>
+    <button class="pill small trk on" data-trk="0" style="--c:var(--vermelho)">Drums</button>
+    <button class="pill small trk on" data-trk="1" style="--c:#4FA56B">Bass</button>
+    <button class="pill small trk on" data-trk="2" style="--c:var(--ouro)">Skank</button>
+    <button class="pill small trk on" data-trk="3" style="--c:#6E9CCB">Bubble</button>
+  </div>
+  <div class="row">
+    <span class="lbl">dub</span>
+    <button class="pill small throw" id="throw">Throw</button>
+    <button class="pill small" id="version">Version</button>
+    <span class="lbl" style="margin-left:10px">echo fb</span><input type="range" id="fb" min="0" max="95" value="55" aria-label="Realimentação do eco">
+  </div>
+  <div class="status" id="status">parado · <b>QUIET</b></div>
+</div>
+
+<h2>Vocabulário da tela</h2>
+<div class="mono">inglês na tela, porque é a língua do gênero · manual em PT e EN</div>
+<div class="vocab">
+  <span>RIDDIM</span><span>ONE DROP</span><span>ROCKERS</span><span>STEPPERS</span><span>FLYERS</span><span>ROCKSTEADY</span>
+  <span>SKANK</span><span>BUBBLE</span><span>VERSION</span><span>THROW</span><span>SPRING</span><span>ECHO</span>
+  <span>SOUND</span><span>YARD</span><span>DROP</span><span>QUIET → WARMING → ROCKING → HEAVY</span>
+</div>
+
+<h2>Regras</h2>
+<div class="mono">o que vale para firmware, hub, editor e manual</div>
+<div class="cols">
+  <div class="box"><h3>Fazer</h3><ul>
+    <li>Papel e tinta: cores chapadas, textura de impressão com moderação (registro torto, tinta falhada).</li>
+    <li>Cor é track: vermelho bateria, verde baixo, ouro skank, azul bubble.</li>
+    <li>O som manda no desenho: o cone pulsa, o eco deixa rastro azul, o mute leva fita.</li>
+    <li>Letras grandes e condensadas; números em mono.</li>
+    <li>Status por palavra: QUIET, WARMING, ROCKING, HEAVY.</li>
+  </ul></div>
+  <div class="box no"><h3>Evitar</h3><ul>
+    <li>Leão, retratos, folha, bandeira em faixas.</li>
+    <li>Símbolos religiosos do rastafarianismo; nyabinghi só com decisão do autor.</li>
+    <li>Patois de caricatura, nomes de artistas, estúdios ou riddims famosos.</li>
+    <li>Samples de disco; linhas transcritas de gravações.</li>
+    <li>Neon, brilho, gradiente.</li>
+  </ul></div>
+</div>
+
+<footer class="mono">RIDDIM · plano em ../../PLAN.md · mood board v1 · 2026-11-25</footer>
+</main>
+
+<script>
+(() => {
+const COL = ['#C7382B', '#2E7A47', '#E8A825', '#3E6E9E'];
+const COL_LIGHT = ['#E0564A', '#4FA56B', '#F2BE4A', '#6E9CCB'];
+const NAMES = ['DRUMS', 'BASS', 'SKANK', 'BUBBLE'];
+const PAPEL = '#EFE4CB', TINTA = '#17130E', CINZA = '#A39882';
+
+/* ---------- reference speaker stack (static SVG) ---------- */
+(() => {
+  const g = document.getElementById('boxes'); let s = '';
+  const pos = [[30, 30], [160, 30], [30, 160], [160, 160]];
+  pos.forEach(([x, y], i) => {
+    s += `<rect x="${x}" y="${y}" width="110" height="110" fill="#2E261C" stroke="${COL[i]}" stroke-width="5"/>`;
+    const cx = x + 55, cy = y + 55;
+    [42, 32, 22, 10].forEach((r, k) => s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${k % 2 ? '#17130E' : '#0b0907'}" stroke="${COL[i]}" stroke-width="${k === 0 ? 3 : 1.5}"/>`);
+    s += `<text x="${x + 8}" y="${y + 104}" font-family="Alfa Slab One" font-size="11" fill="${PAPEL}">${NAMES[i]}</text>`;
+  });
+  g.innerHTML = s;
+})();
+
+/* ---------- audio ---------- */
+const BPM = 76, STEP = 60 / BPM / 4;
+let ctx = null, master, trackIn = [], trackMute = [], echoSend = [], springSend = [], fbGain;
+let playing = false, step = 0, nextT = 0, timer = null, style = 'onedrop', version = false, throwing = false;
+const muted = [false, false, false, false], pending = [null, null, null, null];
+const hits = [];            // {t, trk, vel, send}
+const midi = n => 440 * Math.pow(2, (n - 69) / 12);
+
+const STYLES = {
+  onedrop:  { kick: [8], rim: [8] },
+  rockers:  { kick: [0, 8], rim: [8] },
+  steppers: { kick: [0, 4, 8, 12], rim: [8] },
+};
+const BASS = [
+  [[0, 33, 3], [4, 33, 1.5], [7, 36, 1], [8, 40, 3], [12, 31, 1.5], [14, 33, 1.5]],
+  [[0, 38, 3], [6, 41, 1.5], [8, 45, 3], [12, 36, 1.5], [14, 35, 1.5]],
+];
+const CHORDS = [[57, 60, 64], [57, 62, 65]];
+const SEND_BASE = [0.18, 0, 0.16, 0.05];   // echo send per track (drums: only the rim goes here)
+
+function makeSpringIR(sec) {
+  const n = Math.floor(ctx.sampleRate * sec), ir = ctx.createBuffer(2, n, ctx.sampleRate);
+  for (let c = 0; c < 2; c++) {
+    const d = ir.getChannelData(c), lag = Math.floor(ctx.sampleRate * (0.029 + c * 0.004));
+    for (let i = 0; i < n; i++) {
+      const t = i / ctx.sampleRate;
+      d[i] = (Math.random() * 2 - 1) * Math.exp(-t * 2.4) * (0.6 + 0.4 * Math.sin(t * 2 * Math.PI * (40 + 900 * t)));
+      if (i >= lag) d[i] += 0.55 * d[i - lag];
+    }
+  }
+  return ir;
+}
+
+function initAudio() {
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4;
+  master = ctx.createGain(); master.gain.value = 0.8; master.connect(comp); comp.connect(ctx.destination);
+  // tape echo: delay -> lowpass -> highpass -> saturation -> feedback
+  const echoIn = ctx.createGain(), dly = ctx.createDelay(2), lp = ctx.createBiquadFilter(), hp = ctx.createBiquadFilter(), sat = ctx.createWaveShaper();
+  dly.delayTime.value = STEP * 3;
+  lp.type = 'lowpass'; lp.frequency.value = 2300; hp.type = 'highpass'; hp.frequency.value = 260;
+  const curve = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; curve[i] = Math.tanh(1.6 * x) / Math.tanh(1.6); } sat.curve = curve;
+  fbGain = ctx.createGain(); fbGain.gain.value = 0.55;
+  echoIn.connect(dly); dly.connect(lp); lp.connect(hp); hp.connect(sat); sat.connect(fbGain); fbGain.connect(dly);
+  const echoOut = ctx.createGain(); echoOut.gain.value = 0.7; sat.connect(echoOut); echoOut.connect(master);
+  // spring
+  const springIn = ctx.createGain(), conv = ctx.createConvolver(), shp = ctx.createBiquadFilter(), springOut = ctx.createGain();
+  conv.buffer = makeSpringIR(2.4); shp.type = 'highpass'; shp.frequency.value = 320; springOut.gain.value = 0.35;
+  springIn.connect(conv); conv.connect(shp); shp.connect(springOut); springOut.connect(master);
+  for (let i = 0; i < 4; i++) {
+    const inp = ctx.createGain(), m = ctx.createGain(), es = ctx.createGain(), ss = ctx.createGain();
+    inp.connect(m); m.connect(master); m.connect(es); m.connect(ss); es.connect(echoIn); ss.connect(springIn);
+    es.gain.value = i === 0 ? 0 : SEND_BASE[i]; ss.gain.value = [0, 0, 0.35, 0.15][i];
+    trackIn.push(inp); trackMute.push(m); echoSend.push(es); springSend.push(ss);
+  }
+  // rim gets its own echo + spring send (dub cross-stick)
+  rimBus = ctx.createGain(); rimBus.connect(trackIn[0]);
+  rimSend = ctx.createGain(); rimSend.gain.value = SEND_BASE[0]; rimBus.connect(rimSend); rimSend.connect(echoIn);
+  const rimSpring = ctx.createGain(); rimSpring.gain.value = 0.5; rimBus.connect(rimSpring); rimSpring.connect(springIn);
+  rimMuteTap = trackMute[0];
+}
+let rimBus, rimSend, rimMuteTap;
+
+function env(g, t, a, peak, d) { g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); }
+function noise(dur) { const n = Math.floor(ctx.sampleRate * dur), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; const s = ctx.createBufferSource(); s.buffer = b; return s; }
+
+function kick(t, v) {
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.frequency.setValueAtTime(115, t); o.frequency.exponentialRampToValueAtTime(46, t + 0.12);
+  env(g, t, 0.003, 0.95 * v, 0.32); o.connect(g); g.connect(trackIn[0]); o.start(t); o.stop(t + 0.4);
+}
+function rim(t, v) {
+  const n = noise(0.06), bp = ctx.createBiquadFilter(), g = ctx.createGain(), o = ctx.createOscillator(), og = ctx.createGain();
+  bp.type = 'bandpass'; bp.frequency.value = 1900; bp.Q.value = 3; env(g, t, 0.001, 0.9 * v, 0.045);
+  o.type = 'triangle'; o.frequency.value = 820; env(og, t, 0.001, 0.5 * v, 0.03);
+  n.connect(bp); bp.connect(g); g.connect(rimBus); o.connect(og); og.connect(rimBus); n.start(t); o.start(t); o.stop(t + 0.06);
+}
+function hat(t, v) {
+  const n = noise(0.05), hp = ctx.createBiquadFilter(), g = ctx.createGain();
+  hp.type = 'highpass'; hp.frequency.value = 7500; env(g, t, 0.001, 0.28 * v, 0.03);
+  n.connect(hp); hp.connect(g); g.connect(trackIn[0]); n.start(t);
+}
+function bass(t, note, len) {
+  const o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter(), d = len * STEP;
+  o.frequency.value = midi(note); o2.type = 'triangle'; o2.frequency.value = midi(note + 12);
+  const g2 = ctx.createGain(); g2.gain.value = 0.22; // a little 2nd harmonic so small speakers hear it
+  lp.type = 'lowpass'; lp.frequency.value = 420;
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.75, t + 0.012); g.gain.setTargetAtTime(0.5, t + 0.05, 0.15); g.gain.setTargetAtTime(0.0001, t + d * 0.9, 0.04);
+  o.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(g); g.connect(trackIn[1]);
+  o.start(t); o2.start(t); o.stop(t + d + 0.3); o2.stop(t + d + 0.3);
+}
+function skank(t, ch, v) {
+  const bp = ctx.createBiquadFilter(), g = ctx.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 0.9;
+  env(g, t, 0.002, 0.22 * v, 0.07); bp.connect(g); g.connect(trackIn[2]);
+  ch.forEach(n => [0, 7].forEach(c => { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(n + 12); o.detune.value = c; o.connect(bp); o.start(t); o.stop(t + 0.12); }));
+}
+function organ(t, ch, v) {
+  const g = ctx.createGain(); env(g, t, 0.006, 0.09 * v, 0.09); g.connect(trackIn[3]);
+  ch.forEach(n => [1, 2, 3].forEach((h, k) => { const o = ctx.createOscillator(), og = ctx.createGain(); o.frequency.value = midi(n) * h; og.gain.value = [1, 0.6, 0.35][k]; o.connect(og); og.connect(g); o.start(t); o.stop(t + 0.16); }));
+}
+
+function sendLevel(i) { return i === 0 ? rimSend.gain.value : echoSend[i].gain.value; }
+
+function schedule(s, t) {
+  const bar = Math.floor(s / 16) % 2, st = s % 16, P = STYLES[style];
+  if (st === 0) barStart(t, bar);
+  if (st % 2 === 1) t += STEP * 0.28;   // shuffle feel on the off 16ths
+  const push = (trk, v) => { if (!muted[trk]) hits.push({ t, trk, v, send: sendLevel(trk) }); };
+  if (P.kick.includes(st)) { kick(t, 1); push(0, 1); }
+  if (P.rim.includes(st)) { rim(t, 1); push(0, 0.8); }
+  if (st % 2 === 0) hat(t, st % 4 === 2 ? 1 : 0.6);
+  BASS[bar].forEach(([at, n, l]) => { if (at === st) { bass(t, n, l); push(1, 0.9); } });
+  if (st === 4 || st === 12) { skank(t, CHORDS[bar], 1); push(2, 1); }
+  if ([2, 6, 10, 14].includes(st)) { organ(t, CHORDS[bar], 1); push(3, 0.8); }
+  if ([3, 7, 11, 15].includes(st)) organ(t, CHORDS[bar], 0.45);
+  if (version && st === 12 && Math.random() < 0.5) throwAt(t, STEP * 4);
+}
+
+function setMute(i, m, t) { muted[i] = m; trackMute[i].gain.setTargetAtTime(m ? 0 : 1, t, 0.004); }
+function barStart(t, bar) {
+  for (let i = 0; i < 4; i++) if (pending[i] !== null) { setMute(i, pending[i], t); pending[i] = null; }
+  if (version && Math.random() < 0.8) {
+    const odds = [0.18, 0.1, 0.4, 0.4];
+    for (let i = 0; i < 4; i++) setMute(i, Math.random() < odds[i], t);
+    if (muted.every(m => m)) setMute(1, false, t);
+  }
+  requestAnimationFrame(syncButtons);
+}
+function throwAt(t, dur) {
+  [[rimSend, 0], [echoSend[2], 2]].forEach(([g, i]) => { g.gain.setTargetAtTime(0.9, t, 0.004); g.gain.setTargetAtTime(SEND_BASE[i], t + dur, 0.004); });
+}
+
+function tick() {
+  while (nextT < ctx.currentTime + 0.12) { schedule(step, nextT); nextT += STEP; step++; }
+}
+
+/* ---------- UI ---------- */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+function syncButtons() {
+  $$('[data-trk]').forEach(b => { const i = +b.dataset.trk; b.classList.toggle('on', !muted[i]); b.classList.toggle('pending', pending[i] !== null); });
+}
+$('#play').onclick = () => {
+  if (!ctx) initAudio();
+  ctx.resume();
+  playing = !playing;
+  if (playing) { step = 0; nextT = ctx.currentTime + 0.06; timer = setInterval(tick, 25); $('#play').textContent = '■ Stop'; $('#play').classList.add('on'); }
+  else { clearInterval(timer); $('#play').textContent = '▶ Play'; $('#play').classList.remove('on'); }
+};
+$$('[data-style]').forEach(b => b.onclick = () => { style = b.dataset.style; $$('[data-style]').forEach(x => x.classList.toggle('on', x === b)); });
+$$('[data-trk]').forEach(b => b.onclick = () => {
+  const i = +b.dataset.trk, want = pending[i] !== null ? !pending[i] : !muted[i];
+  if (!playing) { muted[i] = want; if (ctx) trackMute[i].gain.value = want ? 0 : 1; pending[i] = null; }
+  else pending[i] = want === muted[i] ? null : want;
+  syncButtons();
+});
+$('#version').onclick = () => { version = !version; $('#version').classList.toggle('on', version); };
+$('#fb').oninput = e => { if (fbGain) fbGain.gain.setTargetAtTime(e.target.value / 100, ctx.currentTime, 0.02); };
+const th = $('#throw');
+const throwOn = e => { e.preventDefault(); throwing = true; th.classList.add('on'); if (ctx) { rimSend.gain.setTargetAtTime(0.9, ctx.currentTime, 0.004); echoSend[2].gain.setTargetAtTime(0.9, ctx.currentTime, 0.004); } };
+const throwOff = () => { if (!throwing) return; throwing = false; th.classList.remove('on'); if (ctx) { rimSend.gain.setTargetAtTime(SEND_BASE[0], ctx.currentTime, 0.004); echoSend[2].gain.setTargetAtTime(SEND_BASE[2], ctx.currentTime, 0.004); } };
+th.addEventListener('pointerdown', throwOn); ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => th.addEventListener(ev, throwOff));
+
+/* ---------- screens ---------- */
+const now = () => ctx ? ctx.currentTime : performance.now() / 1000;
+function level() { return playing ? muted.filter(m => !m).length : 0; }
+const STATUS = ['QUIET', 'WARMING', 'WARMING', 'ROCKING', 'HEAVY'];
+
+function echoText(c, txt, x, y, size, color, n) {
+  c.font = `${size}px Anton`; c.textAlign = 'center';
+  for (let k = n; k >= 1; k--) { c.globalAlpha = 0.5 / k; c.fillStyle = '#3E6E9E'; c.fillText(txt, x + k * size * 0.14, y + k * size * 0.03); }
+  c.globalAlpha = 1; c.fillStyle = color; c.fillText(txt, x, y);
+}
+
+function drawBoot(c, T) {
+  const t = T % 7;
+  c.fillStyle = TINTA; c.fillRect(0, 0, 480, 480);
+  c.save(); c.translate(240, 205); c.rotate(t * 1.4);
+  c.fillStyle = '#0b0907'; c.beginPath(); c.arc(0, 0, 165, 0, 7); c.fill();
+  c.strokeStyle = '#211a13'; c.lineWidth = 1.2; for (let r = 95; r < 162; r += 7) { c.beginPath(); c.arc(0, 0, r, 0, 7); c.stroke(); }
+  c.fillStyle = '#E8A825'; c.beginPath(); c.arc(0, 0, 82, 0, 7); c.fill();
+  c.strokeStyle = '#C7382B'; c.lineWidth = 6; c.stroke();
+  c.fillStyle = TINTA; c.font = '34px Anton'; c.textAlign = 'center'; c.fillText('RIDDIM', 0, 6);
+  c.font = '10px "IBM Plex Mono"'; c.fillText('PRE-RELEASE', 0, 28);
+  c.fillStyle = '#0b0907'; c.beginPath(); c.arc(0, 0, 5, 0, 7); c.fill();
+  c.restore();
+  // tonearm swings in during the first 1.6 s
+  const a = Math.min(1, t / 1.6), ease = 1 - Math.pow(1 - a, 3);
+  c.save(); c.translate(440, 40); c.rotate(-0.15 + ease * 0.62);
+  c.strokeStyle = PAPEL; c.lineWidth = 7; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(0, 0); c.lineTo(-18, 175); c.lineTo(-48, 210); c.stroke();
+  c.fillStyle = PAPEL; c.fillRect(-62, 204, 26, 16);
+  c.fillStyle = '#2E261C'; c.beginPath(); c.arc(0, 0, 16, 0, 7); c.fill(); c.strokeStyle = PAPEL; c.lineWidth = 3; c.stroke();
+  c.restore();
+  if (t > 1.9) echoText(c, 'RIDDIM', 240, 440, 54, PAPEL, Math.min(4, Math.floor((t - 1.9) * 3)));
+  c.fillStyle = CINZA; c.font = '11px "IBM Plex Mono"'; c.textAlign = 'center'; c.fillText(t > 1.9 ? 'ROOTS · ROCKERS · DUB' : '', 240, 466);
+}
+
+function drawHome(c) {
+  const T = now(), lv = level();
+  c.fillStyle = TINTA; c.fillRect(0, 0, 480, 480);
+  c.fillStyle = PAPEL; c.font = '30px Anton'; c.textAlign = 'left';
+  c.fillText({ onedrop: 'ONE DROP', rockers: 'ROCKERS', steppers: 'STEPPERS' }[style], 20, 44);
+  c.font = '13px "IBM Plex Mono"'; c.fillStyle = CINZA; c.textAlign = 'right';
+  c.fillText(`76 BPM · A MIN · BAR ${playing ? (Math.floor(step / 16) % 8) + 1 : 1}/8`, 460, 40);
+  const pos = [[20, 60], [246, 60], [20, 256], [246, 256]], W = 214, H = 188;
+  for (let i = 0; i < 4; i++) {
+    const [x, y] = pos[i];
+    let e = 0, rings = [];
+    for (const h of hits) if (h.trk === i && h.t <= T) { const d = T - h.t; e = Math.max(e, h.v * Math.exp(-d * 9)); if (h.send > 0.05 && d < 1.6) rings.push([d, h.send]); }
+    c.fillStyle = '#2E261C'; c.fillRect(x, y, W, H);
+    c.strokeStyle = muted[i] ? '#4a3f31' : COL[i]; c.lineWidth = 5; c.strokeRect(x + 2.5, y + 2.5, W - 5, H - 5);
+    const cx = x + W / 2, cy = y + 84, k = 1 + 0.09 * e;
+    c.save(); c.beginPath(); c.rect(x + 5, y + 5, W - 10, H - 10); c.clip();
+    rings.forEach(([d, s]) => { c.strokeStyle = '#3E6E9E'; c.globalAlpha = Math.max(0, (1 - d / 1.6) * Math.min(1, s * 1.4)); c.lineWidth = 3; c.beginPath(); c.arc(cx, cy, 70 + d * 110, 0, 7); c.stroke(); });
+    c.globalAlpha = 1;
+    [66, 50, 34, 16].forEach((r, j) => { c.fillStyle = j % 2 ? TINTA : '#0b0907'; c.beginPath(); c.arc(cx, cy, r * (j ? k : 1), 0, 7); c.fill(); c.strokeStyle = muted[i] ? '#4a3f31' : COL_LIGHT[i]; c.lineWidth = j ? 2 : 4; c.stroke(); });
+    c.fillStyle = muted[i] ? '#4a3f31' : COL_LIGHT[i]; c.globalAlpha = 0.25 + 0.75 * e; c.beginPath(); c.arc(cx, cy, 12 * k, 0, 7); c.fill(); c.globalAlpha = 1;
+    c.restore();
+    c.fillStyle = muted[i] ? '#6b5f4f' : PAPEL; c.font = '17px "Alfa Slab One"'; c.textAlign = 'left'; c.fillText(NAMES[i], x + 14, y + H - 16);
+    c.font = '11px "IBM Plex Mono"'; c.fillStyle = CINZA; c.textAlign = 'right'; c.fillText('T' + (i + 1), x + W - 14, y + H - 18);
+    if (muted[i]) { c.save(); c.translate(cx, cy); c.rotate(-0.35); c.fillStyle = PAPEL; c.globalAlpha = 0.9; c.fillRect(-90, -13, 180, 26); c.fillStyle = TINTA; c.font = '15px "Alfa Slab One"'; c.textAlign = 'center'; c.fillText('DROP', 0, 6); c.restore(); }
+  }
+  c.globalAlpha = 1; c.fillStyle = '#E8A825'; c.font = '13px "IBM Plex Mono"'; c.textAlign = 'center';
+  c.fillText(`${playing ? '▶' : '■'}  ${STATUS[lv]}${version ? '  ·  VERSION' : ''}${throwing ? '  ·  THROW' : ''}`, 240, 466);
+  while (hits.length && hits[0].t < T - 2) hits.shift();
+}
+
+function knob(c, x, y, r, v, col, label) {
+  c.strokeStyle = '#2E261C'; c.lineWidth = 8; c.beginPath(); c.arc(x, y, r, 0.75 * Math.PI, 2.25 * Math.PI); c.stroke();
+  c.strokeStyle = col; c.beginPath(); c.arc(x, y, r, 0.75 * Math.PI, (0.75 + 1.5 * v) * Math.PI); c.stroke();
+  c.fillStyle = PAPEL; c.font = '20px Anton'; c.textAlign = 'center'; c.fillText(Math.round(v * 100), x, y + 7);
+  c.fillStyle = CINZA; c.font = '11px "IBM Plex Mono"'; c.fillText(label, x, y + r + 20);
+}
+function drawDub(c) {
+  c.fillStyle = TINTA; c.fillRect(0, 0, 480, 480);
+  c.fillStyle = PAPEL; c.font = '30px Anton'; c.textAlign = 'left'; c.fillText('DUB', 20, 44);
+  c.fillStyle = CINZA; c.font = '13px "IBM Plex Mono"'; c.textAlign = 'right'; c.fillText('SCENE · SOUND SYSTEM', 460, 40);
+  const fb = (+$('#fb').value) / 100;
+  for (let i = 0; i < 4; i++) {
+    const x = 20 + i * 112, y = 66;
+    c.fillStyle = '#2E261C'; c.fillRect(x, y, 104, 236);
+    c.fillStyle = muted[i] ? '#2E261C' : COL[i]; c.fillRect(x, y, 104, 34); c.strokeStyle = COL[i]; c.lineWidth = 3; c.strokeRect(x + 1.5, y + 1.5, 101, 31);
+    c.fillStyle = muted[i] ? COL_LIGHT[i] : (i === 2 ? TINTA : PAPEL); c.font = '14px "Alfa Slab One"'; c.textAlign = 'center'; c.fillText(muted[i] ? 'DROP' : NAMES[i], x + 52, y + 23);
+    const es = ctx ? (i === 0 ? rimSend.gain.value : echoSend[i].gain.value) : SEND_BASE[i];
+    knob(c, x + 52, y + 88, 30, Math.min(1, es), '#3E6E9E', 'ECHO');
+    knob(c, x + 52, y + 178, 30, [0.5, 0, 0.35, 0.15][i], '#A39882', 'SPRING');
+  }
+  knob(c, 92, 362, 38, fb, '#3E6E9E', 'FEEDBACK');
+  knob(c, 210, 362, 38, 0.62, '#E8A825', 'TIME 3/16');
+  c.lineWidth = 4;
+  c.fillStyle = throwing ? '#3E6E9E' : TINTA; c.strokeStyle = '#3E6E9E'; roundRect(c, 290, 330, 170, 44, 22); c.fill(); c.stroke();
+  c.fillStyle = PAPEL; c.font = '17px "Alfa Slab One"'; c.textAlign = 'center'; c.fillText('THROW', 375, 359);
+  c.fillStyle = version ? '#E8A825' : TINTA; c.strokeStyle = '#E8A825'; roundRect(c, 290, 386, 170, 44, 22); c.fill(); c.stroke();
+  c.fillStyle = version ? TINTA : PAPEL; c.fillText('VERSION', 375, 415);
+  c.fillStyle = CINZA; c.font = '11px "IBM Plex Mono"'; c.fillText('MUTE ENTRA NO COMPASSO · SEGURE PARA JOGAR', 240, 462);
+}
+function roundRect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+
+const cb = $('#cBoot').getContext('2d'), ch = $('#cHome').getContext('2d'), cd = $('#cDub').getContext('2d');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function frame() {
+  drawBoot(cb, reduce ? 4 : performance.now() / 1000);
+  drawHome(ch); drawDub(cd);
+  $('#status').innerHTML = playing ? `tocando · ${style} · <b>${STATUS[level()]}</b>${version ? ' · version' : ''}` : 'parado · <b>QUIET</b>';
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -10,7 +10,7 @@
   A-08 the overload guard: a release goes first, a latched note last; said in the header
   A-10 DELAY ringing for ever (FEEDBACK at the top): a SYSTEM setting is still saved, 10 s after the last voice
 (A-07: tests/presets_test.py, a broken project; A-18: tests/uac_ring_test.c, the USB ring.)
-  python3 tests/rc9_test.py [build/host/grimm]"""
+  python3 tests/rc9_test.py [build/host/riddim]"""
 import array
 import re
 import os
@@ -20,7 +20,7 @@ import wave
 import zlib
 from pathlib import Path
 
-EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/rc9")
 OUT.mkdir(parents=True, exist_ok=True)
 sr = 44100
@@ -118,7 +118,7 @@ for pre, nm in ((5, "STATIC PRAYER"), (4, "TOMB HUM")):
 # output steady (no jump past what a loud saw makes)
 img = bytearray(b"\xff" * (6 * 4096))
 r = bytearray(64)
-r[0], r[1], r[2], r[3] = 0x54, 1, 1, 0
+r[0], r[1], r[2], r[3] = 0x52, 1, 1, 0   # (0x52 "R": RIDDIM's sound magic; GR!MM: 0x54 "T")
 r[4:8], r[8:12] = bytes([0, 10, 90, 200]), bytes([0, 64, 127, 20])
 r[60:64] = zlib.crc32(bytes(r[:60])).to_bytes(4, "little")
 img[0:64] = r

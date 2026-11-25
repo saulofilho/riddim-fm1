@@ -3,7 +3,7 @@
 # Copyright (C) 2026 GR!MM
 """GR!MM's FM patches (firmware/src/fm.c) -> a C header of 155-byte voices.
 
-  python3 tools/gen_fm_patches.py firmware/gen/grimm_fm.h
+  python3 tools/gen_fm_patches.py firmware/gen/riddim_fm.h
 
 GR!MM's own patches, written here for it (no factory data of any instrument, and none of Felucca's F1..F8): drones,
 so every carrier sustains (GR!MM's own 3 s / 6 s envelope sits on top). The layout is the generic 155-byte

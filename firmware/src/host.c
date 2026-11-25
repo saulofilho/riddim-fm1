@@ -1,14 +1,14 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* GR!MM changes (file names): Copyright (C) 2026 GR!MM */
-/* A fake FM-1 on a computer: the app (firmware/src/grimm.c) runs unchanged on it. platform.c includes
+/* A fake FM-1 on a computer: the app (firmware/src/riddim.c) runs unchanged on it. platform.c includes
  * this file instead of the hardware when DINGHY_HOST is set. A script presses keys over time; out come
  * the screen (PPM, at the times SHOT asks) and the sound (WAV, as the FM-1 sends it over USB). fm1_ticks() is this
  * computer's clock: the longest app_audio() goes out at the end, as a share of its 5.8 ms (the FM-1's is its own).
  *
  *   mkdir -p build/host
- *   cc -O2 -Wall -DDINGHY_HOST -Ifirmware/src -Ifirmware/gen -o build/host/grimm firmware/src/grimm.c
- *   build/host/grimm build/host/grimm        (-> build/host/grimm.wav, build/host/grimm-<ms>.ppm)
- *   build/host/grimm OUT script.txt [FPS]    (your own script; with FPS: OUT-NNNNN.ppm, a frame every 1/FPS s:
+ *   cc -O2 -Wall -DDINGHY_HOST -Ifirmware/src -Ifirmware/gen -o build/host/riddim firmware/src/riddim.c
+ *   build/host/riddim build/host/riddim        (-> build/host/riddim.wav, build/host/riddim-<ms>.ppm)
+ *   build/host/riddim OUT script.txt [FPS]    (your own script; with FPS: OUT-NNNNN.ppm, a frame every 1/FPS s:
  *                                             a film of your firmware, e.g. ffmpeg -r 30 -i OUT-%05d.ppm ...)
  *
  * Change SCRIPT below to try your own app. */
@@ -292,7 +292,7 @@ static void read_script(const char *path)
     script_n = n;
 }
 
-static const char *host_out = "build/host/grimm";
+static const char *host_out = "build/host/riddim";
 static int16_t *wav;
 static uint32_t wav_n;
 
@@ -489,7 +489,7 @@ static void platform_poll(void)                 /* one call = one millisecond */
             static uint32_t sum, cnt;
             if (dt > host_cpu_max) host_cpu_max = dt;
             sum += dt;
-            if (++cnt == 86u) { host_cpu_now = sum / 86u; sum = cnt = 0; }   /* as grimm.c's NOW: ~0.5 s */
+            if (++cnt == 86u) { host_cpu_now = sum / 86u; sum = cnt = 0; }   /* as riddim.c's NOW: ~0.5 s */
         }
         wav = realloc(wav, (wav_n + HALF_FRAMES) * 4u);
         {                                       /* (USB audio: the MASTER knob in it, GRIMM_MASTER; V2: the 24-bit words

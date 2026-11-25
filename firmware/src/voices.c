@@ -13,7 +13,7 @@
  *   ~10 ms .. ~10 s, SUSTAIN 0 .. 100 %, RELEASE ~10 ms .. ~20 s; the times exponential in the knob) and a ~10 ms
  *   fade for a voice handed to another note (no click); an engine's own envelope (FM's DECAY, a PHYS strike) runs
  *   inside it;
- *   voices_render: every sounding voice into its track's buffer (mono, 44.1 kHz), for grimm.c's mixer.
+ *   voices_render: every sounding voice into its track's buffer (mono, 44.1 kHz), for riddim.c's mixer.
  * Another engine: its begin, block and text functions and its names in an engine_t (as analog.c's VA_ENGINE, fm.c's
  * FM_ENGINE), an ENG_ and an entry in ENGINES; a track then plays it by its eng. A voice keeps the engine it began with;
  * a track's engine changing hands its sounding notes over through the fade (env_tick). */
@@ -65,7 +65,7 @@ typedef struct {
     volatile int32_t lfo_rate, lfo_depth, lfo_dest, lfo_shape;   /* LFO: RATE 0..127, DEPTH 0..100 %, DESTINATION,
                                                  * SHAPE (lfo.c) */
     volatile int32_t cut, res, fx;              /* TRACK: the track filter's CUTOFF (127: open, bypassed), RESONANCE;
-                                                 * FX: its sends 0..200 % (100: as MIXER 1 sets them) (grimm.c) */
+                                                 * FX: its sends 0..200 % (100: as MIXER 1 sets them) (riddim.c) */
     volatile int32_t fm_alg, fm_fb, fmo[6][5];  /* FM: the track's own patch (FM ALGO, FM OP): ALGO 0..31, FEEDBACK
                                                  * 0..7; an operator's (OP1 first) RATIO 0..31, FINE, LEVEL, ATTACK,
                                                  * DECAY 0..99 (fm.c; a built-in PATCH's: fm_builtin) */
@@ -114,7 +114,7 @@ static char *put_s(char *s, const char *a)     /* returns the end */
     return s;
 }
 
-/* (V2) the voices and the tracks' mix run PB bits finer than Q15 (Q15 << PB: the DAC's 24-bit words, grimm.c
+/* (V2) the voices and the tracks' mix run PB bits finer than Q15 (Q15 << PB: the DAC's 24-bit words, riddim.c
  * out_stage): a fading tail keeps its detail. The envelope's amplitude comes as Q15 << PB (env_tick); a source folds its
  * level into it once a block (amp_lv) and takes each sample through it (vca) */
 #define PB 7
@@ -168,7 +168,7 @@ static const engine_t *const ENGINES[NENG] = {&VA_ENGINE, &FM_ENGINE, &SAMPLE_EN
 static uint8_t vc_vel[NV], vc_atk[NV], vc_wvel[NV], vc_watk[NV], gen_vel, gen_atk;
 static int32_t vc_wgl[NV], gl_want;             /* (V2) GLIDE: a voice's way to go, asked (gl_want: the next note_on's) */
 static uint8_t gen_lo, gen_hi;                  /* (V2) the next note_on's range, GENERATE's (0 0: none): its chord's
-                                                 * notes past it folded in by octaves (grimm.c note_on) */
+                                                 * notes past it folded in by octaves (riddim.c note_on) */
 static const int32_t GEN_ATK[8] = {2434783, 608696, 202899, 81159, 40580, 20290, 10145, 4870};   /* ATTACK steps
                                                  * (Q24 a control step): 5, 20, 60, 150, 300, 600, 1200, 2500 ms */
 
@@ -303,7 +303,7 @@ static int32_t env_tick(voice_t *v)
 /* the audio ISR: n frames (a multiple of CTL, at most VB) of every sounding voice into tb[its track] (mono); returns
  * the tracks that sound (bit t), whose buffers it zeroed first; the others' are left as they were */
 #define VB 256u
-static void ctl_hook(void);                     /* grimm.c: a control block's notes (the main loop's asks, the
+static void ctl_hook(void);                     /* riddim.c: a control block's notes (the main loop's asks, the
                                                  * sequencer), before the voices */
 static uint32_t voices_render(int32_t (*tb)[VB], uint32_t n)
 {

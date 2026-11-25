@@ -5,7 +5,7 @@
  * 146432 samples, 6.6 s a slot (26.6 s in all). The layout and the upload protocol follow Felucca's user sample slots
  * (hugelton/Felucca: web/EDITOR_PROTOCOL.md, cmds 11..15; tools/sampleio.py user_slot), GPL-3.0, with GR!MM's own
  * magic and SysEx ID so neither firmware takes the other's data or commands:
- *   header at 0 (480 bytes): magic "GSMP", u16 version 1, u8 zone count (1), u8 0; name, 8 ASCII bytes; u32 data
+ *   header at 0 (480 bytes): magic "RDSP", u16 version 1, u8 zone count (1), u8 0; name, 8 ASCII bytes; u32 data
  *   length, u32 CRC-32 (zlib) of the data, 8 bytes 0; one zone of 28 bytes: u32 off (0), n (samples), loop start, loop
  *   end, rate (Hz / 44100 x 65536: 32768), i16 root x 16, predictor; u8 step index, lo, hi, looped. All little endian.
  *   data at 512.
@@ -32,7 +32,7 @@
  * done and nothing sounds, each slot that still does not play (another firmware's data, a broken or unfinished upload)
  * gets its own too (smp_fix); a slot that plays is never touched. RESTORE (SYSTEM 2's SAMPLES, the editor's FACTORY)
  * writes all four. */
-#include "grimm_samples.h"
+#include "riddim_samples.h"
 
 #define SMP_SLOTS 4u
 #define SMP_SLOT_SIZE (72u * 1024u)             /* 72 KiB (so written: the build takes 0x12000 for a register address) */
@@ -43,7 +43,7 @@
 #define SMP_SEG_LOG2 8
 #define SMP_SEG (1u << SMP_SEG_LOG2)            /* the seek index's step, samples */
 #define SMP_NSEG (SMP_MAX_N / SMP_SEG)          /* 572 */
-#define SMP_MAGIC 0x504D5347u                   /* "GSMP" */
+#define SMP_MAGIC 0x50534452u                   /* "RDSP" (RIDDIM; GR!MM: "GSMP") */
 #define SMP_RATE_Q16 32768u                     /* 22050 / 44100 */
 #define SMP_SCAN_SEGS 4u                        /* a main loop pass checks and indexes this many segments */
 _Static_assert(SMP_SLOTS * SMP_SLOT_SIZE <= SAMPLE_AREA_LEN, "the sample slots in the platform's sample area");

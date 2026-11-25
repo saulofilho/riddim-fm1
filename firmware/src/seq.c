@@ -8,7 +8,7 @@
  *   control block (32 samples) at a time: a note starts and stops within 0.73 ms of its time
  *   SWING: every other step later, by up to half a step
  *   PLAY MODE: FORWARD, BACKWARD, PINGPONG, RANDOM
- * Sequenced notes play through the track's source and ENV, as the keys' notes (grimm.c note_on, note_off: SRC_SEQ);
+ * Sequenced notes play through the track's source and ENV, as the keys' notes (riddim.c note_on, note_off: SRC_SEQ);
  * LATCH does not touch them. A track keeps SEQ_NPAT patterns (one now: song mode adds more). Nothing is saved yet.
  * The main loop edits the steps and the settings, starts and stops it (NQ_PLAY, NQ_STOP); the audio ISR plays it. */
 

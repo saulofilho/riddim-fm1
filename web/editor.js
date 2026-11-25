@@ -2,11 +2,11 @@
 // Copyright (C) 2026 GR!MM
 // GR!MM's editor page (web/editor.html). As SLOOP's editor (isod89/sloop-fm1, web/, GPL-3.0) works on the sound that
 // plays: the SOUND EDITOR shows the four tracks' sounds (T1..T4) and every move of a control reaches the track at once,
-// on the FM-1 (editor.c's TRACK, live, no flash) and in GR!MM's own engine here (grimm.wasm in an AudioWorklet,
+// on the FM-1 (editor.c's TRACK, live, no flash) and in GR!MM's own engine here (riddim.wasm in an AudioWorklet,
 // worklet.js: its screen and its keys). STORE IN SLOT saves it into a user slot (flash: only by that button, the FM-1
 // stopped and silent). SOUNDS lists the user's and the factory sounds (LOAD TO T1..T4), SAMPLES the sample slots, BACKUP
 // everything. The protocol, the records, the WAV conversion: editor_core.js. Without an FM-1 the same, with the
-// "virtual FM-1" (grimm.wasm here, editor_core.js's VirtualFM1) in its place.
+// "virtual FM-1" (riddim.wasm here, editor_core.js's VirtualFM1) in its place.
 import { Client, MidiTransport, VirtualFM1, LiveSender, findFM1, HEAD, CMD, OBJ, PROTOS, EditorError, emptyRecord, isEmpty,
          recordOk, parseSound, buildRecord, soundTitle, makeBackup, checkBackup, restoreBackup, makeSlot, noteFromName,
          sampleName, noteName, pack7, hex, SET_V1, SET_V2, MCH_NAMES, CLOCK_NAMES, settingsOf, withSettings,
@@ -28,7 +28,7 @@ function el(tag, attrs, parent, text) {
   return e;
 }
 
-let wasm = null, vf = null, vfc = null, meta = null;        // grimm.wasm; its instance here (texts, the virtual FM-1)
+let wasm = null, vf = null, vfc = null, meta = null;        // riddim.wasm; its instance here (texts, the virtual FM-1)
 let conn = null;                                             // { client, info, kind: "fm1" | "virtual", transport, live }
 let busy = false;
 let setBytes = null;                                         // the settings as last read from the FM-1 (SETTINGS)
@@ -113,7 +113,7 @@ function startEngine() {                                     // at once; the bro
   engReady = (async () => {
     ac = new AudioContext({ sampleRate: 44100, latencyHint: "interactive" });
     await ac.audioWorklet.addModule("worklet.js");
-    node = new AudioWorkletNode(ac, "grimm", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
+    node = new AudioWorkletNode(ac, "riddim", { numberOfInputs: 0, numberOfOutputs: 1, outputChannelCount: [2] });
     node.connect(ac.destination);
     await new Promise((res, rej) => {
       node.port.onmessage = (e) => {
@@ -397,7 +397,7 @@ $("b-export").onclick = () => exportSound(pickRec(), pick.fact ? meta.factory[pi
 $("b-import").onclick = () => $("f-import").click();
 async function readSoundFile(f) {
   const j = JSON.parse(await f.text()), r = Uint8Array.from(j.rec || []);
-  if (j.format !== "grimm-sound" || r.length !== 64 || !recordOk(r)) throw new Error("NOT A GR!MM SOUND FILE");
+  if (j.format !== "riddim-sound" || r.length !== 64 || !recordOk(r)) throw new Error("NOT A GR!MM SOUND FILE");
   return r;
 }
 $("f-import").onchange = async (e) => {
@@ -413,7 +413,7 @@ $("f-import").onchange = async (e) => {
 };
 function exportSound(r, name) {
   const t = name || soundTitle(r, meta) || "SOUND";
-  download(`${t.replace(/[^A-Z0-9]+/g, "_")}.grimmsound`, JSON.stringify({ format: "grimm-sound", version: 1, name: t, rec: [...r] }));
+  download(`${t.replace(/[^A-Z0-9]+/g, "_")}.riddimsound`, JSON.stringify({ format: "riddim-sound", version: 1, name: t, rec: [...r] }));
   say(`EXPORTED: ${t}`, "ok");
 }
 
@@ -770,7 +770,7 @@ $("b-sfactory").onclick = () => {                            // RESTORE: the fou
 // ------------------------------------------------------------------ backup
 $("b-backup").onclick = () => job("BACKUP", async () => {
   const b = await makeBackup(conn.client, conn.info, (i, n, what) => { progress(i, n); say(`READING ${what.toUpperCase()}…`); });
-  download(`grimm-backup-${stamp()}.json`, JSON.stringify(b, null, 1));
+  download(`riddim-backup-${stamp()}.json`, JSON.stringify(b, null, 1));
   return `BACKUP MADE: ALL 64 SOUNDS, SLOTS A–D, THE SETTINGS${b.samples ? ", THE SAMPLES" : " (NOT THE SAMPLES: THIS GR!MM CANNOT SEND THEM)"} (DOWNLOADED)` +
          (conn.client.missed ? `; ${conn.client.missed} REPLIES MISSED, ASKED AGAIN` : "");
 });
@@ -790,7 +790,7 @@ $("f-restore").onchange = async (e) => {
                ". A backup of what it holds now is made (downloaded) first.")) return;
   await job("RESTORE", async () => {
     const before = await makeBackup(conn.client, conn.info, (i, n) => { progress(i, n); say("FIRST, A BACKUP OF WHAT THE FM-1 HOLDS NOW…"); });
-    download(`grimm-backup-before-restore-${stamp()}.json`, JSON.stringify(before, null, 1));
+    download(`riddim-backup-before-restore-${stamp()}.json`, JSON.stringify(before, null, 1));
     await restoreBackup(conn.client, objs, conn.info, (i, n, what) => { progress(i, n); say(`WRITING ${what.toUpperCase()}…`); });
     for (let i = 0; i < objs.length; i++) {                  // read back: as written
       const set = objs[i].id === OBJ.SET, d = await conn.client.get(objs[i].id, set ? conn.info.setSize : objs[i].data.length);
@@ -1037,7 +1037,7 @@ $("sq-send").onclick = () => {
     const next = slotWithPatterns(cur, sq.pats);
     await conn.client.canWrite(OBJ.SLOT + k, next, conn.info.fmt);   // (refused while the FM-1 plays or sounds: before anything is done)
     const old = empty ? [0, 1, 2, 3].map(() => emptyPattern(16)) : patternsFromSlot(cur);
-    download(`grimm-slot-${L}-backup-${stamp()}.json`, JSON.stringify(patternFile(old, { slot: L, was: empty ? "empty" : "used",
+    download(`riddim-slot-${L}-backup-${stamp()}.json`, JSON.stringify(patternFile(old, { slot: L, was: empty ? "empty" : "used",
       firmware: conn.info.firmware, slotBytes: b64(cur) })));
     await conn.client.put(OBJ.SLOT + k, next, conn.info.fmt, progress);
     const back = await conn.client.get(OBJ.SLOT + k, SEQ.SLOT_LEN);
@@ -1051,7 +1051,7 @@ $("sq-send").onclick = () => {
   });
 };
 $("sq-save").onclick = () => {
-  download(`grimm-patterns-${stamp()}.json`, JSON.stringify(patternFile(sq.pats)));
+  download(`riddim-patterns-${stamp()}.json`, JSON.stringify(patternFile(sq.pats)));
   say("PATTERNS SAVED TO A FILE (DOWNLOADED)", "ok");
 };
 $("sq-load").onclick = () => $("sq-file").click();
@@ -1136,7 +1136,7 @@ $("sq-stop").onclick = async () => {
 // REC armed: a note goes into the selected step of the selected track and the cursor moves on (wraps at STEPS); REST, the sustain
 // pedal and Space skip a step (OFF), TIE makes the step before one longer; 3+ keys pressed together that are one of the FM-1's
 // chords (any VOICING) make a chord step, else the lowest note is written. It writes only while this section is shown.
-const SQ_MIDI_KEY = "grimm-seq-midi";
+const SQ_MIDI_KEY = "riddim-seq-midi";
 const FM1_PORT = /felucca|fm-?1|m-?vave|gr!?mm/i;            // (the FM-1's own port: not a keyboard)
 const sqOn = () => $("s-sequencer").classList.contains("on");
 const sqTyping = () => {                                     // a text field has the keys: never taken
@@ -1267,7 +1267,7 @@ if (savedMidi()) sqMidiInit(false);                          // (a keyboard chos
 // ------------------------------------------------------------------ start: the four tracks as GR!MM starts
 (async () => {
   try {
-    wasm = await (await fetch("grimm.wasm")).arrayBuffer();
+    wasm = await (await fetch("riddim.wasm")).arrayBuffer();
     vf = await VirtualFM1.create(wasm.slice(0));
     vf.log = midiLog;
     vfc = new Client(vf);
@@ -1278,7 +1278,7 @@ if (savedMidi()) sqMidiInit(false);                          // (a keyboard chos
       loaded[t] = JSON.stringify(tracks[t]), from[t] = "AS GR!MM STARTS";
     }
   } catch (e) {
-    say(`COULD NOT LOAD GR!MM (grimm.wasm): ${e.message || e}. OPEN THIS PAGE FROM A WEB SERVER, NOT A FILE.`.toUpperCase(), "err");
+    say(`COULD NOT LOAD GR!MM (riddim.wasm): ${e.message || e}. OPEN THIS PAGE FROM A WEB SERVER, NOT A FILE.`.toUpperCase(), "err");
     return;
   }
   screenText(["CLICK ANYWHERE:", "GR!MM'S SOUND", "AND SCREEN"]);

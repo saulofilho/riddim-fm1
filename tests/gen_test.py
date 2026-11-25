@@ -14,12 +14,12 @@
   - a SAMPLE track's notes: up to the whole loop (its LENGTH), past the MODE's lengths; another source: the MODE's
   - GENERATE changes no setting: four tracks generating 60 s in each MODE, chord mode off and on: the tracks' settings
     (ENV, the sources' knobs, all of a track a project saves), the saved sounds and slots A..D the same, to the byte
-    python3 tests/gen_test.py build/host/grimm"""
+    python3 tests/gen_test.py build/host/riddim"""
 import subprocess
 import sys
 from pathlib import Path
 
-BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/gentest")
 OUT.mkdir(parents=True, exist_ok=True)
 SRC_SEQ, SRC_GEN = 1, 3

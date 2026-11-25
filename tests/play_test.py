@@ -5,7 +5,7 @@
   - VELOCITY (SYSTEM 3, KNOB 2): ON, a MIDI note's volume from how hard; OFF (as before): the same at any velocity;
     the keys at full either way; the setting loaded from the settings (byte 169's bit 1)
   - PHASE's LINE 2 page (RING, NOISE) and GLIDE (SOURCE, KNOB 4): off, as before; on, at work; saved, loaded; 1.0: off
-    python3 tests/play_test.py build/host/grimm"""
+    python3 tests/play_test.py build/host/riddim"""
 import array
 import math
 import os
@@ -13,7 +13,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/playtest")
 OUT.mkdir(parents=True, exist_ok=True)
 bad = 0

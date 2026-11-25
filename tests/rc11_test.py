@@ -5,14 +5,14 @@
 autosave, the settings' save) stops the key scan, the LEDs and the USB audio for ~50 ms: while a computer reads the USB
 audio (host mode: GRIMM_USB_REC=FROM,TO) they wait for the hands to rest a minute, not 2.5 s (the settings' 2 s). Not reading:
 as before. The reading ends: they go at once. Nothing is lost: it is saved, later.
-    python3 tests/rc11_test.py build/host/grimm"""
+    python3 tests/rc11_test.py build/host/riddim"""
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/rc11test")
 OUT.mkdir(parents=True, exist_ok=True)
 bad = 0

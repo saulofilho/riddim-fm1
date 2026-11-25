@@ -6,8 +6,8 @@
 
   tools/build.py [--release X.Y[-suffix]]
 
-Outputs in build/: grimm.bin (app), loader/ota.bin (update loader),
-grimm.fwsc (package). See README.md for the toolchain and the SDK.
+Outputs in build/: riddim.bin (app), loader/ota.bin (update loader),
+riddim.fwsc (package). See README.md for the toolchain and the SDK.
 
 The JieLi toolchain is Linux x86-64 only. JIELI_TOOLCHAIN points at it; on
 macOS (or with JIELI_DOCKER=1) each tool runs in a linux/amd64 container.
@@ -48,7 +48,7 @@ SDK_SHA256 = {
     "cfg/eq_cfg_hw.bin": "41167491bffed4651750719c973d2758adeb9021a5670d02d6a53c85ed80ea7d",
 }
 
-PRODUCT = "FM-1_966"                # GR!MM: 966, every release (1.x, 2.x) (FM-1_9NN: the installers resume its loader; the hub's
+PRODUCT = "FM-1_932"                # RIDDIM: 932, every release (free on the hub, 2026-11-25; FM-1_9NN: the installers resume its loader)
                                     # other firmwares hold 950, 95x, 961, so not Dinghy's 9 + minor); Dinghy is 99N
 VERSION = None                      # APP_VER for release builds (else DEFAULT_VERSION)
 DEFAULT_VERSION = "2.0"
@@ -163,11 +163,11 @@ def build_app():
     cmds = [("cc", "-c", FW / "crt0.S", "-o", OUT / "crt0.o"),
             ("cc", "-c", FW / "hal" / "fm1_vec.S", "-o", OUT / "fm1_vec.o"),
             ("cc", "-c", FW / "hal" / "fm1_isr.S", "-o", OUT / "fm1_isr.o"),
-            ("cc", *flags, "-c", FW / "src" / "grimm.c", "-o", OUT / "grimm.o")]
+            ("cc", *flags, "-c", FW / "src" / "riddim.c", "-o", OUT / "riddim.o")]
     tc_all(*cmds)
-    elf = OUT / "grimm.elf"
+    elf = OUT / "riddim.elf"
     tc("pi32v2/bin/ld", "--gc-sections", "-e", "_start", "-T", FW / "app.ld", OUT / "crt0.o", OUT / "fm1_vec.o",
-       OUT / "fm1_isr.o", OUT / "grimm.o", "-o", elf)
+       OUT / "fm1_isr.o", OUT / "riddim.o", "-o", elf)
     for sect in ("text.bin", "data.bin", "ramtext.bin"):
         (OUT / sect).unlink(missing_ok=True)
     *_, syms, dis, rt = tc_all(("common/bin/objcopy", "-O", "binary", "-j", ".text", elf, OUT / "text.bin"),
@@ -176,7 +176,7 @@ def build_app():
                                ("common/bin/objdump", "-t", elf),
                                ("common/bin/objdump", "-d", elf),
                                ("common/bin/objdump", "-d", "-j", ".ram_text", elf))
-    (OUT / "grimm.dis").write_text(dis)
+    (OUT / "riddim.dis").write_text(dis)
 
     def symv(name):
         return int(re.search(r"^([0-9a-f]+) .*\s" + name + r"$", syms, re.M).group(1), 16)
@@ -193,7 +193,7 @@ def build_app():
             img += b"\xff" * (load - APP_XIP - len(img))
             img += blob
     img += b"\xff" * (-len(img) % 4)
-    (OUT / "grimm.bin").write_bytes(img)
+    (OUT / "riddim.bin").write_bytes(img)
     return bytes(img), syms, dis, rt
 
 
@@ -230,7 +230,7 @@ def check(img, syms, dis, rt):
         errors.append(f"RAM .data+.bss {ram} B > 96 KiB")
     if 96 * 1024 - ram < RAM_FREE_MIN:      # (V2) never filled to the brim: a floor, whatever comes to need it
         errors.append(f"RAM .data+.bss {ram} B: {96 * 1024 - ram} B free, under {RAM_FREE_MIN}")
-    st = subprocess.run([sys.executable, str(SRC / "tools" / "stack_check.py"), str(OUT / "grimm.dis"), "--min-margin",
+    st = subprocess.run([sys.executable, str(SRC / "tools" / "stack_check.py"), str(OUT / "riddim.dis"), "--min-margin",
                          str(STACK_FREE_MIN)], capture_output=True, text=True)
     for ln in st.stdout.splitlines()[1:]:   # (V2) the stacks' worst case (tools/stack_check.py), each at least
         if ln.strip().startswith(("user stack", "system stack")):   # STACK_FREE_MIN under its region
@@ -287,20 +287,20 @@ def mmio_check():
 def main():
     global PRODUCT, VERSION
     ap = argparse.ArgumentParser()
-    ap.add_argument("--release", metavar="X.Y", help="release build: the version string X.Y (identity FM-1_966 as always)")
+    ap.add_argument("--release", metavar="X.Y", help="release build: the version string X.Y (identity FM-1_932 as always)")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     ap.add_argument("--define", action="append", default=[], metavar="NAME",
                     help="a test build: -DNAME for the app (e.g. GRIMM_TRS_TEST); give it its own --name")
-    ap.add_argument("--name", metavar="FILE.fwsc", help="the package's file name (default grimm.fwsc)")
+    ap.add_argument("--name", metavar="FILE.fwsc", help="the package's file name (default riddim.fwsc)")
     a = ap.parse_args()
     DEFINES.extend(a.define)
-    name = a.name or "grimm.fwsc"
+    name = a.name or "riddim.fwsc"
     if a.release:                   # one digit each: the identity has room for two (X.Y; a .Z only in the text)
         m = re.fullmatch(r"(\d)\.(\d)(\.\d)?(-[A-Za-z0-9]+)?", a.release)
         if not m:
             raise SystemExit(f"--release {a.release}: use X.Y, X.Y.Z or X.Y-suffix, one digit each")
         VERSION = m[1] + "." + m[2] + (m[3] or "")
-        name = a.name or f"grimm-{a.release}.fwsc"
+        name = a.name or f"riddim-{a.release}.fwsc"
     fm1pkg_make.SDK = a.sdk
     for rel, sha in SDK_SHA256.items():          # fail early without the SDK
         if hashlib.sha256(fm1pkg_make.sdk_file(rel)).hexdigest() != sha:
@@ -321,7 +321,7 @@ def main():
         raise SystemExit("build: checks failed")
     pkg = fm1pkg_make.ufw(fm1pkg_make.flash_image(img, fm1pkg_make.KEY), ota, PRODUCT)
     (OUT / name).write_bytes(pkg)
-    print(f"app      {OUT / 'grimm.bin'}  {len(img)} B")
+    print(f"app      {OUT / 'riddim.bin'}  {len(img)} B")
     print(f"loader   {LDR / 'ota.bin'}  {len(ota)} B")
     print(f"package  {OUT / name}  {len(pkg)} B, identity {PRODUCT}")
     return 0

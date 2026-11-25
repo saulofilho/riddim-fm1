@@ -5,14 +5,14 @@
 At boot a slot that is all 0xFF gets its factory sample (as before); then, once the slots have been checked and nothing
 sounds, every slot that still does not play (junk, data without a header, a wrong CRC) gets it too. A slot that plays is
 never touched. The header says which ("SAMPLES RESTORED: 1 2"). A write that fails is not tried again.
-    python3 tests/samplefix_test.py build/host/grimm"""
+    python3 tests/samplefix_test.py build/host/riddim"""
 import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/samplefixtest")
 OUT.mkdir(parents=True, exist_ok=True)
 bad = 0

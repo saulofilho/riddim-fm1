@@ -3,7 +3,7 @@
      Copyright (C) 2026 GR!MM
      GR!MM's editor: the FM-1's sounds, samples and a backup, over Web MIDI SysEx (docs/EDITOR_PROTOCOL.md). Its sections
      in a left menu and its way of editing (the tracks' sounds, live, as the knobs) follow SLOOP's editor (isod89/sloop-fm1,
-     web/, GPL-3.0); its code and look are GR!MM's. The sounds play here in GR!MM's own engine (grimm.wasm, the firmware's
+     web/, GPL-3.0); its code and look are GR!MM's. The sounds play here in GR!MM's own engine (riddim.wasm, the firmware's
      code), its screen beside the keys. The font: Press Start 2P (SIL OFL 1.1, LICENSES/OFL-PressStart2P.txt). -->
 <html lang="en">
 <head>
@@ -203,7 +203,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--f); outline-offset: 2
           <button id="b-clear">CLEAR</button>
           <button id="b-import">IMPORT</button>
           <button id="b-send" class="go">SEND TO FM-1</button>
-          <input type="file" id="f-import" accept=".json,.grimmsound" hidden>
+          <input type="file" id="f-import" accept=".json,.riddimsound" hidden>
         </div>
       </div>
       <p class="note">Click a sound, then LOAD TO a track (or double-click: the track in the editor): it plays there at once,
@@ -225,7 +225,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--f); outline-offset: 2
         <button id="b-eexport">EXPORT</button>
         <button id="b-eimport">IMPORT</button>
         <button id="b-revert">REVERT</button>
-        <input type="file" id="f-eimport" accept=".json,.grimmsound" hidden>
+        <input type="file" id="f-eimport" accept=".json,.riddimsound" hidden>
       </div>
       <div class="grp play">
         <canvas id="screen" width="240" height="240"></canvas>
@@ -261,7 +261,7 @@ input[type=range]:focus-visible { outline: 3px solid var(--f); outline-offset: 2
         <button id="sq-save">SAVE FILE</button>
         <button id="sq-load">LOAD FILE</button>
         <button id="sq-clear">CLEAR ALL</button>
-        <input type="file" id="sq-file" accept=".json,.grimmpattern" hidden>
+        <input type="file" id="sq-file" accept=".json,.riddimpattern" hidden>
       </div>
       <div class="row recrow">
         <button id="sq-rec" class="toggle" aria-pressed="false">REC</button>

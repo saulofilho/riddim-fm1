@@ -8,13 +8,13 @@
   PHYS (at most 4 voices): a latched note stays while a release's voice is there to take
   REC held, ALL NOTES OFF, a MIDI note-on again (the arp's fix): latching as in 1.0
 Prints a line a check (a sound's: only when it fails), exit 1 on a failure.
-  python3 tests/latch_test.py [build/host/grimm]"""
+  python3 tests/latch_test.py [build/host/riddim]"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/latch")
 OUT.mkdir(parents=True, exist_ok=True)
 ENG_FM, ENG_PHYS = 1, 5

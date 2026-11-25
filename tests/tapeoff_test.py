@@ -14,7 +14,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/tapeoff")
 OUT.mkdir(parents=True, exist_ok=True)
 REF = Path("tests/data/tapeoff.sha256")

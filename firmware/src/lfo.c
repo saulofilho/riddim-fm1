@@ -7,7 +7,7 @@
  *   DESTINATION: PITCH (100 %: +-1 octave), VOLUME (LEVEL), PAN, the source's four knobs (KNOB 1..4: the track's source
  *   now, by its names), REV SEND, GRAIN SEND, TRK CUTOFF (the track filter's, TRACK). It moves the destination around its knob, within the knob's range (100 %:
  *   +-half of it), the knob itself not moved: PITCH through VP16 (voices.c), a knob through lfo_params (a voice's own
- *   copy of the four), VOLUME, PAN and the sends through grimm.c's mix (its gains ramped over the block)
+ *   copy of the four), VOLUME, PAN and the sends through riddim.c's mix (its gains ramped over the block)
  *   SHAPE: SINE, TRIANGLE, SAW UP, SAW DOWN, SQUARE, RANDOM (a value a cycle), DRIFT (a smooth wander, a new value a
  *   cycle); the output follows through a ~3 ms smoothing: SQUARE, RANDOM and the saws' ends step without a click
  * Audio ISR, a control step (ctl_hook: lfo_ctl); the main loop reads the phase (the picture's dot). */

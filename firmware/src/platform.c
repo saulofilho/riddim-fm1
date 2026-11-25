@@ -15,7 +15,7 @@
  *   settings            one 4 KiB flash sector with a CRC (settings_load / settings_save)
  *   crash screen        the PC of a fault, then a reboot
  *
- * The app (grimm.c) includes this file first and supplies:
+ * The app (riddim.c) includes this file first and supplies:
  *   static void app_audio(int32_t *out, uint32_t n)   audio ISR: n stereo frames, L R L R, Q15 (+-32767), out is zero
  *   static void app_main(void)                        never returns; calls platform_poll() often (every few ms)
  */
@@ -29,7 +29,7 @@ enum { ENC_SELECT = 0, ENC_ALGORITHM = 1, ENC_KNOB1 = 2, ENC_KNOB2 = 3, ENC_KNOB
 static volatile uint32_t isr_in_audio;          /* the timer ISR's fm1_ticks inside the audio ISR, summed (GR!MM V2:
                                                  * the CPU meter's SCAN; on a computer 0) */
 /* GR!MM V2: MIDI realtime, the clock and START / CONTINUE / STOP. In from USB (usb.c) and the TRS jack (midi_uart.c),
- * each with its time (rt_now: 24 a us) and its source: the timer ISR writes, the audio ISR reads (grimm.c clk_ctl, a
+ * each with its time (rt_now: 24 a us) and its source: the timer ISR writes, the audio ISR reads (riddim.c clk_ctl, a
  * control block at a time, at the messages' time). Out (USB): the audio ISR's clock (CLOCK INT+OUT), each with the
  * time its sound plays; the timer ISR sends it then (rt_flush; on a computer: logged) */
 enum { RT_USB, RT_TRS };
@@ -58,7 +58,7 @@ static void rt_out(uint32_t st, uint32_t due)   /* audio ISR: a realtime byte ou
 }
 
 #define OUT_FS (32767 << 7)                     /* (V2) the app's output words: the DAC's 24 bits, Q15 << 7 (-6 dBFS ceiling) */
-static void out_usb16(const int32_t *o, int32_t *u, uint32_t n);   /* (grimm.c: those words as 16 bit, rounded: USB) */
+static void out_usb16(const int32_t *o, int32_t *u, uint32_t n);   /* (riddim.c: those words as 16 bit, rounded: USB) */
 #if defined GRIMM_WEB
 #include "fm1_web.c"                 /* in a browser: a fake FM-1 (firmware/src/fm1_web.c) */
 #elif defined DINGHY_HOST
@@ -80,7 +80,7 @@ static void out_usb16(const int32_t *o, int32_t *u, uint32_t n);   /* (grimm.c: 
 #define APP_NAME "DINGHY"
 #endif
 #ifndef FELUCCA_ID
-#define FELUCCA_ID "FM-1_966"                   /* package identity: GR!MM 1.x (tools/build.py) */
+#define FELUCCA_ID "FM-1_932"                   /* package identity: RIDDIM's, every release (tools/build.py) */
 #endif
 #ifndef APP_VER
 #define APP_VER "0.0"
@@ -228,7 +228,7 @@ static void ota_commit(const uint8_t *parm)
 
 /* ---- settings: [magic][length][crc32] then the bytes; settings_save erases the sector (~50 ms with
  * the interrupts off: the sound drops out), so save when nothing plays, not on every knob step */
-#define SETTINGS_MAGIC 0x59474E44u              /* "DNGY" */
+#define SETTINGS_MAGIC 0x54534452u              /* "RDST" (RIDDIM; Dinghy, GR!MM: "DNGY") */
 static uint32_t crc32(const uint8_t *p, uint32_t n)
 {
     uint32_t c = 0xFFFFFFFFu, k;

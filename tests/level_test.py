@@ -8,14 +8,14 @@
   - SPACE's and DELAY's lines never past their soft knee, SPACE's pre-delay never clipped (the buses 6 dB lower in)
   - MASTER: up to 3/4 the output 6 dB under what it was before V2; at the top as loud as before (a note)
   (the peaks: the 24-bit words the DAC gets, GRIMM_RAW_OUT; USB's 16-bit copy is rounded)
-    python3 tests/level_test.py build/host/grimm"""
+    python3 tests/level_test.py build/host/riddim"""
 import array
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+BIN = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/leveltest")
 OUT.mkdir(parents=True, exist_ok=True)
 LIM, FULL = 32440, 32767

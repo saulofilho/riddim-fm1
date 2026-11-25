@@ -22,7 +22,7 @@
  * the singing fades into a whisper, as SOLO's).
  * Voice state: ph[0] glottal phase, ph[1..2] F4 y1 / y2; vx_s: F1..F3 y1 / y2, the tilt; vx_c: a choir's. */
 
-#include "grimm_choir.h"                       /* (V2) tools/gen_choir.py: CHOIR_T, CHOIR_NS, CHOIR_LEN */
+#include "riddim_choir.h"                       /* (V2) tools/gen_choir.py: CHOIR_T, CHOIR_NS, CHOIR_LEN */
 
 #define FMT_FOLOW 30                            /* formant key tracking: 30 / 127 (Felucca's) */
 

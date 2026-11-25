@@ -6,7 +6,7 @@ sends unfiltered), MASTER (a filter at PRE FX, POST REVERB, END; open: as withou
 TYPEs, its limiter; AMOUNT 0: as without it, to the byte), and their saves (a V1.0 project: LP PRE, MASTER open, DRIVE
 off; V2's: as set). A held saw chord on T1 through each; the sound measured: its level (RMS), its highs (the RMS of
 its slope) and its lows (the RMS of a 64-frame average). Prints a line a check, exit 1 on a failure.
-  python3 tests/fx_test.py [build/host/grimm]"""
+  python3 tests/fx_test.py [build/host/riddim]"""
 import array
 import os
 import subprocess
@@ -14,7 +14,7 @@ import sys
 import wave
 from pathlib import Path
 
-EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/fx")
 OUT.mkdir(parents=True, exist_ok=True)
 CHORD = 0x880                                   # (two keys, an octave apart: T1's VA saw)

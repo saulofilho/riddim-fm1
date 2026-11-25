@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 GR!MM
 // GR!MM's editor without its page: the editor protocol (docs/EDITOR_PROTOCOL.md) over a transport (Web MIDI to the
-// FM-1, or the "virtual FM-1": grimm.wasm, the firmware's own code, stepped a millisecond at a time), the tracks' sounds
+// FM-1, or the "virtual FM-1": riddim.wasm, the firmware's own code, stepped a millisecond at a time), the tracks' sounds
 // live (TRACK, sent as SLOOP's editor sends its SETs: one at a time, the latest kept), the sound records,
 // the backup file, and a WAV made a sample slot (a port of Felucca's tools/sampleio.py, GPL-3.0, and of
 // tools/fm1_sample_upload.py: the same bytes). web/editor.js (the page) and web/test_web.mjs use it.
@@ -267,7 +267,7 @@ export async function findFM1(access, log = null) {
   }
   return null;
 }
-// the virtual FM-1: grimm.wasm (the firmware's code, the browser build), its main loop run until it answers
+// the virtual FM-1: riddim.wasm (the firmware's code, the browser build), its main loop run until it answers
 export class VirtualFM1 {
   static async create(wasmBytes) {
     const v = new VirtualFM1();
@@ -362,7 +362,7 @@ export function emptyRecord() { return new Uint8Array(SND).fill(0xff); }
 export const isEmpty = (r) => r.every((x) => x === 0xff);
 export function recordOk(r) {
   const dv = new DataView(r.buffer, r.byteOffset, SND);
-  return r[0] === 0x54 && r[1] < 9 && r[3] < 7 && dv.getUint32(60, true) === crc32(r.subarray(0, 60));
+  return r[0] === 0x52 && r[1] < 9 && r[3] < 7 && dv.getUint32(60, true) === crc32(r.subarray(0, 60));
 }
 export function parseSound(r, meta) {                        // a record -> a sound (FM: its patch, or the PATCH's as built)
   const fm = r[3] === 1 && r[18] & 0x80 ? r.slice(18, 50) : meta.fmPatches[Math.min(r[4], meta.fmPatches.length - 1)].fm;
@@ -401,7 +401,7 @@ export const V2_SOUND_CONTROLS = {
 };
 export function buildRecord(s) {
   const r = new Uint8Array(SND);
-  r[0] = 0x54, r[1] = s.cat, r[2] = Math.max(1, Math.min(99, s.num || 1)), r[3] = s.eng;
+  r[0] = 0x52, r[1] = s.cat, r[2] = Math.max(1, Math.min(99, s.num || 1)), r[3] = s.eng;
   r.set(s.k, 4), r.set(s.env, 8), r[12] = (s.latch ? 1 : 0) | ((s.glide || 0) & 127) << 1;   // (GR!MM 2.0: GLIDE over LATCH)
   r[13] = (s.chordOn ? 0x80 : 0) | (s.voicing & 7) << 4 | (s.chord & 15);
   r.set(s.lfo, 14);
@@ -445,7 +445,7 @@ export async function makeBackup(client, info, progress) {   // (GR!MM V2: the s
     smp.push(await client.smpRead(k));
     if (progress) progress(list.length + k + 1, n, `sample ${k + 1}`);
   }
-  const b = { format: "grimm-backup", version: 1, proto: info.proto, fmt: info.fmt, firmware: info.firmware,
+  const b = { format: "riddim-backup", version: 1, proto: info.proto, fmt: info.fmt, firmware: info.firmware,
               date: new Date().toISOString().replace("T", " ").slice(0, 19), objects };
   if (!info.samplesUsed || smp.some((d) => d)) {
     b.samples = smp.map((d, k) => d && { slot: k + 1, name: String.fromCharCode(...d.subarray(8, 16)).replace(/\0+$/, ""),
@@ -487,7 +487,7 @@ export function sameSettings(written, back) {                // read back as wri
     Array.from(written).every((x, k) => x === back[k] || (written.length < back.length && k === SET_V1 - 1));
 }
 export function checkBackup(b, info) {                       // -> [{id, data, what}] or throws (nothing written)
-  if (!b || b.format !== "grimm-backup" || b.version !== 1) throw new EditorError("not a GR!MM backup file", 90);
+  if (!b || b.format !== "riddim-backup" || b.version !== 1) throw new EditorError("not a GR!MM backup file", 90);
   if (b.fmt !== info.fmt) throw new EditorError(`the backup's format is ${b.fmt}, the FM-1's is ${info.fmt}`, 90);
   const sizes = new Map(backupObjects(info).map(([id, size, what]) => [id, [size, what]]));
   return b.objects.map((o) => {
@@ -542,7 +542,7 @@ export async function restoreSamples(client, smp, progress) {   // the slots as 
 // ------------------------------------------------------------------ a WAV -> a GR!MM sample slot
 // tools/sampleio.py read_any_wav, resample, to_int16, ima_encode, user_slot, note_from_name, and the cut and name of
 // tools/fm1_sample_upload.py, with the order of their float operations kept: the same bytes
-export const SAMPLE = { RATE: 22050, DATA_OFF: 512, HDR_LEN: 480, MAX_DATA: 72 * 1024 - 512, MAGIC: 0x504d5347 };
+export const SAMPLE = { RATE: 22050, DATA_OFF: 512, HDR_LEN: 480, MAX_DATA: 72 * 1024 - 512, MAGIC: 0x50534452 };   // (RIDDIM's "RDSP"; GR!MM: "GSMP")
 SAMPLE.MAX_N = SAMPLE.MAX_DATA * 2;
 const IMA_STEP = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88,
   97, 107, 118, 130, 143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876,
@@ -769,12 +769,12 @@ export function slotTrack(slot, t, off = 4) {                // a slot's (off 4)
   return { eng, k: [0, 1, 2, 3].map((j) => slot[b + 1 + eng * 4 + j]) };
 }
 export function patternFile(pats, extra = {}) {              // the file: a step is [note, chance, ratchet, length, chord byte, lock mask, 4 lock values]
-  return { format: "grimm-pattern", version: 1, date: new Date().toISOString().replace("T", " ").slice(0, 19), ...extra,
+  return { format: "riddim-pattern", version: 1, date: new Date().toISOString().replace("T", " ").slice(0, 19), ...extra,
            tracks: pats.map((p) => ({ steps: p.steps, division: p.div, swing: p.swing, mode: p.mode,
                                       st: p.st.map((s) => [s.note, s.chance, s.ratchet, s.len, s.chord, s.lmask, ...s.lv]) })) };
 }
 export function parsePatternFile(j) {                        // a file -> four patterns, or throws (nothing taken)
-  if (!j || j.format !== "grimm-pattern" || j.version !== 1 || !Array.isArray(j.tracks) || j.tracks.length !== 4) throw new Error("not a GR!MM pattern file");
+  if (!j || j.format !== "riddim-pattern" || j.version !== 1 || !Array.isArray(j.tracks) || j.tracks.length !== 4) throw new Error("not a GR!MM pattern file");
   return j.tracks.map((t, n) => {
     if (!Array.isArray(t.st) || t.st.length !== SEQ.N || t.st.some((s) => !Array.isArray(s) || s.length !== 10)) throw new Error(`track ${n + 1} in the file is damaged`);
     return { steps: clampi(t.steps, 1, SEQ.N), div: clampi(t.division, 0, 7), swing: clampi(t.swing, 0, 127), mode: clampi(t.mode, 0, 3),

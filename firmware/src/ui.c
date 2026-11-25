@@ -2,7 +2,7 @@
  * Copyright (C) 2026 GR!MM */
 /* GR!MM's screens, after the concept designs (docs/ui-concept, the .dc.html files, drawn there at 2x: here every size and place
  * halved). Plain pixels, five greys and one accent, the pixfont (Press Start 2P at its 8 px grid, SIL OFL 1.1:
- * firmware/gen/grimm_pixfont.h, tools/gen_pixfont.py) at 8 px and, for values and big numbers, 16 px.
+ * firmware/gen/riddim_pixfont.h, tools/gen_pixfont.py) at 8 px and, for values and big numbers, 16 px.
  *   the frame, every page: the header (the top 24 px: an accent block with the button, a dark bar with the page and the
  *   track on the left and the page's number or a state on the right); the picture (24 .. 164: that page's pixel art,
  *   on a grid of 54 x 30 cells of 4 px from (12, 40), a caption line at y 31); four slabs (165 .. 236), one a knob:
@@ -13,7 +13,7 @@
  * Drawn in regions (the header, the picture, each slab) into the canvas, a strip at a time (gfx.c: 240 x 64), and only
  * when what they show changes; the picture at most every UI_PIC_MS while a knob turns. Main loop only. */
 
-#include "grimm_pixfont.h"
+#include "riddim_pixfont.h"
 
 #define UI_K RGB(0x0b, 0x0b, 0x0a)              /* the palette: black (the background), */
 #define UI_D RGB(0x26, 0x25, 0x1f)              /* dark */

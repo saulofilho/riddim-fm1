@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2026 GR!MM
-"""The stacks' worst case, from the device build's disassembly (build/grimm.dis: tools/build.py's objdump -d, .text
+"""The stacks' worst case, from the device build's disassembly (build/riddim.dis: tools/build.py's objdump -d, .text
 and .ram_text). Each function's frame: its prologue's push ({rets, r15-r4}: 4 B a register) and the deepest its sp
 goes after (sp += -N, read straight down); each call's callee then on top of the deepest frame. The calls through a
 pointer, by where they are: an engine's block (the audio ISR), begin (voice_begin), text (app_main); a drawing
@@ -12,7 +12,7 @@ pointer, by where they are: an engine's block (the audio ISR), begin (voice_begi
 import re
 import sys
 
-dis = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else "build/grimm.dis"
+dis = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else "build/riddim.dis"
 MIN = int(sys.argv[sys.argv.index("--min-margin") + 1]) if "--min-margin" in sys.argv else 0
 USTACK = 0x01C7A000 - 0x01C74100                # (firmware/app.ld: _ustack_top - _ustack_lo)
 SSTACK = 0x01C7C000 - 0x01C7A100                # (_sstack_top - _sstack_lo)

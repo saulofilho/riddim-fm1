@@ -8,13 +8,13 @@ undoable; REC as before; a short press as ever), SAVES WHEN SILENT said ~2 s, th
 looping DAW: a note-on again before its off neither restarts the arp nor is ended by the earlier one's late off, ALL
 NOTES OFF lets go, and with CLOCK INT the clock's messages leave the arp's rate alone. Prints a line a check, exit 1
 on a failure.
-  python3 tests/quick_test.py [build/host/grimm]"""
+  python3 tests/quick_test.py [build/host/riddim]"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/quick")
 OUT.mkdir(parents=True, exist_ok=True)
 PG_HOME, PG_SYSTEM, PG_SYS2, PG_PROJECTS, PG_SYS3 = 7, 10, 11, 13, 27

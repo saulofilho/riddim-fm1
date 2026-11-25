@@ -8,14 +8,14 @@ again), HOME's FX (KNOB 4) turned off and on again between them, the FX pages' M
 same on T2. Checks: every sound sounds; no track's LEVEL, CUTOFF, RES, FX, sends, TAPE or PAN moved but by the knob
 that turned it (the probe after each); no mute, no solo; at the end T1 and T2 still sound, and their sends still work
 (a chord's reverb tail with FX up, none with FX at 0).
-  python3 tests/presets_test.py [build/host/grimm]"""
+  python3 tests/presets_test.py [build/host/riddim]"""
 import array
 import subprocess
 import sys
 import wave
 from pathlib import Path
 
-EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/grimm"
+EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/presets")
 OUT.mkdir(parents=True, exist_ok=True)
 NPRE = 44
@@ -138,7 +138,7 @@ subprocess.run([EXE, str(OUT / "save"), str(OUT / "save.txt")], capture_output=T
 img = bytearray((OUT / "saves.bin").read_bytes())
 WORK_PK = 2576
 sec = max((1, 2), key=lambda s: int.from_bytes(img[4096 * s + 4:4096 * s + 8], "little")
-          if img[4096 * s:4096 * s + 4] == b"GRMK" else -1)   # (the WORK pair's newer copy)
+          if img[4096 * s:4096 * s + 4] == b"RDOB" else -1)   # (the WORK pair's newer copy)
 o = 4096 * sec
 img[o + 12 + 1] = 127                           # T1: VA's WAVE
 img[o + 12 + 4 * 52:o + 12 + 4 * 52 + 16] = b"\xff" * 16   # TAPE, GRAIN, DELAY, SPACE's knobs
