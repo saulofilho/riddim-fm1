@@ -145,17 +145,17 @@ function setConn(c) {
   if ($("fx").childElementCount) drawFx();
   if ($("set-mch").options.length) drawSettings();
   const s = $("conn");
-  s.textContent = !c ? "NOT CONNECTED" : c.kind === "virtual" ? `VIRTUAL FM-1 · GR!MM ${c.info.firmware}` : `FM-1 · GR!MM ${c.info.firmware}`;
+  s.textContent = !c ? "NOT CONNECTED" : c.kind === "virtual" ? `VIRTUAL FM-1 · RIDDIM ${c.info.firmware}` : `FM-1 · RIDDIM ${c.info.firmware}`;
   s.classList.toggle("on", !!c);
   const t = $("info");
   t.textContent = "";
   if (!c) {                                                  // (not connected: this page's own GR!MM, which it plays and edits with)
-    [["THIS PAGE'S GR!MM", `GR!MM ${meta.version}`], ["FACTORY SOUNDS", meta.factory.length]]
+    [["THIS PAGE'S RIDDIM", `RIDDIM ${meta.version}`], ["FACTORY SOUNDS", meta.factory.length]]
       .forEach(([k, v]) => { const r = el("tr", {}, t); el("td", {}, r, k); el("td", {}, r, String(v)); });
   } else {
     const i = c.info;
     [["CONNECTED TO", c.kind === "virtual" ? "THE VIRTUAL FM-1 (THIS PAGE)" : `THE FM-1 OVER USB (${c.transport.output.name})`],
-     ["FIRMWARE", "GR!MM " + i.firmware], ["EDITOR PROTOCOL", i.proto + (c.live ? " (LIVE EDITING)" : " (NO LIVE EDITING: INSTALL 26B2)")],
+     ["FIRMWARE", "RIDDIM " + i.firmware], ["EDITOR PROTOCOL", i.proto + (c.live ? " (LIVE EDITING)" : " (NO LIVE EDITING: INSTALL 26B2)")],
      ["USER SOUND SLOTS", i.sounds], ["FACTORY SOUNDS", i.factory], ["SAMPLE SLOTS IN USE", `${i.samplesUsed} OF ${i.sampleSlots}`]]
       .forEach(([k, v]) => { const r = el("tr", {}, t); el("td", {}, r, k); el("td", {}, r, String(v)); });
   }
@@ -167,9 +167,9 @@ async function connectFM1() {
   await job("CONNECT", async () => {
     say("ASKING FOR MIDI ACCESS…");
     const access = await navigator.requestMIDIAccess({ sysex: true });
-    say("LOOKING FOR GR!MM ON THE MIDI PORTS…");
+    say("LOOKING FOR RIDDIM ON THE MIDI PORTS…");
     const p = await findFM1(access, midiLog);
-    if (!p) throw new EditorError("NO FM-1 WITH GR!MM FOUND (USB DATA CABLE? ANOTHER APP ON ITS MIDI PORT?) SEE THE MIDI LOG", 0);
+    if (!p) throw new EditorError("NO FM-1 WITH RIDDIM FOUND (USB DATA CABLE? ANOTHER APP ON ITS MIDI PORT?) SEE THE MIDI LOG", 0);
     const transport = new MidiTransport(p.input, p.output, midiLog), client = new Client(transport), info = await client.info();
     if (!PROTOS.includes(info.proto)) throw new EditorError(`THE FM-1 SPEAKS EDITOR PROTOCOL ${info.proto}; THIS PAGE KNOWS ${PROTOS.join(" AND ")}`, 0);
     setConn({ client, info, kind: "fm1", transport, live: info.proto >= 2 });
@@ -183,7 +183,7 @@ async function tryVirtual() {
     vf.warmUp();
     const info = await vfc.info();
     setConn({ client: vfc, info, kind: "virtual", transport: vf, live: true });
-    return afterConnect(false, "(THE VIRTUAL FM-1: GR!MM'S OWN CODE IN THIS PAGE, NOTHING IS KEPT)");
+    return afterConnect(false, "(THE VIRTUAL FM-1: RIDDIM'S OWN CODE IN THIS PAGE, NOTHING IS KEPT)");
   });
 }
 // connected: the FM-1's four tracks into the page (the virtual one takes the page's), then its user slots
@@ -207,8 +207,8 @@ async function afterConnect(read, where) {
   drawTracks(), drawEditor(), drawSlots();
   show("editor");
   history.replaceState(null, "", "#editor");
-  return `CONNECTED ${where}: GR!MM ${conn.info.firmware}` + (conn.live ? `, TRACK ${selT + 1} IN THE EDITOR (LIVE)` :
-    ": ITS GR!MM IS OLDER THAN 26B2, SO THE SLIDERS PLAY ONLY HERE; SOUNDS, SAMPLES, BACKUP WORK");
+  return `CONNECTED ${where}: RIDDIM ${conn.info.firmware}` + (conn.live ? `, TRACK ${selT + 1} IN THE EDITOR (LIVE)` :
+    ": ITS FIRMWARE IS OLDER THAN 26B2, SO THE SLIDERS PLAY ONLY HERE; SOUNDS, SAMPLES, BACKUP WORK");
 }
 $("b-connect").onclick = connectFM1;
 $("b-try").onclick = tryVirtual;
@@ -277,7 +277,7 @@ function drawTracks() {
 function drawTitle() {
   const s = tracks[selT];
   $("ed-title").textContent = `T${selT + 1}: ${s ? trackName(selT) : ""}` + (s && JSON.stringify(s) !== loaded[selT] ? " *" : "");
-  $("ed-from").textContent = from[selT] + (conn && conn.live ? ` · LIVE ON THE ${conn.kind === "virtual" ? "VIRTUAL " : ""}FM-1` : conn ? " · HERE ONLY (THE FM-1'S GR!MM HAS NO LIVE EDITING)" : " · HERE ONLY (NOT CONNECTED)");
+  $("ed-from").textContent = from[selT] + (conn && conn.live ? ` · LIVE ON THE ${conn.kind === "virtual" ? "VIRTUAL " : ""}FM-1` : conn ? " · HERE ONLY (THE FM-1'S FIRMWARE HAS NO LIVE EDITING)" : " · HERE ONLY (NOT CONNECTED)");
 }
 
 // ------------------------------------------------------------------ sounds
@@ -397,7 +397,7 @@ $("b-export").onclick = () => exportSound(pickRec(), pick.fact ? meta.factory[pi
 $("b-import").onclick = () => $("f-import").click();
 async function readSoundFile(f) {
   const j = JSON.parse(await f.text()), r = Uint8Array.from(j.rec || []);
-  if (j.format !== "riddim-sound" || r.length !== 64 || !recordOk(r)) throw new Error("NOT A GR!MM SOUND FILE");
+  if (j.format !== "riddim-sound" || r.length !== 64 || !recordOk(r)) throw new Error("NOT A RIDDIM SOUND FILE");
   return r;
 }
 $("f-import").onchange = async (e) => {
@@ -709,7 +709,7 @@ function drawSamples() {
     const r = el("div", {}, d);
     el("div", { cls: "px" }, r, s.state === 1 ? `${s.name || "(NO NAME)"} · ${(s.n / 22050).toFixed(2)} S` +
       (s.root !== null ? ` · ROOT ${noteName(s.root)}` : "") : s.state === 2 ? "BEING CHECKED…" :
-      s.state < 0 ? "IN USE (ITS NAME DID NOT FIT IN THE FM-1'S ANSWER: GR!MM BEFORE 26B2)" : "EMPTY");
+      s.state < 0 ? "IN USE (ITS NAME DID NOT FIT IN THE FM-1'S ANSWER: A FIRMWARE BEFORE 26B2)" : "EMPTY");
     const drop = el("div", { cls: "drop px" }, r, "DROP A WAV HERE, OR CLICK");
     const file = el("input", { type: "file", accept: ".wav,audio/wav" }, r);
     file.hidden = true;
@@ -754,12 +754,12 @@ function drawSamples() {
 }
 $("b-sinfo").onclick = sampleInfo;
 $("b-sfactory").onclick = () => {                            // RESTORE: the four factory samples, over whatever is there
-  if (!confirm("RESTORE THE FACTORY SAMPLES?\n\nThis REPLACES all four sample slots on the FM-1 with GR!MM's factory samples " +
+  if (!confirm("RESTORE THE FACTORY SAMPLES?\n\nThis REPLACES all four sample slots on the FM-1 with the factory samples " +
                "(URCHIN, LEAVE, NIKOLAI, M-SOFT). Your own samples in them are gone: keep their WAV files.")) return;
   job("RESTORE FACTORY SAMPLES", async () => {
     say("WRITING THE FOUR FACTORY SAMPLES (ABOUT 5 S)…");
     try { smpInfo = await conn.client.smpFactory(); } catch (e) {
-      if (e.rc === 97) throw new EditorError("NO ANSWER: THE FM-1'S GR!MM IS OLDER THAN 26C (NO FACTORY SAMPLES)", 97);
+      if (e.rc === 97) throw new EditorError("NO ANSWER: THE FM-1'S FIRMWARE IS OLDER THAN 26C (NO FACTORY SAMPLES)", 97);
       throw e;
     }
     drawSamples();
@@ -771,7 +771,7 @@ $("b-sfactory").onclick = () => {                            // RESTORE: the fou
 $("b-backup").onclick = () => job("BACKUP", async () => {
   const b = await makeBackup(conn.client, conn.info, (i, n, what) => { progress(i, n); say(`READING ${what.toUpperCase()}…`); });
   download(`riddim-backup-${stamp()}.json`, JSON.stringify(b, null, 1));
-  return `BACKUP MADE: ALL 64 SOUNDS, SLOTS A–D, THE SETTINGS${b.samples ? ", THE SAMPLES" : " (NOT THE SAMPLES: THIS GR!MM CANNOT SEND THEM)"} (DOWNLOADED)` +
+  return `BACKUP MADE: ALL 64 SOUNDS, SLOTS A–D, THE SETTINGS${b.samples ? ", THE SAMPLES" : " (NOT THE SAMPLES: THIS FIRMWARE CANNOT SEND THEM)"} (DOWNLOADED)` +
          (conn.client.missed ? `; ${conn.client.missed} REPLIES MISSED, ASKED AGAIN` : "");
 });
 $("b-restore").onclick = () => $("f-restore").click();
@@ -889,7 +889,7 @@ function drawFx() {
 $("b-fxread").onclick = () => job("FX", async () => {
   try { fxVals = await conn.client.fx(); } catch (e) {
     if (e instanceof EditorError) throw e;
-    throw new EditorError("NO ANSWER: FX NEEDS GR!MM V2 ON THE FM-1", 0);
+    throw new EditorError("NO ANSWER: FX NEEDS RIDDIM ON THE FM-1", 0);
   }
   drawFx();
   return "FX READ FROM THE FM-1: EVERY MOVE NOW PLAYS ON IT AT ONCE";
@@ -1002,7 +1002,7 @@ function drawSeq() {
   drawSqTabs(), drawSqTrack(), drawSqGrid(), drawSqStep(), sqStatus(), sqRecStatus();
 }
 const sqNeedsV2 = () => {
-  if (conn.info.slotSize !== SEQ.SLOT_LEN) throw new EditorError("THIS FM-1'S SLOTS ARE NOT GR!MM 2.0'S: THE SEQUENCER NEEDS GR!MM 2.0", 0);
+  if (conn.info.slotSize !== SEQ.SLOT_LEN) throw new EditorError("THIS FM-1'S SLOTS ARE NOT RIDDIM'S: THE SEQUENCER NEEDS RIDDIM", 0);
 };
 $("sq-import").onclick = () => job("IMPORT SLOT", async () => {
   sqNeedsV2();
@@ -1015,7 +1015,7 @@ $("sq-now").onclick = () => job("IMPORT", async () => {
   sqNeedsV2();
   let w;
   try { w = await conn.client.get(OBJ.WORK, SEQ.WORK_LEN); } catch (e) {
-    throw e.rc === 1 ? new EditorError("THE FM-1 DID NOT GIVE ITS PROJECT: TRY AGAIN IN A MOMENT (OR IT IS NOT GR!MM 2.0)", 1) : e;
+    throw e.rc === 1 ? new EditorError("THE FM-1 DID NOT GIVE ITS PROJECT: TRY AGAIN IN A MOMENT (OR IT IS NOT RIDDIM)", 1) : e;
   }
   setSq(patternsFromWork(w), [0, 1, 2, 3].map((t) => slotTrack(w, t, 0)), `WHAT THE ${conn.kind === "virtual" ? "VIRTUAL " : ""}FM-1 PLAYS NOW`, false);
   return "IMPORTED: THE FOUR PATTERNS THE FM-1 HAS NOW ARE IN THE GRID";
@@ -1081,8 +1081,8 @@ function engReply(d) {                                       // a reply from the
 const engTransport = {
   request(frame, timeout = 3000) {
     return new Promise((res, rej) => {
-      if (!node) { rej(new EditorError("THE PAGE'S GR!MM IS NOT RUNNING (CLICK ANYWHERE, THEN TRY AGAIN)", 0)); return; }
-      const w = { cmd: frame[3], res, timer: setTimeout(() => { engWait = engWait.filter((x) => x !== w); rej(new EditorError("no answer from this page's GR!MM", 97)); }, timeout) };
+      if (!node) { rej(new EditorError("THE PAGE'S RIDDIM IS NOT RUNNING (CLICK ANYWHERE, THEN TRY AGAIN)", 0)); return; }
+      const w = { cmd: frame[3], res, timer: setTimeout(() => { engWait = engWait.filter((x) => x !== w); rej(new EditorError("no answer from this page's RIDDIM", 97)); }, timeout) };
       engWait.push(w);
       node.port.postMessage({ type: "sysex", data: frame });
     });
@@ -1103,9 +1103,9 @@ $("sq-preview").onclick = async () => {
   b.disabled = true;
   try {
     await startEngine();
-    if (!node) throw new EditorError("THE PAGE'S GR!MM IS NOT RUNNING", 0);
+    if (!node) throw new EditorError("THE PAGE'S RIDDIM IS NOT RUNNING", 0);
     const ec = engClient || (engClient = new Client(engTransport)), k = +$("sq-slot").value;
-    say("PREVIEW: PREPARING THIS PAGE'S GR!MM…");
+    say("PREVIEW: PREPARING THIS PAGE'S RIDDIM…");
     node.port.postMessage({ type: "panic" });
     if (enginePlays()) await engRun(stopScript());
     const fmt = (await ec.info()).fmt, work = await ec.get(OBJ.WORK, SEQ.WORK_LEN);
@@ -1113,7 +1113,7 @@ $("sq-preview").onclick = async () => {
     for (let tries = 0; ; tries++) {
       try { await ec.put(OBJ.SLOT + k, slot, fmt); break; } catch (e) {
         if (e.rc !== 3 || tries >= 60) throw e;
-        say("PREVIEW: WAITING FOR THIS PAGE'S GR!MM TO FALL SILENT…");
+        say("PREVIEW: WAITING FOR THIS PAGE'S RIDDIM TO FALL SILENT…");
         await sleep(500);
       }
     }
@@ -1275,13 +1275,13 @@ if (savedMidi()) sqMidiInit(false);                          // (a keyboard chos
     for (let t = 0; t < 4; t++) {
       const r = await vfc.track(t, true);
       tracks[t] = fromDevice(r.rec, t), label[t] = r.name, labelEng[t] = tracks[t].eng;
-      loaded[t] = JSON.stringify(tracks[t]), from[t] = "AS GR!MM STARTS";
+      loaded[t] = JSON.stringify(tracks[t]), from[t] = "AS RIDDIM STARTS";
     }
   } catch (e) {
-    say(`COULD NOT LOAD GR!MM (riddim.wasm): ${e.message || e}. OPEN THIS PAGE FROM A WEB SERVER, NOT A FILE.`.toUpperCase(), "err");
+    say(`COULD NOT LOAD RIDDIM (riddim.wasm): ${e.message || e}. OPEN THIS PAGE FROM A WEB SERVER, NOT A FILE.`.toUpperCase(), "err");
     return;
   }
-  screenText(["CLICK ANYWHERE:", "GR!MM'S SOUND", "AND SCREEN"]);
+  screenText(["CLICK ANYWHERE:", "RIDDIM'S SOUND", "AND SCREEN"]);
   startEngine();
   drawKeys();
   drawSlots();

@@ -152,6 +152,26 @@ para trocar).
 - Falta na Fase 1: os textos "GR!MM" do editor e do emulador web (junto com o emulador, que pede o Emscripten; o
   `web/test_web.mjs` confere alguns deles e a versão "2.0"), `LICENSING.md`, READMEs PT e EN, `fmhub.json`.
 
+**2026-11-25: emulador e editor web.** Fecha a Fase 0 (falta só o stress test).
+
+- `web/build_web.sh` roda no contêiner `emscripten/emsdk:3.1.74` (sem instalar o SDK no Mac):
+  `docker run --rm -v "$PWD":/work -w /work emscripten/emsdk:3.1.74 sh web/build_web.sh` → `web/dist/`, 688 KB de wasm.
+- `node web/test_web.mjs` roda num contêiner Node (compara com o binário de host, que é Linux):
+  `docker run --rm -v "$PWD":/work -w /work node:22-bookworm node web/test_web.mjs`. **Passa: 100 checagens**, som e
+  telas iguais ao modo host, pixel a pixel. Rodar depois do `tests/run_host.sh`.
+- Textos: título, descrição, CONNECT, mensagens de erro e rodapés dizem RIDDIM; o rodapé leva ao repositório do
+  RIDDIM e diz "based on GR!MM"; o cabeçalho do editor diz EDITOR 0.1. As notas sobre versões do GR!MM (1.0, 2.0,
+  26B2) saíram ou viraram "firmware". Os comentários do código continuam creditando o GR!MM.
+- `web/fm1_frames.json` é uma gravação de um FM-1 de verdade com o GR!MM 1.0: o teste agora confere que o som de
+  fábrica dele (magic "T") é **recusado**. Gravar os frames de um FM-1 com o RIDDIM (`tools/fm1_editor_test.py
+  --record`) quando houver um.
+- Visto no navegador (`riddim-web` no `launch.json` do workspace, porta 8821): boot e HOME no emulador, editor sem
+  erro no console.
+- **Risco anotado:** o SysEx é o mesmo do GR!MM e do COQUÍ (`7D 47 52`), e o INFO não diz o nome do firmware; o
+  editor do RIDDIM pode se conectar a um FM-1 com GR!MM. Os sons gravados seriam recusados lá (magic diferente), mas
+  um restore de backup escreveria ajustes e slots. Antes da 1.0: o INFO dizer o nome, e o editor conferir.
+- O visual do editor e do emulador ainda é o do GR!MM (cores, a gota): o redesenho é da Fase 7.
+
 Orçamento da base, igual ao medido no COQUÍ em 2026-11-05:
 
 | Recurso | Usado | Limite | Livre |

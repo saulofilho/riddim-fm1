@@ -487,7 +487,7 @@ export function sameSettings(written, back) {                // read back as wri
     Array.from(written).every((x, k) => x === back[k] || (written.length < back.length && k === SET_V1 - 1));
 }
 export function checkBackup(b, info) {                       // -> [{id, data, what}] or throws (nothing written)
-  if (!b || b.format !== "riddim-backup" || b.version !== 1) throw new EditorError("not a GR!MM backup file", 90);
+  if (!b || b.format !== "riddim-backup" || b.version !== 1) throw new EditorError("not a RIDDIM backup file", 90);
   if (b.fmt !== info.fmt) throw new EditorError(`the backup's format is ${b.fmt}, the FM-1's is ${info.fmt}`, 90);
   const sizes = new Map(backupObjects(info).map(([id, size, what]) => [id, [size, what]]));
   return b.objects.map((o) => {
@@ -774,7 +774,7 @@ export function patternFile(pats, extra = {}) {              // the file: a step
                                       st: p.st.map((s) => [s.note, s.chance, s.ratchet, s.len, s.chord, s.lmask, ...s.lv]) })) };
 }
 export function parsePatternFile(j) {                        // a file -> four patterns, or throws (nothing taken)
-  if (!j || j.format !== "riddim-pattern" || j.version !== 1 || !Array.isArray(j.tracks) || j.tracks.length !== 4) throw new Error("not a GR!MM pattern file");
+  if (!j || j.format !== "riddim-pattern" || j.version !== 1 || !Array.isArray(j.tracks) || j.tracks.length !== 4) throw new Error("not a RIDDIM pattern file");
   return j.tracks.map((t, n) => {
     if (!Array.isArray(t.st) || t.st.length !== SEQ.N || t.st.some((s) => !Array.isArray(s) || s.length !== 10)) throw new Error(`track ${n + 1} in the file is damaged`);
     return { steps: clampi(t.steps, 1, SEQ.N), div: clampi(t.division, 0, 7), swing: clampi(t.swing, 0, 127), mode: clampi(t.mode, 0, 3),

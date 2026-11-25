@@ -449,7 +449,7 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
     const f = JSON.parse(JSON.stringify(patternFile(pats2, { slot: "B" })));
     let bad = "";
     try { parsePatternFile({ ...f, tracks: f.tracks.slice(0, 3) }); } catch (e) { bad = e.message; }
-    check(JSON.stringify(parsePatternFile(f)) === JSON.stringify(pats2) && bad === "not a GR!MM pattern file" &&
+    check(JSON.stringify(parsePatternFile(f)) === JSON.stringify(pats2) && bad === "not a RIDDIM pattern file" &&
           JSON.stringify(parsePatternFile(JSON.parse(JSON.stringify(patternFile(pats))))) === JSON.stringify(pats),
           "sequencer: a pattern file saved and loaded gives the same patterns; a damaged one is refused");
     run(recallScript(1, false));                             // recall slot B (SAVE + G3), not playing yet
@@ -573,7 +573,10 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
         `editor: INFO as the FM-1 sent it (GR!MM ${info.firmware}, protocol ${info.proto})`);
   const set = await cl.get(OBJ.SET, 168), s1 = await cl.get(OBJ.SND, 64), f1 = await cl.get(OBJ.FACT, 64);
   const want = (k) => unpack7([...bytes(rec.frames[k].rx)].slice(14, -1));
-  check(eq([...set], [...want(1)]) && eq([...s1], [...want(2)]) && recordOk(f1), "editor: the settings, sound 1 and factory sound 1 as the FM-1 sent them");
+  // (RIDDIM: web/fm1_frames.json is a real FM-1 running GR!MM 1.0; its factory sound carries GR!MM's magic, "T", which
+  // RIDDIM refuses, as it refuses GR!MM's saves. Record a RIDDIM FM-1's frames (tools/fm1_editor_test.py --record) to check it.)
+  check(eq([...set], [...want(1)]) && eq([...s1], [...want(2)]) && f1[0] === 0x54 && !recordOk(f1),
+        "editor: the settings and sound 1 as the FM-1 sent them; GR!MM's factory sound (magic T) refused");
   const smp = await cl.smpInfo();
   check(smp.length === 4 && smp[0].state >= 0, `editor: the samples' INFO as the FM-1 sent it (${smp.map((s) => s.state < 0 ? "?" : s.name || "-").join(", ")})`);
   function eq(a, b) { return a.length === b.length && a.every((x, i) => x === b[i]); }
@@ -589,8 +592,8 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
   try { execFileSync(process.execPath, ["--check", "build/web/editor_check.mjs"], { stdio: "pipe" }); } catch (e) { syntax = String(e.stderr).split("\n").slice(0, 4).join(" "); }
   check(!syntax, "editor page: web/editor.js parses" + (syntax ? ` (${syntax})` : ""));
   check(!/demo/i.test(html) && !/demo/i.test(js), 'editor page: the word "demo" is nowhere (page, script)');
-  check(/<a class="lnk px" href="index\.html">WEB EMULATOR<\/a>/.test(html) && />Try the GR!MM web emulator<\/a><\/b>/.test(html),
-        'editor page: the header link says WEB EMULATOR (to index.html), the footer "Try the GR!MM web emulator"');
+  check(/<a class="lnk px" href="index\.html">WEB EMULATOR<\/a>/.test(html) && />Try the RIDDIM web emulator<\/a><\/b>/.test(html),
+        'editor page: the header link says WEB EMULATOR (to index.html), the footer "Try the RIDDIM web emulator"');
   const bk = html.slice(html.indexOf('id="s-backup"'), html.indexOf("</section>", html.indexOf('id="s-backup"')));
   check(/four sample slots/.test(bk) && !/Samples are not in it/i.test(html) && !/keep their WAV files/.test(bk) && !/cannot send its samples/.test(html),
         'editor page: BACKUP says it holds the four samples; the old "keep their WAV files" is gone');
@@ -598,17 +601,17 @@ check(saved === null, `settings: ${saved ? `saved at ${saved.ms} ms` : "not save
         /choir recordings: VocalSet \(Wilkins et al\., 2018\), CC BY 4\.0/.test(lic) && lic.includes("https://creativecommons.org/licenses/by/4.0/") &&
         ["Press Start 2P", "Terminus", "CC0 1.0", "Emscripten", "Dinghy", "Felucca", "SLOOP"].every((c) => html.includes(c)),
         "editor page and LICENSING.md: the VocalSet credit (CC BY 4.0, its link) added, the old credits still there");
-  check(info.firmware === "2.0" && meta.version === "2.0" && info.factory === 44 && meta.factory.length === 44 && /EDITOR 2\.0/.test(html) &&
-        /"FIRMWARE", "GR!MM " \+ i\.firmware/.test(js) && /\["FACTORY SOUNDS", i\.factory\]/.test(js),
-        `editor page: CONNECT shows GR!MM ${info.firmware} and ${info.factory} factory sounds; the header EDITOR 2.0`);
+  check(info.firmware === "0.1" && meta.version === "0.1" && info.factory === 44 && meta.factory.length === 44 && /EDITOR 0\.1/.test(html) &&
+        /"FIRMWARE", "RIDDIM " \+ i\.firmware/.test(js) && /\["FACTORY SOUNDS", i\.factory\]/.test(js),
+        `editor page: CONNECT shows RIDDIM ${info.firmware} and ${info.factory} factory sounds; the header EDITOR 0.1`);
   const names = meta.factory.map((x) => x.name), choirs = ["GREGORIAN", "PLAINCHANT", "CATHEDRAL CHOIR", "NUNS"];
   const srcs = meta.factory.map((x) => meta.engines[parseSound(Uint8Array.from(x.rec), meta).eng].name);
   check(names.length === 44 && new Set(names).size === 44 && choirs.every((c) => names.some((n) => n.toUpperCase() === c)) &&
         names.some((n) => n.length > 12) && srcs.every(Boolean) && /slotBox\(f, slotLabel/.test(js) && /el\("small", \{ cls: "src" \}/.test(js) &&
         !/\.slot\s*\{[^}]*(text-overflow|white-space:\s*nowrap)/.test(html) && /\.slot \.src \{ display: block/.test(html),
         `editor page: all 44 factory sounds by their full names (longest: ${names.reduce((a, n) => (n.length > a.length ? n : a), "")}), the source a tag on a second line, nothing cut`);
-  check(/id="smp-norm" checked> NORMALISE/.test(html) && /\$\("smp-norm"\)\.checked/.test(js) && /GR!MM 2\.0's encoder no longer clicks/.test(html),
-        "editor page: SAMPLES has the NORMALISE switch (on by default), its help text for V2.0");
+  check(/id="smp-norm" checked> NORMALISE/.test(html) && /\$\("smp-norm"\)\.checked/.test(js) && /the encoder doesn't click on bright samples/.test(html),
+        "editor page: SAMPLES has the NORMALISE switch (on by default), its help text");
   check(/p\.note, footer\.note \{ color: var\(--n\)/.test(html) && /--n: #8f887b/.test(html) && /--m: #5e5b54/.test(html) &&
         /class="tag px" href="hub\.html"/.test(html) && /<div class="drip" role="presentation">/.test(html) &&
         /outline: 3px solid var\(--f\)/.test(html) && /--f: #ff6a3d/.test(html) && /<a href="#editor" data-s="editor">/.test(html) &&

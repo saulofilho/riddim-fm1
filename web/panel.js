@@ -345,7 +345,7 @@ async function switchOn() {
           if (m.leds) drawLights(m.leds);
           if (m.settings && !saveSettings(m.settings) && !warned) {
             warned = true;
-            console.warn("GR!MM: this browser does not keep the settings; they last until the page closes.");
+            console.warn("RIDDIM: this browser does not keep the settings; they last until the page closes.");
           }
         }
       };
@@ -355,7 +355,7 @@ async function switchOn() {
     await ac.resume();
     $("start").hidden = true;
     if (ac.sampleRate !== 44100)
-      console.warn(`GR!MM: the browser plays at ${ac.sampleRate} Hz; the pitch is off by ${(1200 * Math.log2(ac.sampleRate / 44100)).toFixed(0)} cents.`);
+      console.warn(`RIDDIM: the browser plays at ${ac.sampleRate} Hz; the pitch is off by ${(1200 * Math.log2(ac.sampleRate / 44100)).toFixed(0)} cents.`);
     syncButtons();
     syncKeys();
     midiOn();
