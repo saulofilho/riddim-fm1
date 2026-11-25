@@ -26,7 +26,7 @@ mkdir -p build/web web/dist
 "$WASM_OPT" build/web/riddim.wasm --enable-bulk-memory --enable-nontrapping-float-to-int --enable-sign-ext \
     --enable-mutable-globals --asyncify --pass-arg=asyncify-imports@env.web_yield -O2 -o web/dist/riddim.wasm
 cp web/index.html web/panel.js web/worklet.js assets/fonts/Terminus-LICENSE.txt web/dist/   # (the screen font: SIL OFL 1.1)
-cp web/editor.html web/editor.js web/editor_core.js assets/fonts/PressStart2P-Regular.ttf web/dist/   # (the editor page)
+cp web/editor.html web/editor.js web/editor_core.js web/live.html assets/fonts/PressStart2P-Regular.ttf web/dist/   # (the editor page, the live view)
 mkdir -p web/dist/LICENSES                       # (the pages ship with their licences: linked from their footers)
 cp LICENSE LICENSING.md web/dist/ && cp LICENSES/*.txt web/dist/LICENSES/ && touch web/dist/.nojekyll
 echo "web: web/dist ($(wc -c < web/dist/riddim.wasm | tr -d ' ') B wasm)"
