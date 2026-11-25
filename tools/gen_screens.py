@@ -40,6 +40,7 @@ SHOTS = {
     "va": (btn(B, EDIT), B + 600),
     "drum": ([(B, f"enc 6 {ONE_DROP}")] + btn(B + 200, EDIT) + beat(B + 500), B + 1210),
     "groove": ([(B, f"enc 6 {ONE_DROP}")] + btn(B + 200, EDIT) + btn(B + 300, EDIT) + btn(B + 400, PLAY), B + 2650),
+    "arp-line": ([(B, "enc 6 21"), (B + 300, "keys 0x890")] + btn(B + 400, ARP), B + 1700),   # (SKANK PIANO, A minor held)
     "fm-algo": ([(B, f"enc 6 {FROZEN_HALL}")] + btn(B + 200, EDIT) + btn(B + 300, EDIT), B + 900),
     "fm-op": ([(B, f"enc 6 {FROZEN_HALL}")] + btn(B + 200, EDIT) + btn(B + 300, EDIT) + btn(B + 400, EDIT), B + 1000),
     "env": (btn(B, ENV), B + 600),

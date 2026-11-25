@@ -368,13 +368,13 @@ $("bt-demo").onclick = () => {
   $("sel-audio").value = "";
   audioOpen("");
   graph();
-  demoEl = new Audio("../audio/demo.mp3");
+  demoEl = new Audio("../audio/band.mp3");
   demoEl.loop = true;
   const s = ac.createMediaElementSource(demoEl);
   s.connect(an), s.connect(split), s.connect(ac.destination);
   demoEl.play();
   $("bt-demo").textContent = "STOP DEMO";
-  if (!client) say("demo: a beat recorded from RIDDIM (connect an FM-1 for the rest)", "on");
+  if (!client) say("demo: the band recorded from RIDDIM (connect an FM-1 for the rest)", "on");
 };
 function stopDemo() { if (demoEl) { demoEl.pause(); demoEl = null; $("bt-demo").textContent = "DEMO"; } }
 

@@ -162,6 +162,7 @@ html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]
   <a class="name" href="#top">RIDDIM</a>
   <nav class="mono" aria-label="Sections and tools">
     <a href="#listen">↓ <span data-l="en">Listen</span><span data-l="pt">Ouça</span></a>
+    <a class="opt" href="#band">↓ <span data-l="en">Band</span><span data-l="pt">Banda</span></a>
     <a href="#install">↓ <span data-l="en">Install</span><span data-l="pt">Instalar</span></a>
     <a href="emu/">↗ <span data-l="en">Emulator</span><span data-l="pt">Emulador</span></a>
     <a class="opt" href="emu/editor.html">↗ Editor</a>
@@ -190,8 +191,8 @@ html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]
 <section class="status">
   <div class="wrap">
     <div class="sh mono"><h2>Version 0.1</h2><span data-l="en">in development</span><span data-l="pt">em desenvolvimento</span></div>
-    <p class="lede" data-l="en"><b>The drummer is here:</b> DRUM, a roots kit of 20 synthesized drums, and GROOVE, eight styles it plays by itself with a drummer's feel (one drop, rockers, steppers, flyers, rocksteady, early, rub-a-dub, dub). Next: the band's lines (skank, bubble, bass) and the dub desk (spring, tape echo, VERSION). <b>Not tested on an FM-1 yet</b>, and not on the Firmware Hub: play it in the emulator meanwhile.</p>
-    <p class="lede" data-l="pt"><b>O baterista chegou:</b> DRUM, um kit roots de 20 tambores sintetizados, e GROOVE, oito estilos que ele toca sozinho, com mão de baterista (one drop, rockers, steppers, flyers, rocksteady, early, rub-a-dub, dub). Depois: as linhas da banda (skank, bubble, baixo) e a mesa de dub (mola, eco de fita, VERSION). <b>Ainda não testado num FM-1</b>, e fora do Firmware Hub: enquanto isso, toque no emulador.</p>
+    <p class="lede" data-l="en"><b>The band is here:</b> DRUM, a roots kit, and GROOVE, a drummer who plays eight styles by itself; the band's lines over the chord you hold (SKANK, BUBBLE, BASS, STEP BASS, HORNS) and 35 roots sounds, played like musicians, never a machine. Next: the dub desk (spring, tape echo, VERSION). <b>Not tested on an FM-1 yet</b>, and not on the Firmware Hub: play it in the emulator meanwhile.</p>
+    <p class="lede" data-l="pt"><b>A banda chegou:</b> DRUM, um kit roots, e GROOVE, um baterista que toca oito estilos sozinho; as linhas da banda sobre o acorde que você segura (SKANK, BUBBLE, BASS, STEP BASS, HORNS) e 35 sons roots, tocados como músicos, nunca como máquina. Depois: a mesa de dub (mola, eco de fita, VERSION). <b>Ainda não testado num FM-1</b>, e fora do Firmware Hub: enquanto isso, toque no emulador.</p>
   </div>
 </section>
 
@@ -201,6 +202,21 @@ html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]
     <p class="lede" data-l="en">Each kit playing its own style <b>by itself</b>: load it, press PLAY, and RIDDIM's drummer plays, four bars, the fourth with a fill. Never twice the same: the cross-stick laid back, ghost notes that come and go, every hit a little different.</p>
     <p class="lede" data-l="pt">Cada kit tocando o seu estilo <b>sozinho</b>: carregue, aperte PLAY, e o baterista do RIDDIM toca, quatro compassos, o quarto com a virada. Nunca duas vezes igual: o cross-stick atrás do tempo, ghost notes que vêm e vão, cada golpe um pouco diferente.</p>
     <div id="kits"></div>
+  </div>
+</section>
+
+<section id="band" class="field board" style="padding-top:40px">
+  <div class="wrap">
+    <div class="sh mono"><h2 data-l="en">The band</h2><h2 data-l="pt">A banda</h2><span data-l="en">four tracks · recorded from the firmware itself</span><span data-l="pt">quatro trilhas · gravadas do próprio firmware</span></div>
+    <button class="big letters" id="band-play" type="button" aria-label="Play the band" style="background:none;border:0;padding:0;color:var(--gold);cursor:pointer;display:flex;align-items:center;gap:14px;font-size:clamp(46px,11vw,150px);margin:6px 0 14px"><span class="play" aria-hidden="true" style="flex:none;width:.62em;height:.62em;border-radius:50%;background:var(--red);position:relative"></span><span>ONE DROP</span></button>
+    <div class="list">
+      <div class="row-link"><span class="t">T1 · DRUMS</span><span class="d" data-l="en">ONE DROP KIT, its GROOVE: the drummer plays by itself.</span><span class="d" data-l="pt">ONE DROP KIT, o seu GROOVE: o baterista toca sozinho.</span><span class="a mono">GROOVE</span></div>
+      <div class="row-link"><span class="t">T2 · BASS</span><span class="d" data-l="en">ROUND BASS, its line an octave under the chord held: long on 1, room, the fifth with the drop.</span><span class="d" data-l="pt">ROUND BASS, a sua linha uma oitava abaixo do acorde: longa no 1, espaço, a quinta com o drop.</span><span class="a mono">ARP · BASS</span></div>
+      <div class="row-link"><span class="t">T3 · SKANK</span><span class="d" data-l="en">SKANK GUITAR: the chop on 2 and 4, laid back, now and then a ghost "chk" after it.</span><span class="d" data-l="pt">SKANK GUITAR: o corte no 2 e no 4, atrás do tempo, de vez em quando um "chk" fantasma depois.</span><span class="a mono">ARP · SKANK</span></div>
+      <div class="row-link"><span class="t">T4 · BUBBLE</span><span class="d" data-l="en">BUBBLE ORGAN: the off-beat eighth and the sixteenth after, the organ's "bub-ble".</span><span class="d" data-l="pt">BUBBLE ORGAN: a colcheia no contratempo e a semicolcheia depois, o "bub-ble" do órgão.</span><span class="a mono">ARP · BUBBLE</span></div>
+    </div>
+    <p class="lede" data-l="en" style="margin-top:20px">One finger a chord: hold A minor, then G, on each track (here over MIDI), and the band plays. Every note a little different: its tuning, its force, its length, its place behind the beat.</p>
+    <p class="lede" data-l="pt" style="margin-top:20px">Um dedo, um acorde: segure lá menor, depois sol, em cada trilha (aqui pelo MIDI), e a banda toca. Cada nota um pouco diferente: a afinação, a força, a duração, o lugar atrás do tempo.</p>
   </div>
 </section>
 
@@ -279,12 +295,12 @@ html[lang="en"] .row-link[data-l="en"],html[lang="pt-BR"] .row-link[data-l="pt"]
   <div class="wrap">
     <div class="sh mono"><h2 data-l="en">Coming</h2><h2 data-l="pt">Vem aí</h2><span>PLAN.md</span></div>
     <div class="cards">
-      <div class="card" style="background:var(--red)"><h3 data-l="en">Real sounds</h3><h3 data-l="pt">Sons reais</h3>
-        <p data-l="en">The band's sounds made natural, as the drums now are: never two notes alike, the force in the tone.</p>
-        <p data-l="pt">Os sons da banda naturais, como a bateria já é: nunca duas notas iguais, a força no timbre.</p></div>
-      <div class="card" style="background:var(--green)"><h3 data-l="en">The band</h3><h3 data-l="pt">A banda</h3>
-        <p data-l="en">Lines over the chord you hold: SKANK on 2 and 4, the organ's BUBBLE, a BASS that leaves room, HORNS.</p>
-        <p data-l="pt">Linhas sobre o acorde que você segura: SKANK no 2 e no 4, o BUBBLE do órgão, um BASS que deixa espaço, HORNS.</p></div>
+      <div class="card" style="background:var(--red)"><h3 data-l="en">On the FM-1</h3><h3 data-l="pt">No FM-1</h3>
+        <p data-l="en">Tested on a real FM-1, its CPU measured, every sound tuned by ear on its speaker.</p>
+        <p data-l="pt">Testado num FM-1 de verdade, a CPU medida, cada som ajustado de ouvido no alto-falante.</p></div>
+      <div class="card" style="background:var(--green)"><h3 data-l="en">The voice</h3><h3 data-l="pt">A voz</h3>
+        <p data-l="en">Dub's calls, synthesized: short vowels on the beat, no recorded voice.</p>
+        <p data-l="pt">As chamadas do dub, sintetizadas: vogais curtas no tempo, nenhuma voz gravada.</p></div>
       <div class="card" style="background:var(--blue)"><h3>Dub</h3>
         <p data-l="en">A spring reverb, a tape echo that runs away, THROW, mutes on the bar, and VERSION, the dub that mixes itself.</p>
         <p data-l="pt">Reverb de mola, eco de fita que dispara, THROW, mutes no compasso e VERSION, o dub que se mixa sozinho.</p></div>
@@ -454,6 +470,19 @@ D.kits.forEach((k, i) => {
   });
   requestAnimationFrame(steps);
 })();
+
+/* ---------- THE BAND: band.mp3 ---------- */
+{
+  const audio = new Audio("audio/band.mp3"), b = $("#band-play"), dot = b.querySelector(".play");
+  audio.preload = "none";
+  b.addEventListener("click", () => {
+    if (current === audio && !audio.paused) { audio.pause(); return; }
+    if (current && current !== audio) current.pause();
+    hook(audio); current = audio; audio.currentTime = 0; audio.play().catch(() => {});
+  });
+  audio.addEventListener("play", () => { dot.style.background = "var(--green)"; });
+  audio.addEventListener("pause", () => { dot.style.background = "var(--red)"; });
+}
 
 /* ---------- THE KIT: a tile a key, a slice of keys.mp3 each ---------- */
 const NOTES = ["F3", "F#3", "G3", "G#3", "A3", "A#3", "B3", "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4", "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5"];

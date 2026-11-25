@@ -1478,6 +1478,8 @@ static void pic_arp(void)                       /* Arp: what it holds, its steps
         const char *L = ARP_LINE[m], *D = ARP_DYN[m];
         static const char DEG[] = "LR357OC";
         int32_t j, h = 0;
+        for (j = 0; l[j]; j++)                  /* (the caption's octaves: OCTAVE's knob says them) */
+            if (l[j] == ' ' && l[j + 1] == '/') { l[j] = 0; break; }
         ui_caption(l, ARP_MODE_NAME[clamp(trk[sel].arp_mode, 0, NARPMODE - 1)]);
         for (j = 0; j < 32; j++) {
             int32_t px = PX0 + 4 + j * 6 + (j >= 16 ? 8 : 0), d;
