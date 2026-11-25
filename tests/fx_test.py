@@ -113,9 +113,10 @@ check("DRIVE: SOFT the gentlest (the least highs of the four)", lv[0][1] == min(
 
 
 def onset(a, b):                                # how suddenly render b leaves render a: the largest difference in
-    d = [abs(p - q) for p, q in zip(a[::2], b[::2])]   # its first 5 ms against 40..80 ms on (a switch at once: a step,
-    i = next((k for k, v in enumerate(d) if v), 0)     # POS: 0.15, MASTER: 0.68; their crossfades 0.02, ~0.1)
-    return max(d[i:i + 220]) / max(1, max(d[i + 1764:i + 3528]))
+    d = [abs(p - q) for p, q in zip(a[::2], b[::2])]   # its first 1 ms against 40..80 ms on (a switch at once: a step,
+    i = next((k for k, v in enumerate(d) if v), 0)     # there in its first sample; a crossfade: a ramp from 0. RIDDIM:
+    return max(d[i:i + 44]) / max(1, max(d[i + 1764:i + 3528]))   # 1 ms, not 5: its notes, each a little off tune,
+                                                 # beat slowly, and a 5 ms window caught the ramp's own rise)
 
 
 # POS switched while it plays (REV SEND full, CUTOFF low): the reverb hears the change come in, not at once

@@ -11,16 +11,45 @@
  *   held (that note at once)
  *   REC on and the sequencer playing: the selected track's arp notes are live-recorded into its sequence
  * Its notes: riddim.c note_on / note_off as SRC_ARP (their origin: the note), the track's source and ENV, no chord of
- * their own. Audio ISR; the main loop reads the list (the screen, the keys' lights). */
+ * their own. Audio ISR; the main loop reads the list (the screen, the keys' lights).
+ * (RIDDIM, after COQUÍ's Latin lines, the same author) The band's modes, SKANK .. HORNS: a two-bar line in sixteenths
+ * (ARP_LINE) over the chord held, its tones low to high: R the root, 3 the next, 5 the next, 7 the next (a tone missing:
+ * a minor third, a fifth, a minor seventh over the root), C the whole chord at once, O the root an octave up, L an
+ * octave down; '-' ties the note on, '.' rests; and its force (ARP_DYN: X accented, x played, o soft, g a ghost).
+ * RATE is the line's own; OCTAVES the register (1 an octave under what is held: a bass; 2 as held; 3, 4 higher); GATE a
+ * share of each note's length. A new chord takes over at the next note, the rhythm going on; on the sequencer's bars
+ * while it plays. Played as a musician would, never a machine: each note a little late by its instrument (the skank's
+ * chop and the bass laid back, the organ on it, the horns loosest), its force and length a little off, a ghost played 7
+ * times in 10, now and then a ghost chop after the skank's, a soft bass note left out. */
 
-enum { ARP_UP, ARP_DOWN, ARP_UPDN, ARP_RND, ARP_PLAYED, ARP_CHORD, NARPMODE };
+enum { ARP_UP, ARP_DOWN, ARP_UPDN, ARP_RND, ARP_PLAYED, ARP_CHORD, ARP_SKANK, ARP_BUBBLE, ARP_BASS, ARP_STEPBASS,
+       ARP_HORNS, NARPMODE };   /* (RIDDIM: SKANK .. HORNS, the band's lines) */
 #define NARPRATE 9
 #define ARP_N 16u                               /* notes in a track's list at most */
 #define ARP_PN (2u * ARP_N * 4u)                /* a pattern's steps at most (UP-DOWN over 4 octaves) */
 static const uint16_t ARP_RATE_T[NARPRATE] = {384, 192, 96, 48, 24, 12, 64, 32, 16};   /* RATE: ticks a step */
 static const char *const ARP_RATE_NAME[NARPRATE] = {"1/1", "1/2", "1/4", "1/8", "1/16", "1/32", "1/4T", "1/8T", "1/16T"};
-static const char *const ARP_MODE_NAME[NARPMODE] = {"UP", "DOWN", "UP-DOWN", "RANDOM", "AS PLAYED", "CHORD"};
-static const char *const ARP_MODE_SHORT[NARPMODE] = {"UP", "DOWN", "UPDN", "RAND", "PLAYED", "CHORD"};   /* (slabs) */
+static const char *const ARP_MODE_NAME[NARPMODE] = {"UP", "DOWN", "UP-DOWN", "RANDOM", "AS PLAYED", "CHORD", "SKANK",
+                                                    "BUBBLE", "BASS", "STEP BASS", "HORNS"};
+static const char *const ARP_MODE_SHORT[NARPMODE] = {"UP", "DOWN", "UPDN", "RAND", "PLAYED", "CHORD", "SKANK", "BUBBLE",
+                                                     "BASS", "STEPBS", "HORNS"};   /* (slabs) */
+#define ARP_NLINE (NARPMODE - ARP_SKANK)
+static const char *const ARP_LINE[ARP_NLINE] = {   /* |1 . . . 2 . . . 3 . . . 4 . . . |1 . . . 2 . . . 3 . . . 4 . . . | */
+    "....C.......C.......C.......C...",   /* SKANK: the guitar's chop on 2 and 4, the whole chord, short */
+    "..CC..CC..CC..CC..CC..CC..CC..CC",   /* BUBBLE: the organ's "bub-ble": the off-beat eighth and the sixteenth after */
+    "R-----..5.R.3-..R-----..O.5.3.R.",   /* BASS: the one drop's bass: long on 1, room, the fifth with the drop, a walk */
+    "R-..R-..5-..R-..R-..R-..O-..5-3-",   /* STEP BASS: rockers and steppers: the root on the beats, driving */
+    "........................5-3-R---",   /* HORNS: an answer at the end of the phrase, falling to the root */
+};
+static const char *const ARP_DYN[ARP_NLINE] = {
+    "....X.......x.......X.......x...",
+    "..xg..xg..xg..xg..Xg..xg..xg..xg",
+    "X.......x.o.x...X.......x.o.o.x.",
+    "X...x...x...x...X...x...x...o.o.",
+    "........................x.x.X...",
+};
+static const uint8_t ARP_LAG[ARP_NLINE] = {2, 0, 2, 1, 3};   /* a line's notes behind the beat, ticks at most (8 ms each
+                                                 * at 76 BPM): the skank's chop and the bass laid back, the organ on it */
 
 typedef struct {
     uint8_t note[ARP_N], id[ARP_N], root[ARP_N];   /* the list: the notes, where they came from (lat_id), the note
@@ -31,6 +60,9 @@ typedef struct {
     volatile uint32_t pos;                      /* the step to come */
     volatile int32_t last;                      /* the step played last (the screen; -1: none) */
     uint32_t was;                               /* ARP on, as last seen */
+    uint32_t glen;                              /* (RIDDIM: a line's note: its ticks, GATE's share; 0: none) */
+    uint32_t wait;                              /* (RIDDIM: a line's step due, ticks to wait (laid back); 0: none) */
+    uint8_t wstep;                              /* .. its step */
 } arp_t;
 static arp_t arp[NT];
 static volatile int32_t arp_rec = -1;           /* main loop: the track live-recording its arp (REC, playing), or -1 */
@@ -90,12 +122,86 @@ static void arp_clear(uint32_t t)               /* audio: the list emptied (its 
     }
     arp_release(t);
     arp[t].n = 0, arp[t].pos = 0, arp[t].last = -1;
+    arp[t].wait = 0, arp[t].glen = 0;            /* (RIDDIM: a line's late note, its length: gone) */
 }
 static void arp_play(uint32_t t, uint32_t note)
 {
     if (note > 127u) return;
     note_on(t, note, note, SRC_ARP, 0, 0);      /* (no chord of its own) */
     arp[t].on[note >> 5] |= 1u << (note & 31u);
+}
+
+/* (RIDDIM) a band line's tone for degree c over the chord held (b: its notes low to high, n of them), or -1 */
+static int32_t arp_deg(char c, const uint8_t *b, uint32_t n)
+{
+    int32_t r = b[0];
+    switch (c) {
+    case 'R': return r;
+    case '3': return n > 1u ? b[1] : r + 3;
+    case '5': return n > 2u ? b[2] : n > 1u ? b[1] + 4 : r + 7;
+    case '7': return n > 3u ? b[3] : r + 10;
+    case 'O': return r + 12;
+    case 'L': return r - 12;
+    default: return -1;
+    }
+}
+static uint32_t arp_rs = 0x7F4A7C15u;           /* the musician's dice */
+static uint32_t arp_rnd(void) { arp_rs ^= arp_rs << 13, arp_rs ^= arp_rs >> 17, arp_rs ^= arp_rs << 5; return arp_rs; }
+static void arp_line_note(uint32_t t, uint32_t s)   /* audio: a band line's step s sounds (its tone, its force, its length) */
+{
+    arp_t *A = &arp[t];
+    uint32_t mode = (uint32_t)clamp(trk[t].arp_mode, ARP_SKANK, NARPMODE - 1), m = mode - ARP_SKANK;
+    const char *L = ARP_LINE[m];
+    char d = ARP_DYN[m][s % 32u];
+    uint8_t b[ARP_PN];
+    uint32_t n, len, i, r = arp_rnd(), f;
+    int32_t v, sh = (clamp(trk[t].arp_oct, 1, 4) - 2) * 12;
+    if (d == 'g' && (r & 1023u) >= 717u) return;   /* (a ghost: 7 in 10) */
+    if (d == 'o' && mode == ARP_BASS && (r & 1023u) < 100u) return;   /* (a soft bass note left out, now and then) */
+    f = d == 'X' ? 250u : d == 'x' ? 205u : d == 'o' ? 160u : d == 'g' ? 105u : 205u;
+    f = f * (230u + (r >> 10) % 53u) / 256u;     /* (its force: -10 .. +10 %) */
+    n = arp_pattern(t, b, 1u);                  /* (the chord: low to high, each once) */
+    if (!n) return;
+    gen_vel = (uint8_t)(f > 255u ? 255u : f);   /* (the next notes' force: note_on takes it, as GENERATE's) */
+    if (L[s % 32u] == 'C')
+        for (i = 0; i < n && i < 4u; i++) { v = b[i] + sh; if (v >= 0 && v <= 127) arp_play(t, (uint32_t)v); }
+    else if ((v = arp_deg(L[s % 32u], b, n)) >= 0 && (v += sh) >= 0 && v <= 127)
+        arp_play(t, (uint32_t)v);
+    gen_vel = 0;
+    for (len = 1u; len < 32u && L[(s + len) % 32u] == '-'; len++)
+        ;
+    A->glen = len * 24u * (uint32_t)clamp(trk[t].arp_gate, 10, 100) / 100u;
+    A->glen = A->glen * (226u + (r >> 20) % 61u) / 256u, A->since = 0;   /* (its length: -12 .. +12 %) */
+    if (A->glen < 2u) A->glen = 2u;
+}
+static void arp_line_tick(uint32_t t, uint32_t tk)   /* audio: a tick (tk: the line's clock) of a band line */
+{
+    arp_t *A = &arp[t];
+    uint32_t m = (uint32_t)clamp(trk[t].arp_mode, ARP_SKANK, NARPMODE - 1) - ARP_SKANK, s;
+    const char *L = ARP_LINE[m];
+    if (A->glen && ++A->since >= A->glen) arp_release(t), A->glen = 0;   /* (GATE: its end) */
+    if (A->wait && !--A->wait) arp_line_note(t, A->wstep);   /* (a note laid back: now) */
+    if (tk % 24u) return;                       /* (a sixteenth) */
+    s = (tk / 24u) % 32u;
+    if (L[s] == '-') return;                    /* (tied on) */
+    if (A->wait) arp_line_note(t, A->wstep), A->wait = 0;   /* (one still waiting: it goes first) */
+    arp_release(t), A->glen = 0, A->last = (int32_t)s;
+    if (L[s] == '.') {                          /* (a rest; after the skank's chop, now and then a ghost "chk") */
+        if (m == 0u && s > 0u && L[s - 1u] == 'C' && (arp_rnd() & 1023u) < 180u) {
+            gen_vel = 90u;
+            {
+                uint8_t b[ARP_PN];
+                uint32_t n = arp_pattern(t, b, 1u), i;
+                int32_t v, sh = (clamp(trk[t].arp_oct, 1, 4) - 2) * 12;
+                for (i = 0; i < n && i < 4u; i++) { v = b[i] + sh; if (v >= 0 && v <= 127) arp_play(t, (uint32_t)v); }
+            }
+            gen_vel = 0, A->glen = 6u, A->since = 0;
+        }
+        return;
+    }
+    A->wstep = (uint8_t)s;
+    A->wait = ARP_LAG[m] ? arp_rnd() % (ARP_LAG[m] + 1u) : 0u;   /* (laid back, by its instrument) */
+    if (!A->wait) arp_line_note(t, s);
 }
 static void arp_step(uint32_t t)                /* audio: the step due: its note (CHORD: its notes) on */
 {
@@ -124,6 +230,11 @@ static void arp_tick(uint32_t t, int locked)    /* audio: a tick of track t's ar
     uint32_t r, g, due;
     gen_tick(t);                                /* (V2: GENERATE, on the same clock: gen.c) */
     if (!A->n) return;
+    if (clamp(trk[t].arp_mode, 0, NARPMODE - 1) >= ARP_SKANK) {   /* (RIDDIM: a band line, on the bars) */
+        arp_line_tick(t, locked ? seq_ticks - 1u : A->ft);
+        A->ft++;
+        return;
+    }
     r = ARP_RATE_T[clamp(trk[t].arp_rate, 0, NARPRATE - 1)];
     g = r * (uint32_t)clamp(trk[t].arp_gate, 10, 100) / 100u;
     if (++A->since >= (g ? g : 1u)) arp_release(t);   /* GATE: the note's end */

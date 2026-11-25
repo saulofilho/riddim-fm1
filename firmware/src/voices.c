@@ -134,7 +134,16 @@ static inline int32_t amp_at(int32_t amp0, int32_t damp, int32_t i)
 /* the LFO's (lfo.c, the audio ISR a control step): a track's pitch offset (1/16 semitones: VP16, a voice's pitch, every
  * engine's), and a voice's parameters, one of them moved (else the track's own) */
 static volatile int32_t lfo_p16[NT];
-#define VP16(v) ((int32_t)(v)->note * 16 + lfo_p16[(v)->trk % NT] + (vc_gl[(v) - vc] >> 8))   /* (V2: GLIDE's way left) */
+#define VP16(v) ((int32_t)(v)->note * 16 + lfo_p16[(v)->trk % NT] + ((vc_gl[(v) - vc] + vc_det[(v) - vc]) >> 8))   /* (V2: GLIDE's way
+                                                 * left; RIDDIM: the note's own tuning) */
+static int32_t vc_det[NV];                      /* (RIDDIM) a note's own tuning, a little off (1/16 semitones x 256): no two
+                                                 * notes alike, as a played instrument; 0 on WHEEL (tonewheels are exact) */
+static uint32_t vc_drs = 0x1B873593u;
+static void vc_detune(voice_t *v)               /* (RIDDIM) its note's tuning: +-3 cents, at random */
+{
+    vc_drs ^= vc_drs << 13, vc_drs ^= vc_drs >> 17, vc_drs ^= vc_drs << 5;
+    vc_det[v - vc] = v->eng == ENG_WHEEL ? 0 : (int32_t)(vc_drs % 247u) - 123;
+}
 static int32_t vc_gl[NV];                       /* (V2) GLIDE: a voice's pitch still to go (1/16 semitones x 256; 0: there) */
 static int32_t vc_pdl[NV][2];                   /* (V2) PHASE ENV: a voice's DCW, PITCH envelopes now (Q16: 65536 at its
                                                  * note's start, decaying to 0; phase.c) */
@@ -211,6 +220,7 @@ static void voice_begin(voice_t *v)             /* a note from silence */
     v->stage = ST_ATK;
     vc_vel[v - vc] = vc_wvel[v - vc], vc_atk[v - vc] = vc_watk[v - vc];   /* (V2: GENERATE's volume, attack) */
     vc_gl[v - vc] = vc_wgl[v - vc];             /* (V2: GLIDE: from the track's last note) */
+    vc_detune(v);                               /* (RIDDIM: its own tuning) */
     vc_pdl[v - vc][0] = vc_pdl[v - vc][1] = 65536;   /* (V2: PHASE ENV: from the top) */
 }
 
@@ -253,6 +263,7 @@ static int32_t env_tick(voice_t *v)
         } else if (v->want_note == v->note && v->want_trk == v->trk && v->eng == trk[v->trk].eng && v->stage != ST_FADE) {
             v->stage = ST_ATK;                  /* the same note again (same engine): on up from where it is */
             vc_vel[v - vc] = vc_wvel[v - vc], vc_atk[v - vc] = vc_watk[v - vc], vc_gl[v - vc] = vc_wgl[v - vc];
+            vc_detune(v);                       /* (RIDDIM: a retake: its own tuning anew) */
             vc_pdl[v - vc][0] = vc_pdl[v - vc][1] = 65536;
         } else {
             v->stage = ST_FADE;                 /* another note: out first, then begin */

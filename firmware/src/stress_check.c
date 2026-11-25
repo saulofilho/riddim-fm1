@@ -401,7 +401,7 @@ static void stress_names(void)                  /* x_editor: a sound's name (byt
     if (had) memcpy(was, snd_rec(61), SND_SIZE);
     snd_pack(r, t, 2, 7);
     snd_rec_name(r, s);
-    if (strcmp(s, "BELL 07")) stress_fail("x_editor: an unnamed sound not CAT NN", 0);
+    if (strcmp(s, "LEAD 07")) stress_fail("x_editor: an unnamed sound not CAT NN", 0);
     memcpy(r + 50, NM, sizeof NM), st_wr32(r + 60, st_crc(r, 60));
     snd_rec_name(r, s);
     if (strcmp(s, "AB CD")) stress_fail("x_editor: a named sound's name not shown (or not as the font has it)", 0);

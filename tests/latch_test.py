@@ -18,6 +18,8 @@ EXE = sys.argv[1] if len(sys.argv) > 1 else "build/host/riddim"
 OUT = Path("build/host/latch")
 OUT.mkdir(parents=True, exist_ok=True)
 ENG_FM, ENG_DRUM, ENG_PHYS = 1, 3, 5
+LINES = {2, 3, 5, 18, 19, 21, 24, 27}            # (RIDDIM: the sounds that bring a band line: their ARP on, the keys
+                                                # feed it; tests/band_test.py)
 C4, E4, G4, A3, D4 = 0x80, 0x800, 0x4000, 0x10, 0x200
 bad = 0
 
@@ -65,7 +67,7 @@ NAME = {0: "FROM SOUND", 1: "ALWAYS OFF"}
 n_ok = n_drum = 0
 for k in range(1, 45):
     eng = run("eng", [(300, f"enc 6 {k}"), (500, "probe")], 600, ENV[0])[500]["eng"]
-    if eng == ENG_DRUM:                         # (RIDDIM: a DRUM kit: hits, nothing held to latch)
+    if eng == ENG_DRUM or k in LINES:           # (RIDDIM: a DRUM kit: hits; a band line: the ARP's; nothing held to latch)
         n_drum += 1
         continue
     edit = [(700 + 100 * i, "btn 6") for i in range(4 if eng == ENG_FM else 2)]   # (FM: FM ALGO, FM OP before SOURCE)
@@ -85,8 +87,8 @@ for k in range(1, 45):
               (bool(p[4500]["notes"]) == bool(nxt)))
         n_ok += bool(ok)
         check(f"{NAME[s]}, sound {k}", ok, {t: (p[t]["latch"], p[t]["notes"]) for t in sorted(p)}, quiet=True)
-check(f"the 35 factory sounds with voices (the nine DRUM kits: hits), both settings: loaded as set; EDIT's LATCH and "
-      f"SEL + OCT+ latch and let go ({n_ok}/70)", n_ok == 70 and n_drum == 9)
+check(f"the 27 factory sounds that hold notes (the nine DRUM kits: hits; the eight band lines: the ARP's), both settings: "
+      f"loaded as set; EDIT's LATCH and SEL + OCT+ latch and let go ({n_ok}/54)", n_ok == 54 and n_drum == 17)
 
 # slots A..D and the project keep their tracks' LATCH (SYSTEM 3 acts on a sound's load only)
 for s in (0, 1):
@@ -106,7 +108,7 @@ for s in (0, 1):
 
 # PHYS: three keys latched, two let go again (their release tails), two more: the third stays (a release's voice taken)
 for k in range(1, 45):
-    if run("eng", [(300, f"enc 6 {k}"), (500, "probe")], 600, ENV[0])[500]["eng"] != ENG_PHYS:
+    if k in LINES or run("eng", [(300, f"enc 6 {k}"), (500, "probe")], 600, ENV[0])[500]["eng"] != ENG_PHYS:
         continue
     ev = [(300, f"enc 6 {k}"), (700, "btn 6"), (800, "btn 6"), (1200, "enc 3 1")]
     t = 1500

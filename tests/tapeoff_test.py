@@ -1,10 +1,10 @@
 """GR!MM V2: TAPE off is TAPE off (host mode, firmware/src/host.c). With TAPE's four knobs at 0 and every TAPE tile at 0, the
 24-bit output (GRIMM_RAW_OUT) must be to the bit what GR!MM V2.0 RC made (tails3, tails4 alike; the reference:
 tests/data/tapeoff.sha256), for a set that sounds most of it:
-  T1 MONK DRONE (a pad, chords), T2 ROCKSTEADY KIT (DRUM), T3 a SAMPLE track (slot 1, chords and single keys, the DLY,
+  T1 SUB BASS (chords), T2 ROCKSTEADY KIT (DRUM), T3 a SAMPLE track (slot 1, chords and single keys, the DLY,
   REV and GRAIN sends up: DELAY, SPACE, GRAIN on), T4 ONE DROP KIT (DRUM) with GENERATE on (STORM), MASTER at 1022.
 (RIDDIM: the reference made again for DRUM, where GR!MM's choirs were; and again when DRUM's hits became natural:
-each a little different, the force in the sound.)
+each a little different, the force in the sound; and again for the roots sounds and every note a little off tune.)
 And (V2: TAPE a track's own) the same with TAPE's four knobs all up, every tile still 0.
 A change meant to change this sound must make a new reference on purpose (--make), saying so in its commit.
   python3 tests/tapeoff_test.py BIN                 the check against the reference
@@ -26,7 +26,7 @@ def fx_key(t, bit):                             # FX held, a key tapped, FX let 
     return [(t, "down 2"), (t + 20, f"keys {1 << bit:#x}"), (t + 40, "keys 0"), (t + 60, "up 2")]
 
 
-EV = [(300, "enc 6 1"),                                                   # T1: MONK DRONE (a pad)
+EV = [(300, "enc 6 1"),                                                   # T1: SUB BASS (RIDDIM: where GR!MM's MONK DRONE was)
       (400, "enc 1 1"), (500, "enc 6 36"),                                # T2: ROCKSTEADY KIT (DRUM)
       (600, "enc 1 1"), (700, "btn 6"), (750, "btn 6"), (800, "enc 2 2"), (850, "btn 8"),   # T3: SOURCE -> SAMPLE
       (900, "btn 8"), (950, "enc 0 1"), (1000, "enc 2 80"), (1050, "enc 0 1"), (1100, "enc 2 90"),   # its DLY, REV,
@@ -62,7 +62,7 @@ if len(sys.argv) > 2:
     sys.exit(1)
 ok = hashlib.sha256(a).hexdigest() == REF.read_text().split()[0]
 print(f"  {'ok  ' if ok else 'FAIL'}  tapeoff: TAPE off, every TAPE tile 0: the output to the bit as the reference "
-      f"(a pad, two DRUM kits, a SAMPLE track, GENERATE, DELAY, SPACE, GRAIN; {len(a) // 8} frames)")
+      f"(a bass, two DRUM kits, a SAMPLE track, GENERATE, DELAY, SPACE, GRAIN; {len(a) // 8} frames)")
 # (V2: TAPE a track's own) TAPE's four knobs all the way up (FX: TAPE, before the rest), every tile still 0: the same
 EV += [(100, "btn 2")] + [(120 + 20 * k, f"enc {2 + k} 127") for k in range(4)] + [(220, "btn 6"), (240, "btn 8")]
 k = hashlib.sha256(render(BIN, "knobs")).hexdigest() == REF.read_text().split()[0]

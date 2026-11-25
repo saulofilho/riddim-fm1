@@ -73,3 +73,6 @@ cc -O2 -Wall -Wno-unused-function -Ifirmware/src -Ifirmware/gen -o build/host/dr
 build/host/drum_test build/host/drum_keys.wav | tail -2
 # RIDDIM: a DRUM track's GROOVE saved with the project and loaded again (tests/groove_save_test.py)
 python3 tests/groove_save_test.py build/host/riddim
+# RIDDIM: the band's lines (SKANK, BUBBLE, BASS, STEP BASS, HORNS) over a chord: their tones, steps, register, a musician's
+# timing and lengths; a sound without a line switches it off (tests/band_test.py)
+python3 tests/band_test.py build/host/riddim
