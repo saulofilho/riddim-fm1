@@ -276,6 +276,32 @@ podem ser robóticos". Nada testado no FM-1.)
 - Falta na Fase 3: ouvir no FM-1 e ajustar de ouvido (o atraso de cada peça, as chances de ghost); a CPU com GROOVE em
   quatro trilhas.
 
+**2026-11-25: Fase 4, a banda.** (Nada testado no FM-1.)
+
+- **Linhas da banda** (`arp.c`, depois do CHORD no MODE do ARP, do motor de linhas do COQUÍ): SKANK (o acorde inteiro
+  no 2 e no 4, curto), BUBBLE (o "bub-ble" do órgão), BASS (o do one drop, com espaço), STEP BASS (nos tempos), HORNS
+  (resposta no fim da frase). Dois compassos sobre o acorde segurado (graus R 3 5 7 O L e C, o acorde inteiro) e uma
+  faixa de dinâmica (X x o g). **Tocadas como músicos:** cada nota atrás do tempo pelo instrumento (skank e baixo até
+  2 ticks, órgão em cima, metais até 3), força ±10 %, duração ±12 %, ghost 7 em 10, de vez em quando um "chk" fantasma
+  depois do skank, uma nota fraca do baixo deixada de fora. Página do ARP desenha a linha (altura = grau, brilho =
+  força).
+- **Cada nota com a sua afinação** (`voices.c`, `vc_det`): ±3 cents ao começar, em toda fonte menos o WHEEL (tonewheel é
+  exato). Junto com a força pelo MIDI/linhas, nenhuma nota igual.
+- **35 sons roots** nos lugares dos do GR!MM (posições e fontes mantidas onde os testes dependem): BASS (SUB, STEPPER,
+  DUB, ORGAN, ROUND, FM), PAD, LEAD (MELODICA, VIBES, MARIMBA, FLUTE, KALIMBA, HORN LINE), ORGAN (BUBBLE, ROCK), KEYS
+  (SKANK PIANO, UPRIGHT, CLAV, SKANK GUITAR, LEAD SYNTH, SYNTH STAB, FM GUITAR, NYLON, E PIANO), FX (DUB SIREN), SECTION
+  (STRING SECTION, SYNTH BRASS, HORNS, LOW STRINGS, SYNTH STRINGS). Oito trazem a sua linha (o ARP liga no modo, no
+  registro e no GATE dele: FSNDL); outro som de fábrica desliga uma linha. Quatro patches FM do COQUÍ (BRASS, PIANO,
+  GUITAR, BASS).
+- Testes: `tests/band_test.py` (os graus, os passos, o registro, o atraso variado, durações diferentes, a linha
+  desligada por outro som); latch, quick, fx (janela do clique de 5 para 1 ms: as notas levemente desafinadas batem
+  devagar e a janela de 5 ms pegava a subida da rampa; conferido que é rampa, não clique), level (ORGAN BASS mais
+  leve), tapeoff refeito de propósito; host 15 suítes + stress 2 sementes + nomes + web 100 passam. Build 481372 B.
+- Site: a seção **A banda** (bateria GROOVE + ROUND BASS + SKANK GUITAR + BUBBLE ORGAN, lá menor → sol, 8 compassos,
+  gravada do firmware), também o DEMO da visão ao vivo; a tela do ARP com a linha.
+- Falta na Fase 4: ouvir no FM-1; CPU com a banda inteira (4 trilhas, 6 vozes, bateria); ajustar timbres de ouvido
+  (sobretudo SKANK GUITAR em PHYS e DUB SIREN).
+
 Orçamento da base, igual ao medido no COQUÍ em 2026-11-05:
 
 | Recurso | Usado | Limite | Livre |

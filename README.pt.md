@@ -5,8 +5,8 @@ banda inteira sintetizada no FM-1 (bateria, baixo de sub, skank, bubble de órg�
 dub para "versionar" a música enquanto ela toca.
 
 > **Versão 0.1, em desenvolvimento.** Sem release, fora do FM-1 Firmware Hub e **ainda não testada num FM-1**. Hoje o
-> RIDDIM tem a bateria (o kit DRUM e o GROOVE, um baterista que toca estilos roots sozinho); as linhas da banda e a mesa
-> de dub estão planejadas, não feitas (ver [O plano](#o-plano)). Firmware não oficial, não feito nem endossado pela M-VAVE.
+> RIDDIM tem a banda (o kit DRUM, o baterista do GROOVE, as linhas sobre o acorde que você segura, 35 sons roots); a
+> mesa de dub está planejada, não feita (ver [O plano](#o-plano)). Firmware não oficial, não feito nem endossado pela M-VAVE.
 
 **[O site do RIDDIM](https://saulofilho.github.io/riddim-fm1/)** · **[Ouça os kits](https://saulofilho.github.io/riddim-fm1/#listen)** · **[Toque no navegador](https://saulofilho.github.io/riddim-fm1/emu/)** (o firmware de
 verdade, sem precisar de FM-1) · **[O editor](https://saulofilho.github.io/riddim-fm1/emu/editor.html)** · **[A visão ao vivo](https://saulofilho.github.io/riddim-fm1/emu/live.html)** (seu
@@ -40,6 +40,15 @@ FM-1 desenhado enquanto toca) · **[Guia de primeiros passos (PDF)](docs/riddim-
   duas viradas. PARTS divide o estilo entre trilhas (DRUMS, HATS, EXTRAS), FILL a cada 2, 4 ou 8 compassos, FEEL o
   swing. Toca como um baterista: o cross-stick atrás do tempo, ghost notes que vêm e vão, a força de cada golpe um pouco
   diferente. Cada kit de fábrica traz o seu estilo: carregue e aperte PLAY. Salvo com o som e com o projeto.
+- **As linhas da banda** (ARP, depois do CHORD): sobre o acorde que você segura, dois compassos cada: SKANK (o corte
+  no 2 e no 4), BUBBLE (o "bub-ble" do órgão), BASS (o do one drop, com espaço), STEP BASS (nos tempos), HORNS (uma
+  resposta no fim da frase). Tocadas como músicos: cada nota atrás do tempo pelo seu instrumento, força e duração um
+  pouco diferentes, ghosts que vêm e vão. Os sons que trazem uma linha ligam o ARP ao carregar: segure um acorde, a
+  banda toca.
+- **35 sons roots** (todos do RIDDIM, em oito categorias): SUB, ROUND, DUB e STEPPER BASS, MELODICA, VIBES, MARIMBA,
+  HORN LINE, BUBBLE e ROCK ORGAN, SKANK PIANO, UPRIGHT PIANO, CLAV, SKANK, FM e NYLON GUITAR, HORNS, DUB SIREN e
+  outros; quatro patches FM novos (BRASS, PIANO, GUITAR, BASS). Cada nota um pouco fora da afinação por si (como um
+  instrumento tocado; não o órgão de tonewheel).
 - **O emulador web, o editor e a visão ao vivo** (`web/`): o mesmo firmware compilado para WebAssembly; a visão ao
   vivo desenha um FM-1 enquanto ele toca pelo USB (notas, clock, som e knobs), com um DEMO que não precisa de FM-1.
 - **O site** (`site/`, GitHub Pages): os nove kits gravados do firmware com as batidas desenhadas, as 27 teclas para
@@ -54,10 +63,6 @@ FM-1 desenhado enquanto toca) · **[Guia de primeiros passos (PDF)](docs/riddim-
 O [PLAN.md](PLAN.md) tem o roteiro inteiro e o andamento; o mood board está em
 [docs/moodboard/](docs/moodboard/index.html). Em resumo:
 
-- **Sons reais** (a bateria já está assim na 0.1): os sons da banda tão naturais quanto a bateria, nunca duas notas
-  iguais.
-- **A banda:** linhas sobre o acorde que você segura: SKANK (o corte no 2 e no 4), BUBBLE (o órgão), BASS (raiz,
-  quinta, oitava e passagem, com espaço para respirar), HORNS.
 - **Dub:** reverb de mola, eco de fita que chega à auto-oscilação, varredura de filtro, THROW (a trilha vai para o
   eco enquanto você segura), mutes que entram no compasso e VERSION, que mixa o dub sozinho.
 - **Nada copiado:** todo som sintetizado, nenhum sample de disco, nenhum riddim famoso transcrito. Estilos e linhas

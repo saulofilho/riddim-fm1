@@ -4,8 +4,9 @@ Version 0.1 · for the M-VAVE FM-1 · [First steps (PDF)](docs/riddim-first-guid
 
 ![RIDDIM's HOME: the sound system, a box a track](docs/screens/home.png)
 
-RIDDIM 0.1 is in development: the drums are here (the DRUM source, nine kits, and GROOVE, the styles they play by
-themselves); the band's lines (skank, bubble, bass) and the dub desk are the next versions ([PLAN.md](PLAN.md)). This
+RIDDIM 0.1 is in development: the drums (the DRUM source, nine kits, and GROOVE, the styles they play by themselves)
+and the band (its lines over the chord you hold, and 35 roots sounds) are here; the dub desk is the next version
+([PLAN.md](PLAN.md)). This
 manual covers what 0.1 does, and grows with it.
 
 ---
@@ -122,7 +123,7 @@ Press **HOME** again for the mixer pages:
 | Source | KNOB 1 | KNOB 2 | KNOB 3 | KNOB 4 | What it is |
 |---|---|---|---|---|---|
 | **VA** | WAVE | DETUNE | CUTOFF | RESONANCE | Analog-style: saw, square, supersaw. The sub bass, the skank's chop |
-| **FM** | PATCH | BRIGHT | DECAY | DETUNE | 6-operator FM; PATCH loads a starting point (BELL, ORGAN, SOFT PAD, REED) |
+| **FM** | PATCH | BRIGHT | DECAY | DETUNE | 6-operator FM; PATCH loads a starting point (BELL, ORGAN, SOFT PAD, REED, BRASS, PIANO, GUITAR, BASS) |
 | **SAMPLE** | SLOT | START | LENGTH | REVERSE | A sample slot (1–4) played as a loop; the key sets the speed, like tape |
 | **DRUM** | KIT | TUNE | DECAY | HUMAN | The roots kit: [below](#drum-the-roots-kit) |
 | **WHEEL** | DRAWBARS | PERC | CLICK | DRIVE | Tonewheel organ with rotary speaker: the bubble's organ |
@@ -297,7 +298,7 @@ voices; close voicings leave the most room.
 
 ---
 
-## 6. Arpeggiator: ARP
+## 6. Arpeggiator and the band's lines: ARP
 
 **ARP** opens the page; **hold ARP** to switch it on or off for the selected track.
 
@@ -307,10 +308,37 @@ voices; close voicings leave the most room.
 |---|---|---|---|
 | MODE | RATE | OCTAVES (1–4) | GATE |
 
-- **Modes:** UP, DOWN, UP-DOWN, RANDOM, AS PLAYED, CHORD. **Rates:** 1/1 to 1/32, plus triplets.
+- **Modes:** UP, DOWN, UP-DOWN, RANDOM, AS PLAYED, CHORD, and the band's lines: SKANK, BUBBLE, BASS, STEP BASS,
+  HORNS (below). **Rates:** 1/1 to 1/32, plus triplets.
 - It plays the keys you hold (with chord mode: whole chords); with **LATCH ON** it keeps running after you let go. It
   follows the sequencer's clock when playing, otherwise the tempo. Mode CHORD at 1/8 with a short GATE is a quick
   organ bubble.
+
+### The band's lines
+
+![The ARP page with the SKANK line over a chord](docs/screens/arp-line.png)
+
+Turn MODE past CHORD and the ARP plays a part of the band over the chord you hold (one key is enough: with chord mode on,
+it is the whole chord), two bars long, on the sequencer's bars while it plays:
+
+| MODE | What it plays |
+|---|---|
+| SKANK | The guitar's or the piano's chop on 2 and 4: the whole chord, short, laid back, now and then a ghost "chk" after it |
+| BUBBLE | The organ's "bub-ble": the chord on the off-beat eighth and the sixteenth after, on the beat |
+| BASS | The one drop's bass: long on 1, room, the fifth with the drop, a walk back to the root |
+| STEP BASS | Rockers and steppers: the root on the beats, driving |
+| HORNS | An answer at the end of the phrase, falling from the fifth to the root |
+
+- **OCTAVES** is the register: 1 an octave under the chord held (a bass), 2 as held, 3 and 4 higher. **GATE** is how
+  much of each note sounds: short for the skank, long for the bass. RATE is the line's own.
+- **Played like a musician:** each note lands a little behind the beat by its instrument (the skank and the bass laid
+  back, the organ on it, the horns loosest), its force and length a little off, the line's own accents and ghosts. With
+  every note a little off tune on its own (all sources but the tonewheel organ), nothing plays twice the same.
+- **The factory sounds bring their line:** STEPPER BASS, DUB BASS, ROUND BASS (BASS lines, an octave under), HORN LINE,
+  BUBBLE ORGAN, SKANK PIANO, SKANK GUITAR, FM GUITAR switch the ARP on in their mode, register and GATE when you load
+  them: hold a chord and the band plays. Any other factory sound switches a line off.
+- **A band in four tracks:** T1 a DRUM kit (its GROOVE), T2 ROUND BASS, T3 SKANK GUITAR, T4 BUBBLE ORGAN; hold the same
+  chord on T2–T4 (or send it on MIDI channels 2–4) and press PLAY.
 
 ---
 
@@ -480,18 +508,18 @@ Turn **PRESETS** to step through them by category, then your own.
 
 | Category | Sounds |
 |---|---|
-| DRONE | Monk Drone, Abyss, Iron Lung, Tomb Hum, Sub Drone, Deep Well |
-| PAD | Crypt Pad, Ash Veil, Frozen Hall, Last Light, Moss, Black Velvet |
-| BELL | Iron Bell, Funeral Chime, Rust Gong, Glass Harp, Bowed Bell, Shrine |
-| ORGAN | Funeral Organ, Chapel |
-| KEYS | Dead Harpsichord, Music Box, Cathedral Keys, Bone Piano, Wraith, Lantern, Spider Pluck, Lute, Candle |
-| TEXTURE | Sea Breeze |
+| BASS | Sub Bass, Stepper Bass (line), Dub Bass (line), Organ Bass, Round Bass (line), FM Bass |
+| PAD | String Pad, Warm Pad, FM Pad, Phase Pad, Dub Haze, Soft Strings |
+| LEAD | Melodica, Vibes, Marimba, Flute, Kalimba, Horn Line (line) |
+| ORGAN | Bubble Organ (line), Rock Organ |
+| KEYS | Skank Piano (line), Upright Piano, Clav, Skank Guitar (line), Lead Synth, Synth Stab, FM Guitar (line), Nylon Guitar, E Piano |
+| FX | Dub Siren |
 | DRUMS | One Drop Kit, Rockers Kit, Steppers Kit, Dub Kit, Rub-a-Dub Kit, Rocksteady Kit, Deep Roots Kit, Tight Kit, Boomy Kit |
-| OTHER | Haunted Strings, Dungeon Brass, War Horn, Cello Grave, Sorrow Strings |
+| SECTION | String Section, Synth Brass, Horns, Low Strings, Synth Strings |
 
-The nine DRUM kits are RIDDIM's own (PRESETS 31–39); the other sounds come from the engine RIDDIM grew from and are
-replaced by roots sounds (sub bass, skank guitar, bubble organ, melodica, horns) in a later version. Factory sounds
-never switch chord mode on when you load them; WAR HORN keeps a FIFTH chord for when you do.
+All of them RIDDIM's, written for it (no factory data of any instrument). "(line)": the sound brings its band line (the
+ARP on). Factory sounds never switch chord mode on when you load them; HORNS keeps a FIFTH chord for when you do. DUB
+SIREN holds its note (LATCH on): its LFO sweeps the pitch.
 
 **Listen** to the nine kits, and play the 27 keys, on [the RIDDIM site](https://saulofilho.github.io/riddim-fm1/#listen).
 
