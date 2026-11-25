@@ -193,6 +193,35 @@ para trocar).
   READMEs), `docs/` (BUILDING, API, RULES, EDITOR_PROTOCOL, ui-concept, as telas antigas e `docs/card.png`), os sons e
   samples de fábrica.
 
+**2026-11-25: Fase 0 fechada e Fase 2 (bateria).** (Nada testado no FM-1.)
+
+- **Stress test** (Fase 0): passa com as sementes 1 e 7. O `tests/device_names.py` precisa do toolchain JieLi (binário
+  x86-64): roda num contêiner amd64 com `~/.jieli/toolchain` montado; o resto do stress no contêiner arm64. Cuidado:
+  baixar a imagem amd64 troca a tag local `python:3.12-bookworm`; voltar com
+  `docker pull --platform linux/arm64 python:3.12-bookworm`.
+- **DRUM** (`firmware/src/drum.c`), no lugar da fonte VOICE do GR!MM (como o COQUÍ fez com a PERC, de onde vem o motor):
+  20 tambores sintetizados (tom + ruído filtrado, cada um com seu decaimento), 27 teclas de F3 a G5, grupos de corte
+  (os chimbais cortam um ao outro), 10 golpes próprios que não usam as 6 vozes, truques: shaker com ataque suave, mola
+  com "chacoalho" de 20 batidas por segundo e um "boing" que cai. Knobs KIT (STUDIO, YARD, DUB, STEPPERS), TUNE,
+  DECAY, HUMAN. Página com o desenho do kit, a peça tocada acesa.
+- Saíram `formant.c`, as wavetables de coro (`riddim_choir.h`, VocalSet) e `tools/gen_choir.py`; o crédito do VocalSet
+  saiu das páginas web. O editor web não tem mais VOICE TYPE.
+- Sons de fábrica: os 9 da categoria VOICE viraram **9 kits DRUM** (categoria DRUMS): ONE DROP, ROCKERS, STEPPERS,
+  DUB, RUB-A-DUB, ROCKSTEADY, DEEP ROOTS, TIGHT, BOOMY. STATIC PRAYER virou SUB DRONE (VA) e WIND THRU STONE virou SEA
+  BREEZE (VA). Mesmas posições no PRESETS (os testes escolhem sons pelo número). WAR HORN guarda FIFTH OPEN para o modo
+  acorde (o chord_test precisava de um som com LATCH desligado e acorde guardado, como o GREGORIAN).
+- Achado e corrigido: um decaimento longo (o CRASH) parava logo acima do fim e soava para sempre; o teste do COQUÍ não
+  pegava (limite de 3 s igual ao do render). Agora todo decaimento desce ao menos 1 por passo, e o teste pede < 2,5 s.
+  **O COQUÍ tem o mesmo defeito nos sons longos (`perc.c`): vale levar a correção para lá.**
+- Testes: `tests/drum_test.c` (cada tecla em cada kit: abaixo do fundo de escala, ouvida, acaba; chimbais em grupo;
+  custo: ~6 us por bloco no computador com 10 golpes). fx, latch, gen, chord, level, tapeoff e o web test atualizados
+  para DRUM onde estavam os coros; **a referência do tapeoff foi refeita de propósito** (`--make`): dizer no commit.
+- Resultado: host passa (16 suítes), web 100 checagens, stress 2 sementes. Build: **473404 B** (eram 503216: −30 KB
+  dos coros), RAM 85976 B, ~108 KB livres de código para a banda e o dub.
+- Para ouvir: `build/onedrop.wav` (roteiro `build/onedrop.txt`, gerado à parte) e `build/host/drum_keys.wav`.
+- Falta na Fase 2: medir a CPU no FM-1 (`tools/fm1_cpu.py`) com 10 golpes e as 6 vozes; ouvir no alto-falante do
+  aparelho; ajustar os ganhos de ouvido.
+
 Orçamento da base, igual ao medido no COQUÍ em 2026-11-05:
 
 | Recurso | Usado | Limite | Livre |
